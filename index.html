@@ -732,7 +732,7 @@ async function submitHero() {
 
   // Send to Formspree — replace YOUR_FORM_ID with your actual Formspree form ID
   try {
-    await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+    await fetch('https://formspree.io/f/maqzdven', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({ name, email, business: biz, website: url, source: 'Free Audit Request' })
@@ -750,7 +750,7 @@ async function submitFinal() {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Please enter a valid email.'); return; }
 
   try {
-    await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+    await fetch('https://formspree.io/f/maqzdven', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({ email, source: 'Footer CTA' })
