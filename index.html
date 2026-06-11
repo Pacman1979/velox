@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Velox — Are You Losing Customers Online Without Knowing It?</title>
+<title>Studio Velox — Are You Losing Customers Online Without Knowing It?</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Lato:wght@300;400;700&family=Oswald:wght@500;600&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -69,7 +69,7 @@ nav {
   background: linear-gradient(135deg, transparent, rgba(232,160,32,0.07));
   pointer-events: none;
 }
-.hero-inner { display: grid; grid-template-columns: 1fr 420px; gap: 60px; align-items: center; }
+.hero-inner { display: grid; grid-template-columns: 1fr 420px; gap: 60px; align-items: start; }
 .eyebrow {
   font-family: var(--font-accent); font-size: 12px; letter-spacing: 0.2em;
   text-transform: uppercase; color: var(--gold); margin-bottom: 20px;
@@ -403,15 +403,15 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
 
 <!-- ANNOUNCE BAR -->
 <div class="announce">
-  ⚡ <strong>LIMITED SPOTS:</strong> Only taking 5 new Gold Coast clients this month — <strong>claim your free audit before they're gone</strong>
+  🚨 <strong>EOFY ALERT:</strong> Get your new site live before 30 June & your accountant may claim it as a <strong>$20,000 ATO instant asset write-off</strong> — we build in 14 days, so the window is tight but doable. <strong>Claim your free audit now →</strong>
 </div>
 
 <!-- NAV -->
 <nav>
   <div class="container nav-inner">
-    <div class="logo">VELOX<span>.</span></div>
-    <div class="nav-phone">📞 Free Audit: <a href="tel:1800000000" style="color:inherit">1800 000 000</a></div>
-    <button class="btn-gold nav-btn" onclick="scrollTo('audit-form')">Get My Free Audit →</button>
+    <div class="logo">STUDIO VELOX<span>.</span></div>
+    <div class="nav-phone">📞 <a href="tel:0422777865" style="color:inherit">0422 777 865</a></div>
+    <button class="btn-gold nav-btn" onclick="goToAudit()">Get My Free Audit →</button>
   </div>
 </nav>
 
@@ -440,8 +440,8 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
           <div><div class="stat-num">24/7</div><div class="stat-lbl">AI works for you</div></div>
         </div>
         <div class="cta-row anim d4">
-          <button class="btn-gold" onclick="scrollTo('audit-form')">Get My Free Website Audit →</button>
-          <button class="btn-outline" onclick="scrollTo('how')">See How It Works</button>
+          <button class="btn-gold" onclick="goToAudit()">Get My Free Website Audit →</button>
+          <button class="btn-outline" onclick="goToProcess()">See How It Works</button>
         </div>
         <div class="hero-guarantee anim d4">100% free. No obligation. Results in 24 hours.</div>
       </div>
@@ -481,6 +481,18 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
     <div class="proof-item">🤖 AI Automation Included</div>
   </div>
 </div>
+
+<!-- VELOX DEFINITION — compact banner -->
+<section class="velox-definition">
+  <div class="velox-def-inner">
+    <div class="velox-def-word">VELOX<span>.</span></div>
+    <div class="velox-def-phonetic">(vel · ox)</div>
+    <div class="velox-def-line"></div>
+    <div class="velox-def-pos">Latin &nbsp;·&nbsp; adjective</div>
+    <div class="velox-def-meaning">"Swift. Fast. Moving with purpose."</div>
+    <div class="velox-def-sub">The root of <em>velocity</em>. The heart of Studio Velox.</div>
+  </div>
+</section>
 
 <!-- ══ PAIN ══ JD: Agitate the wound deeper -->
 <section class="pain-section">
@@ -529,12 +541,12 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
       <!-- JD POINT 4: Welcome video placeholder -->
       <div class="video-ph anim" onclick="alert('Replace this with your welcome video embed!')">
         <div class="play-btn">▶</div>
-        <div class="vid-label">Watch: How Velox Works (2 mins)</div>
+        <div class="vid-label">Watch: How Studio Velox Works (2 mins)</div>
       </div>
       <div>
-        <div class="sec-label anim">Meet the Velox Team</div>
+        <div class="sec-label anim">Meet the Studio Velox Team</div>
         <h2 class="sec-title anim">We Fix the Exact Things That Are <em>Costing You Leads Right Now</em></h2>
-        <p class="body-copy anim">Hi — we're Velox. A Gold Coast AI automation and web design agency with one obsession: turning local business websites into 24/7 lead-generating machines.</p>
+        <p class="body-copy anim">Hi — we're Studio Velox. A Gold Coast AI automation and web design agency with one obsession: turning local business websites into 24/7 lead-generating machines.</p>
         <p class="body-copy anim">We use a proven 8-point framework — the same system used across 27,000 Australian businesses — to find every place your site is losing customers, then fix every single one.</p>
         <ul class="check-list anim">
           <li>New website or full redesign — live in 14 days</li>
@@ -543,7 +555,7 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
           <li>Google Review campaigns that run on autopilot</li>
           <li>SEO that puts you above your competitors on Google</li>
         </ul>
-        <button class="btn-gold anim" onclick="scrollTo('audit-form')">Get My Free Audit First →</button>
+        <button class="btn-gold anim" onclick="goToAudit()">Get My Free Audit First →</button>
       </div>
     </div>
   </div>
@@ -567,10 +579,10 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
 </section>
 
 <!-- PROCESS -->
-<section class="process">
+<section class="process" id="process">
   <div class="container">
     <div class="sec-label" style="color:var(--gold)">Simple 4-step process</div>
-    <h2 class="sec-title anim">From Free Audit to Live & <em>Generating Leads in Under 3 Weeks</em></h2>
+    <h2 class="sec-title anim">From Free Audit to Live & <em>Generating Leads in Under 2 Weeks</em></h2>
     <div class="steps">
       <div class="step-item anim"><div class="step-circle">1</div><div class="step-title">Free Audit</div><div class="step-desc">We score your site against our 8-point framework and show you exactly what we'd fix. Zero cost. Zero obligation.</div></div>
       <div class="step-item anim d1"><div class="step-circle">2</div><div class="step-title">Custom Plan</div><div class="step-desc">We map out exactly what to build — which automations, what to redesign, and what results to target.</div></div>
@@ -588,13 +600,13 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
     <div class="testi-grid">
       <div class="testi-card anim">
         <div class="stars">★★★★★</div>
-        <div class="testi-quote">"Before Velox I relied entirely on word of mouth with no idea how many people were finding me and leaving. After they rebuilt my site and set up the AI follow-ups, I picked up 6 new regular clients in the first month alone."</div>
+        <div class="testi-quote">"Before Studio Velox I relied entirely on word of mouth with no idea how many people were finding me and leaving. After they rebuilt my site and set up the AI follow-ups, I picked up 6 new regular clients in the first month alone."</div>
         <div class="testi-result">📈 Result: 6 new clients in Month 1</div>
         <div class="testi-author"><div class="testi-avatar">MK</div><div><div class="testi-name">Mike K.</div><div class="testi-biz">Painter — Labrador, Gold Coast</div></div></div>
       </div>
       <div class="testi-card anim d1">
         <div class="stars">★★★★★</div>
-        <div class="testi-quote">"I was embarrassed to send anyone to my old website. Velox rebuilt it in two weeks and suddenly I looked as professional as the big players. The Google Review system alone changed everything — 11 reviews to 84 in 8 weeks."</div>
+        <div class="testi-quote">"I was embarrassed to send anyone to my old website. Studio Velox rebuilt it in two weeks and suddenly I looked as professional as the big players. The Google Review system alone changed everything — 11 reviews to 84 in 8 weeks."</div>
         <div class="testi-result">⭐ Result: 11 reviews → 84 in 8 weeks</div>
         <div class="testi-author"><div class="testi-avatar">SL</div><div><div class="testi-name">Sarah L.</div><div class="testi-biz">Beauty Salon — Burleigh Heads</div></div></div>
       </div>
@@ -616,19 +628,19 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
   <div class="container">
     <div class="trust-grid">
       <div>
-        <div class="sec-label">Why Velox</div>
+        <div class="sec-label">Why Studio Velox</div>
         <h2 class="sec-title" style="margin-bottom:28px;">5 Reasons Gold Coast Businesses <em>Choose Us Over the Rest</em></h2>
         <ul class="trust-list anim">
           <li class="trust-item"><div class="trust-num">01</div><div><div class="trust-ttl">We're Gold Coast locals — we know your market</div><div class="trust-dsc">Not an offshore agency or a faceless corporation. We're based here, we know the local market, and we're available when you need us.</div></div></li>
           <li class="trust-item"><div class="trust-num">02</div><div><div class="trust-ttl">We build to a proven conversion framework — not just looks</div><div class="trust-dsc">Our 8-point homepage formula has been proven across 27,000+ Australian businesses. Pretty sites don't pay bills — sites built to convert do.</div></div></li>
-          <li class="trust-item"><div class="trust-num">03</div><div><div class="trust-ttl">Live in 14 days — not 14 weeks</div><div class="trust-dsc">Other agencies drag projects on for months. We have a streamlined system that gets you live and generating leads in under two weeks.</div></div></li>
+          <li class="trust-item"><div class="trust-num">03</div><div><div class="trust-ttl">Live in 14 days — not 14 weeks</div><div class="trust-dsc">Other agencies drag projects on for months. We have a streamlined system that gets you live and generating leads in 14 days flat.</div></div></li>
           <li class="trust-item"><div class="trust-num">04</div><div><div class="trust-ttl">AI automation is included — not a costly add-on</div><div class="trust-dsc">Every build includes AI systems as standard. You're not getting a website — you're getting a 24/7 sales and follow-up machine.</div></div></li>
           <li class="trust-item"><div class="trust-num">05</div><div><div class="trust-ttl">No lock-in contracts — ever</div><div class="trust-dsc">We earn your ongoing business by delivering results, not by trapping you in a long contract. Stay because it's working — not because you have to.</div></div></li>
         </ul>
       </div>
       <div>
         <div class="creds anim d1">
-          <div class="creds-label">Velox by the numbers</div>
+          <div class="creds-label">Studio Velox by the numbers</div>
           <div class="cred-row"><div class="cred-n">14</div><div class="cred-l">days average from start to live</div></div>
           <hr class="cred-div">
           <div class="cred-row"><div class="cred-n">60s</div><div class="cred-l">average AI response time to new enquiries</div></div>
@@ -652,6 +664,10 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
     <div class="urgency-tag">⏰ Only 5 Spots Left This Month</div>
     <h2>Stop Leaving Money on the Table.<br>Get Your Free Website Audit Today.</h2>
     <p>Find out exactly how many leads your current website is costing you — and what it would take to fix it. It's free, it takes 15 minutes to review, and it could be the most valuable thing you do for your business this year.</p>
+    <div style="background:rgba(10,22,40,0.15);border-left:4px solid var(--navy);padding:18px 24px;margin-bottom:32px;text-align:left;max-width:620px;margin-left:auto;margin-right:auto;">
+      <p style="font-size:15px;color:var(--navy);line-height:1.7;margin:0;font-weight:700;">💡 EOFY Tax Tip</p>
+      <p style="font-size:15px;color:var(--navy);line-height:1.7;margin:8px 0 0;opacity:0.85;">If you get your new site live before 30 June, your accountant may be able to put it through as an instant asset write-off under the ATO's $20,000 scheme — potentially the whole investment back as a tax deduction this financial year. We build in 14 days, so the window is tight but doable. <em>Check with your accountant to confirm eligibility.</em></p>
+    </div>
     <div id="ff-wrap">
       <div class="final-form">
         <input type="email" id="ff-email" placeholder="Enter your email address" />
@@ -666,33 +682,29 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
   </div>
 </section>
 
-<!-- VELOX DEFINITION -->
-<section class="velox-definition">
-  <div class="velox-def-inner">
-    <div class="velox-def-word">VELOX<span>.</span></div>
-    <div class="velox-def-phonetic">(vel · ox)</div>
-    <div class="velox-def-line"></div>
-    <div class="velox-def-pos">Latin &nbsp;·&nbsp; adjective</div>
-    <div class="velox-def-meaning">"Swift. Fast. Moving with purpose."</div>
-    <div class="velox-def-sub">The root of <em>velocity</em>. The foundation of everything we build.</div>
-  </div>
-</section>
 
 <!-- FOOTER -->
 <footer>
   <div class="container foot-inner">
-    <div class="foot-logo">VELOX<span>.</span></div>
-    <div class="foot-copy">© 2026 Velox. Gold Coast AI Automation & Web Design.</div>
+    <div class="foot-logo">STUDIO VELOX<span>.</span></div>
+    <div class="foot-copy">© 2026 Studio Velox. Gold Coast AI Automation & Web Design.</div>
     <div class="foot-links">
       <a href="#">Privacy</a>
       <a href="#">Terms</a>
-      <a href="mailto:hello@velox.ai">hello@velox.ai</a>
+      <a href="mailto:hello@studiovelox.com">hello@studiovelox.com</a>
     </div>
   </div>
 </footer>
 
 <script>
-function scrollTo(id) { document.getElementById(id).scrollIntoView({ behavior: 'smooth' }); }
+function goToAudit() {
+  document.getElementById('audit-form').scrollIntoView({ behavior: 'smooth' });
+  setTimeout(() => { document.getElementById('hf-name').focus(); }, 600);
+}
+
+function goToProcess() {
+  document.getElementById('process').scrollIntoView({ behavior: 'smooth' });
+}
 
 // Scroll reveal
 const obs = new IntersectionObserver(entries => {
@@ -700,7 +712,7 @@ const obs = new IntersectionObserver(entries => {
 }, { threshold: 0.1 });
 document.querySelectorAll('.anim').forEach(el => obs.observe(el));
 
-// Save lead
+// Save lead locally
 function saveLead(data) {
   try {
     const leads = JSON.parse(localStorage.getItem('velox_leads') || '[]');
@@ -709,22 +721,42 @@ function saveLead(data) {
   } catch(e) {}
 }
 
-// Hero form
-function submitHero() {
+// Hero form — submits to Formspree AND saves locally
+async function submitHero() {
   const name  = document.getElementById('hf-name').value.trim();
   const email = document.getElementById('hf-email').value.trim();
   const biz   = document.getElementById('hf-biz').value.trim();
+  const url   = document.getElementById('hf-url').value.trim();
   if (!name || !email || !biz) { alert('Please fill in your name, email and business name.'); return; }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Please enter a valid email.'); return; }
-  saveLead({ name, email, biz, url: document.getElementById('hf-url').value.trim(), source: 'hero' });
+
+  // Send to Formspree — replace YOUR_FORM_ID with your actual Formspree form ID
+  try {
+    await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ name, email, business: biz, website: url, source: 'Free Audit Request' })
+    });
+  } catch(e) { console.log('Formspree error:', e); }
+
+  saveLead({ name, email, biz, url, source: 'hero' });
   document.getElementById('hf-content').style.display = 'none';
   document.getElementById('hf-success').style.display = 'block';
 }
 
 // Final CTA form
-function submitFinal() {
+async function submitFinal() {
   const email = document.getElementById('ff-email').value.trim();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Please enter a valid email.'); return; }
+
+  try {
+    await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ email, source: 'Footer CTA' })
+    });
+  } catch(e) { console.log('Formspree error:', e); }
+
   saveLead({ email, source: 'final-cta' });
   document.getElementById('ff-wrap').style.display = 'none';
   document.getElementById('ff-success').style.display = 'block';
