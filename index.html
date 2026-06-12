@@ -45,10 +45,21 @@ a { text-decoration: none; color: inherit; }
 
 /* ── ANNOUNCE BAR ── */
 .announce {
-  background: var(--red); color: var(--white); text-align: center;
-  padding: 11px 24px; font-family: var(--font-accent); font-size: 14px; letter-spacing: 0.04em;
+  background: var(--red); color: var(--white);
+  padding: 11px 0; font-family: var(--font-accent); font-size: 14px; letter-spacing: 0.04em;
+  overflow: hidden; white-space: nowrap;
 }
 .announce strong { color: var(--gold2); }
+.announce-track {
+  display: inline-block;
+  animation: ticker 38s linear infinite;
+  padding-left: 100%;
+}
+.announce-track:hover { animation-play-state: paused; }
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-100%); }
+}
 
 /* ── NAV ── */
 nav {
@@ -185,6 +196,79 @@ nav {
   border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 12px; font-weight: 700;
 }
 .check-list li::before { content: '✓'; color: #22c55e; font-size: 15px; flex-shrink: 0; }
+
+/* BEFORE / AFTER SHOWCASE */
+.showcase { background: var(--navy); padding: 80px 0; }
+.showcase .sec-title { color: var(--white); }
+.showcase .sec-label { color: var(--gold); }
+.showcase-intro { font-size: 17px; color: #b0bfd4; max-width: 640px; line-height: 1.7; margin-bottom: 52px; }
+.showcase-grid { display: flex; flex-direction: column; gap: 64px; }
+.showcase-item { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; position: relative; }
+.showcase-item::before {
+  content: 'VS';
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--gold); color: var(--navy);
+  font-family: var(--font-accent); font-size: 14px; font-weight: 600;
+  width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 10; box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+.showcase-panel { position: relative; overflow: hidden; }
+.showcase-label {
+  position: absolute; top: 16px; left: 16px;
+  font-family: var(--font-accent); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 5px 14px; z-index: 2;
+}
+.label-before { background: var(--red); color: var(--white); }
+.label-after  { background: var(--lime); color: var(--navy); }
+.showcase-video {
+  width: 100%; aspect-ratio: 16/9;
+  background: #0d1f35;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  cursor: pointer; position: relative;
+  border: 2px solid rgba(255,255,255,0.06);
+  transition: border-color 0.2s;
+}
+.showcase-video:hover { border-color: var(--gold); }
+.showcase-video iframe {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; border: none;
+}
+.sv-placeholder {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  width: 100%; height: 100%; gap: 12px;
+}
+.sv-play {
+  width: 56px; height: 56px; background: rgba(232,160,32,0.15);
+  border: 2px solid var(--gold); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; color: var(--gold);
+  transition: background 0.2s;
+}
+.showcase-video:hover .sv-play { background: var(--gold); color: var(--navy); }
+.sv-label {
+  font-family: var(--font-accent); font-size: 12px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(255,255,255,0.35); text-align: center; padding: 0 16px;
+}
+.showcase-meta {
+  background: rgba(255,255,255,0.04);
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.showcase-biz { font-family: var(--font-accent); font-size: 14px; font-weight: 600; color: var(--white); margin-bottom: 2px; }
+.showcase-type { font-size: 12px; color: #5a7090; }
+.showcase-cta { text-align: center; margin-top: 52px; }
+.showcase-cta p { font-family: var(--font-body); font-size: 15px; color: #7a8fa8; margin-bottom: 20px; }
+
+@media (max-width: 900px) {
+  .showcase-item { grid-template-columns: 1fr; gap: 32px; }
+  .showcase-item::before { top: calc(50% - 16px); }
+}
 
 /* BENEFITS */
 .benefits { background: var(--white); padding: 80px 0; }
@@ -403,9 +487,16 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
 
 <!-- ANNOUNCE BAR with EOFY countdown -->
 <div class="announce">
-  🚨 <strong>EOFY ALERT:</strong> Get your new site live before 30 June & your accountant may claim it as a <strong>$20,000 ATO instant asset write-off</strong> — &nbsp;
-  <span id="countdown-wrap">Time left: <strong id="cd-days">--</strong>d <strong id="cd-hours">--</strong>h <strong id="cd-mins">--</strong>m <strong id="cd-secs">--</strong>s</span>
-  &nbsp;— <strong onclick="goToAudit()" style="cursor:pointer;text-decoration:underline;">Claim your free audit now →</strong>
+  <span class="announce-track">
+    🚨 <strong>EOFY ALERT:</strong> Get your new site live before 30 June & your accountant may claim it as a <strong>$20,000 ATO instant asset write-off</strong> &nbsp;—&nbsp;
+    <span id="countdown-wrap">Time left: <strong id="cd-days">--</strong>d <strong id="cd-hours">--</strong>h <strong id="cd-mins">--</strong>m <strong id="cd-secs">--</strong>s</span>
+    &nbsp;—&nbsp; <strong onclick="goToAudit()" style="cursor:pointer;text-decoration:underline;">Claim your free audit now →</strong>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⚡&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    🚨 <strong>EOFY ALERT:</strong> Get your new site live before 30 June & your accountant may claim it as a <strong>$20,000 ATO instant asset write-off</strong> &nbsp;—&nbsp;
+    <span>Time left: <strong class="cd-days2">--</strong>d <strong class="cd-hours2">--</strong>h <strong class="cd-mins2">--</strong>m <strong class="cd-secs2">--</strong>s</span>
+    &nbsp;—&nbsp; <strong onclick="goToAudit()" style="cursor:pointer;text-decoration:underline;">Claim your free audit now →</strong>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⚡&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>
 </div>
 
 <!-- NAV -->
@@ -559,6 +650,114 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
         </ul>
         <button class="btn-gold anim" onclick="goToAudit()">Get My Free Audit First →</button>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ BEFORE / AFTER SHOWCASE ══ -->
+<section class="showcase">
+  <div class="container">
+    <div class="sec-label">Real Gold Coast transformations</div>
+    <h2 class="sec-title anim">See Exactly What We Do —<br><em>Before & After, Side by Side</em></h2>
+    <p class="showcase-intro anim">These are real Gold Coast businesses. Real websites we've transformed. Watch the before, watch the after — and ask yourself honestly which one you'd call.</p>
+
+    <div class="showcase-grid">
+
+      <!-- CLIENT 1: Ellie -->
+      <div class="showcase-item anim">
+        <div class="showcase-panel">
+          <span class="showcase-label label-before">Before</span>
+          <div class="showcase-video" id="ellie-before">
+            <div class="sv-placeholder">
+              <div class="sv-play">▶</div>
+              <div class="sv-label">Ellie's site — original<br>Video coming soon</div>
+            </div>
+          </div>
+          <div class="showcase-meta">
+            <div class="showcase-biz">Ellie's Business</div>
+            <div class="showcase-type">Original website</div>
+          </div>
+        </div>
+        <div class="showcase-panel">
+          <span class="showcase-label label-after">After</span>
+          <div class="showcase-video" id="ellie-after">
+            <div class="sv-placeholder">
+              <div class="sv-play">▶</div>
+              <div class="sv-label">Ellie's site — Studio Velox v2<br>Video coming soon</div>
+            </div>
+          </div>
+          <div class="showcase-meta">
+            <div class="showcase-biz">Ellie's Business</div>
+            <div class="showcase-type">Rebuilt by Studio Velox</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CLIENT 2: Taylor -->
+      <div class="showcase-item anim">
+        <div class="showcase-panel">
+          <span class="showcase-label label-before">Before</span>
+          <div class="showcase-video" id="taylor-before">
+            <div class="sv-placeholder">
+              <div class="sv-play">▶</div>
+              <div class="sv-label">Taylor's site — original<br>Video coming soon</div>
+            </div>
+          </div>
+          <div class="showcase-meta">
+            <div class="showcase-biz">Taylor's Business</div>
+            <div class="showcase-type">Original website</div>
+          </div>
+        </div>
+        <div class="showcase-panel">
+          <span class="showcase-label label-after">After</span>
+          <div class="showcase-video" id="taylor-after">
+            <div class="sv-placeholder">
+              <div class="sv-play">▶</div>
+              <div class="sv-label">Taylor's site — Studio Velox<br>Video coming soon</div>
+            </div>
+          </div>
+          <div class="showcase-meta">
+            <div class="showcase-biz">Taylor's Business</div>
+            <div class="showcase-type">Rebuilt by Studio Velox</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CLIENT 3: Helen -->
+      <div class="showcase-item anim">
+        <div class="showcase-panel">
+          <span class="showcase-label label-before">Before</span>
+          <div class="showcase-video" id="helen-before">
+            <div class="sv-placeholder">
+              <div class="sv-play">▶</div>
+              <div class="sv-label">Helen's site — current<br>Video coming soon</div>
+            </div>
+          </div>
+          <div class="showcase-meta">
+            <div class="showcase-biz">Helen's Business</div>
+            <div class="showcase-type">Current website</div>
+          </div>
+        </div>
+        <div class="showcase-panel">
+          <span class="showcase-label label-after">After</span>
+          <div class="showcase-video" id="helen-after">
+            <div class="sv-placeholder">
+              <div class="sv-play">▶</div>
+              <div class="sv-label">Helen's site — Studio Velox concept<br>Video coming soon</div>
+            </div>
+          </div>
+          <div class="showcase-meta">
+            <div class="showcase-biz">Helen's Business</div>
+            <div class="showcase-type">Studio Velox concept redesign</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="showcase-cta anim">
+      <p>Want to see what we'd do with your website?</p>
+      <button class="btn-gold" onclick="goToAudit()">Get My Free Audit — See Your Transformation →</button>
     </div>
   </div>
 </section>
@@ -777,10 +976,16 @@ function updateCountdown() {
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const mins  = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
   const secs  = Math.floor((diff % (1000 * 60)) / 1000);
-  document.getElementById('cd-days').textContent  = days;
-  document.getElementById('cd-hours').textContent = hours;
-  document.getElementById('cd-mins').textContent  = String(mins).padStart(2,'0');
-  document.getElementById('cd-secs').textContent  = String(secs).padStart(2,'0');
+  const d = days, h = hours, m = String(mins).padStart(2,'0'), s = String(secs).padStart(2,'0');
+  document.getElementById('cd-days').textContent  = d;
+  document.getElementById('cd-hours').textContent = h;
+  document.getElementById('cd-mins').textContent  = m;
+  document.getElementById('cd-secs').textContent  = s;
+  // Update duplicate copy in ticker
+  document.querySelectorAll('.cd-days2').forEach(el  => el.textContent = d);
+  document.querySelectorAll('.cd-hours2').forEach(el => el.textContent = h);
+  document.querySelectorAll('.cd-mins2').forEach(el  => el.textContent = m);
+  document.querySelectorAll('.cd-secs2').forEach(el  => el.textContent = s);
 }
 updateCountdown();
 setInterval(updateCountdown, 1000);
