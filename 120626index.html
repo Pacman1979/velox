@@ -401,11 +401,9 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
 </head>
 <body>
 
-<!-- ANNOUNCE BAR with EOFY countdown -->
+<!-- ANNOUNCE BAR -->
 <div class="announce">
-  🚨 <strong>EOFY ALERT:</strong> Get your new site live before 30 June & your accountant may claim it as a <strong>$20,000 ATO instant asset write-off</strong> — &nbsp;
-  <span id="countdown-wrap">Time left: <strong id="cd-days">--</strong>d <strong id="cd-hours">--</strong>h <strong id="cd-mins">--</strong>m <strong id="cd-secs">--</strong>s</span>
-  &nbsp;— <strong onclick="goToAudit()" style="cursor:pointer;text-decoration:underline;">Claim your free audit now →</strong>
+  🚨 <strong>EOFY ALERT:</strong> Get your new site live before 30 June & your accountant may claim it as a <strong>$20,000 ATO instant asset write-off</strong> — we build in 14 days, so the window is tight but doable. <strong>Claim your free audit now →</strong>
 </div>
 
 <!-- NAV -->
@@ -430,10 +428,10 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
         </h1>
         <!-- JD POINT 2: Agitation — make them feel the pain -->
         <p class="agitate anim d2">
-          <strong>Most Gold Coast small business websites fail our 8-point test.</strong> Yours probably does too — and every day it does, you're handing jobs directly to your competitors.
+          Right now, people are finding your business online — then clicking away because your website doesn't grab them in the first five seconds. <strong>You never know they were there. You never get the call.</strong>
         </p>
         <p class="agitate anim d2">
-          People are finding you online right now. They're checking your site. And they're leaving — <span class="pain">silently, without ever calling</span> — because your website didn't grab them in the first five seconds. You never know they were there. You never get the call.
+          The average Gold Coast small business loses <span class="pain">8–15 genuine leads every single month</span> this way. Real jobs. Real revenue. Gone — to a competitor who just has a better-looking website.
         </p>
         <div class="stats-row anim d3">
           <div><div class="stat-num">8–15</div><div class="stat-lbl">Leads lost per month</div></div>
@@ -734,7 +732,7 @@ async function submitHero() {
 
   // Send to Formspree — replace YOUR_FORM_ID with your actual Formspree form ID
   try {
-    await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+    await fetch('https://formspree.io/f/maqzdven', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({ name, email, business: biz, website: url, source: 'Free Audit Request' })
@@ -752,7 +750,7 @@ async function submitFinal() {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Please enter a valid email.'); return; }
 
   try {
-    await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+    await fetch('https://formspree.io/f/maqzdven', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({ email, source: 'Footer CTA' })
@@ -763,27 +761,6 @@ async function submitFinal() {
   document.getElementById('ff-wrap').style.display = 'none';
   document.getElementById('ff-success').style.display = 'block';
 }
-
-// EOFY Countdown Timer — counts to 30 June 2026 midnight AEST
-function updateCountdown() {
-  const eofy = new Date('2026-06-30T23:59:59+10:00');
-  const now = new Date();
-  const diff = eofy - now;
-  if (diff <= 0) {
-    document.getElementById('countdown-wrap').innerHTML = '<strong>EOFY deadline has passed</strong>';
-    return;
-  }
-  const days  = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const mins  = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  const secs  = Math.floor((diff % (1000 * 60)) / 1000);
-  document.getElementById('cd-days').textContent  = days;
-  document.getElementById('cd-hours').textContent = hours;
-  document.getElementById('cd-mins').textContent  = String(mins).padStart(2,'0');
-  document.getElementById('cd-secs').textContent  = String(secs).padStart(2,'0');
-}
-updateCountdown();
-setInterval(updateCountdown, 1000);
 </script>
 </body>
 </html>
