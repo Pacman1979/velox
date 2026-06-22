@@ -45,11 +45,11 @@ a { text-decoration: none; color: inherit; }
 
 /* ── ANNOUNCE BAR ── */
 .announce {
-  background: var(--gold); color: var(--navy);
+  background: var(--red); color: var(--white);
   padding: 11px 0; font-family: var(--font-accent); font-size: 14px; letter-spacing: 0.04em;
   overflow: hidden; white-space: nowrap;
 }
-.announce strong { color: var(--navy); font-weight: 900; }
+.announce strong { color: var(--gold2); }
 .announce-track {
   display: inline-block;
   animation: ticker 38s linear infinite;
@@ -70,10 +70,7 @@ nav {
 .nav-inner { display: flex; align-items: center; justify-content: space-between; }
 .logo { font-family: var(--font-accent); font-size: 28px; font-weight: 600; color: var(--white); letter-spacing: 0.04em; }
 .logo span { color: var(--gold); }
-.nav-contact { display: flex; align-items: center; gap: 12px; }
 .nav-phone { font-family: var(--font-accent); color: var(--gold2); font-size: 15px; letter-spacing: 0.04em; }
-.nav-email { font-family: var(--font-accent); color: var(--gold2); font-size: 15px; letter-spacing: 0.04em; }
-.nav-divider { color: rgba(232,160,32,0.3); font-size: 18px; }
 .nav-btn { font-size: 14px; padding: 12px 28px; }
 
 /* ── HERO ── */
@@ -482,7 +479,7 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
   .final-form { flex-direction: column; }
   .proof-inner { gap: 20px; }
   .stats-row { gap: 20px; }
-  .nav-contact { display: none; }
+  .nav-phone { display: none; }
 }
 </style>
 </head>
@@ -506,11 +503,7 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
 <nav>
   <div class="container nav-inner">
     <div class="logo">STUDIO VELOX<span>.</span></div>
-    <div class="nav-contact">
-      <span class="nav-phone">📞 <a href="tel:0422777865" style="color:inherit">0422 777 865</a></span>
-      <span class="nav-divider">|</span>
-      <span class="nav-email">✉️ <a href="mailto:phil@studiovelox.com" style="color:inherit">phil@studiovelox.com</a></span>
-    </div>
+    <div class="nav-phone">📞 <a href="tel:0422777865" style="color:inherit">0422 777 865</a></div>
     <button class="btn-gold nav-btn" onclick="goToAudit()">Get My Free Audit →</button>
   </div>
 </nav>
@@ -647,7 +640,7 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
         <div class="sec-label anim">Meet the Studio Velox Team</div>
         <h2 class="sec-title anim">We Fix the Exact Things That Are <em>Costing You Leads Right Now</em></h2>
         <p class="body-copy anim">Hi — we're Studio Velox. A Gold Coast AI automation and web design agency with one obsession: turning local business websites into 24/7 lead-generating machines.</p>
-        <p class="body-copy anim">We use a proven 8-point framework — used by some of Australia's most successful businesses — to find every place your site is losing customers, then fix every single one.</p>
+        <p class="body-copy anim">We use a proven 8-point framework — the same system used across 27,000 Australian businesses — to find every place your site is losing customers, then fix every single one.</p>
         <ul class="check-list anim">
           <li>New website or full redesign — live in 14 days</li>
           <li>AI chatbot responds to enquiries in under 60 seconds</li>
@@ -840,7 +833,7 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
         <h2 class="sec-title" style="margin-bottom:28px;">5 Reasons Gold Coast Businesses <em>Choose Us Over the Rest</em></h2>
         <ul class="trust-list anim">
           <li class="trust-item"><div class="trust-num">01</div><div><div class="trust-ttl">We're Gold Coast locals — we know your market</div><div class="trust-dsc">Not an offshore agency or a faceless corporation. We're based here, we know the local market, and we're available when you need us.</div></div></li>
-          <li class="trust-item"><div class="trust-num">02</div><div><div class="trust-ttl">We build to a proven conversion framework — not just looks</div><div class="trust-dsc">Our 8-point homepage formula is built on direct-response principles proven across thousands of Australian businesses. Pretty sites don't pay bills — sites built to convert do.</div></div></li>
+          <li class="trust-item"><div class="trust-num">02</div><div><div class="trust-ttl">We build to a proven conversion framework — not just looks</div><div class="trust-dsc">Our 8-point homepage formula has been proven across 27,000+ Australian businesses. Pretty sites don't pay bills — sites built to convert do.</div></div></li>
           <li class="trust-item"><div class="trust-num">03</div><div><div class="trust-ttl">Live in 14 days — not 14 weeks</div><div class="trust-dsc">Other agencies drag projects on for months. We have a streamlined system that gets you live and generating leads in 14 days flat.</div></div></li>
           <li class="trust-item"><div class="trust-num">04</div><div><div class="trust-ttl">AI automation is included — not a costly add-on</div><div class="trust-dsc">Every build includes AI systems as standard. You're not getting a website — you're getting a 24/7 sales and follow-up machine.</div></div></li>
           <li class="trust-item"><div class="trust-num">05</div><div><div class="trust-ttl">No lock-in contracts — ever</div><div class="trust-dsc">We earn your ongoing business by delivering results, not by trapping you in a long contract. Stay because it's working — not because you have to.</div></div></li>
@@ -899,8 +892,7 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
     <div class="foot-links">
       <a href="#">Privacy</a>
       <a href="#">Terms</a>
-      <a href="mailto:phil@studiovelox.com">phil@studiovelox.com</a>
-      <a href="tel:0422777865">0422 777 865</a>
+      <a href="mailto:hello@studiovelox.com">hello@studiovelox.com</a>
     </div>
   </div>
 </footer>
