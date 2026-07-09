@@ -475,15 +475,88 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
 
 /* RESPONSIVE */
 @media (max-width: 900px) {
-  .hero-inner, .video-grid, .trust-grid { grid-template-columns: 1fr; gap: 40px; }
-  .pain-grid, .ben-grid, .testi-grid { grid-template-columns: 1fr; }
-  .steps { grid-template-columns: 1fr 1fr; gap: 36px; }
+  /* Layout */
+  .hero-inner, .video-grid, .trust-grid { grid-template-columns: 1fr; gap: 32px; }
+  .pain-grid, .ben-grid, .testi-grid { grid-template-columns: 1fr; gap: 16px; }
+  .steps { grid-template-columns: 1fr 1fr; gap: 28px; }
   .steps::before { display: none; }
   .final-form { flex-direction: column; }
-  .proof-inner { gap: 20px; }
-  .stats-row { gap: 20px; }
+  .proof-inner { gap: 14px; justify-content: flex-start; overflow-x: auto; padding: 0 16px; flex-wrap: nowrap; }
+  .proof-item { flex-shrink: 0; }
+  .stats-row { gap: 16px; flex-wrap: wrap; }
   .nav-contact { display: none; }
+  .cta-row { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .btn-gold, .btn-outline { width: 100%; text-align: center; padding: 16px 20px; }
+
+  /* Typography */
+  .hero h1 { font-size: clamp(28px, 7vw, 42px); }
+  .agitate { font-size: 15px; }
+  .sec-title { font-size: clamp(22px, 6vw, 34px); }
+  .section-title { font-size: clamp(22px, 6vw, 34px); }
+
+  /* Sections */
+  .hero { padding: 40px 0 48px; }
+  .section, .pain-section, .video-section, .benefits,
+  .process, .testimonials, .trust, .showcase { padding: 52px 0; }
+  .container { padding: 0 18px; }
+  .final-cta { padding: 52px 0; }
+  .velox-definition { padding: 52px 0; }
+
+  /* Form card */
+  .form-card { padding: 28px 22px; }
+  .hero-form-card { padding: 28px 22px; }
+
+  /* Stats */
+  .stat-num { font-size: 24px; }
+  .stat-lbl { font-size: 10px; }
+
+  /* Process */
+  .step-circle { width: 56px; height: 56px; font-size: 17px; }
+
+  /* Trust */
+  .creds { padding: 32px 24px; }
+  .cred-n { font-size: 36px; }
+
+  /* Showcase */
+  .showcase-item { grid-template-columns: 1fr; gap: 24px; }
+  .showcase-item::before { display: none; }
+
+  /* Footer */
+  .foot-inner { flex-direction: column; align-items: center; text-align: center; gap: 14px; }
+  .foot-links { flex-wrap: wrap; justify-content: center; gap: 16px; }
+
+  /* Velox definition */
+  .velox-def-word { font-size: clamp(48px, 14vw, 80px); }
+  .velox-def-meaning { font-size: clamp(18px, 5vw, 26px); }
+
+  /* Nav */
+  nav { padding: 14px 0; }
+  .logo { font-size: 22px; }
+  .nav-btn { font-size: 13px; padding: 10px 18px; }
 }
+
+@media (max-width: 480px) {
+  .steps { grid-template-columns: 1fr; gap: 24px; }
+  .ben-grid { grid-template-columns: 1fr; }
+  .hero h1 { font-size: clamp(26px, 8vw, 36px); }
+  .proof-inner { gap: 10px; }
+  .announce-track { font-size: 13px; }
+}
+
+/* NO-WEBSITE TOGGLE */
+.form-toggle {
+  display: flex; background: #eef2f7; border-radius: 0;
+  margin-bottom: 20px; overflow: hidden;
+}
+.toggle-btn {
+  flex: 1; padding: 10px 8px; border: none; background: transparent;
+  font-family: var(--font-accent); font-size: 12px; font-weight: 600;
+  letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer;
+  color: #8a9ab0; transition: all 0.2s; line-height: 1.3; text-align: center;
+}
+.toggle-btn.active { background: var(--navy); color: var(--gold); }
+.form-panel { display: none; }
+.form-panel.active { display: block; }
 </style>
 </head>
 <body>
@@ -523,15 +596,15 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
         <div class="eyebrow anim">Gold Coast AI Automation & Web Design</div>
         <!-- JD POINT 1: Problem/Solution Headline -->
         <h1 class="anim d1">
-          Is Your Website Quietly Sending
-          <em>Customers Straight to Your Competitor?</em>
+          Need More Customers
+          <em>From the Internet?</em>
         </h1>
-        <!-- JD POINT 2: Agitation — make them feel the pain -->
+        <!-- JD POINT 2: Agitation — speaks to BOTH audiences -->
         <p class="agitate anim d2">
-          <strong>Most Gold Coast small business websites fail our 8-point test.</strong> Yours probably does too — and every day it does, you're handing jobs directly to your competitors.
+          Whether you <strong>have a website that isn't working</strong> or <strong>no website at all</strong> — you're losing Gold Coast customers to competitors every single day. They're searching for what you offer. They're just not finding you.
         </p>
         <p class="agitate anim d2">
-          People are finding you online right now. They're checking your site. And they're leaving — <span class="pain">silently, without ever calling</span> — because your website didn't grab them in the first five seconds. You never know they were there. You never get the call.
+          Studio Velox builds new websites from scratch and transforms underperforming ones — plus adds <span class="pain">AI automation that captures leads 24/7</span>, even when you're busy or asleep.
         </p>
         <div class="stats-row anim d3">
           <div><div class="stat-num">8–15</div><div class="stat-lbl">Leads lost per month</div></div>
@@ -546,25 +619,69 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
         <div class="hero-guarantee anim d4">100% free. No obligation. Results in 24 hours.</div>
       </div>
 
-      <!-- JD POINT 6: Lead magnet form — above the fold -->
+      <!-- JD POINT 6: Lead magnet form — two audiences -->
       <div id="audit-form">
         <div class="form-card anim d1">
           <span class="form-badge">🎁 Free — No Catch</span>
-          <h3>Claim Your Free Website Audit</h3>
-          <p>We score your site against our proven 8-point framework and show you exactly how many leads you're losing — and how to fix every one. Takes us 24 hours. Takes you 15 minutes to review.</p>
-          <div id="hf-content">
-            <div class="field"><input type="text" id="hf-name" placeholder="Your first name" /></div>
-            <div class="field"><input type="email" id="hf-email" placeholder="Your email address" /></div>
-            <div class="field"><input type="text" id="hf-biz" placeholder="Business name" /></div>
-            <div class="field"><input type="text" id="hf-url" placeholder="Website URL (or 'no website')" /></div>
-            <button class="form-btn" onclick="submitHero()">Send Me My Free Audit →</button>
-            <p class="form-fine">✓ 100% Free &nbsp;|&nbsp; ✓ No Sales Pitch &nbsp;|&nbsp; ✓ Results in 24hrs</p>
+          <h3>Get Your Free Website Strategy</h3>
+          <p>Tell us where you're at and we'll show you exactly what we'd do — at zero cost, zero obligation.</p>
+
+          <!-- TOGGLE -->
+          <div class="form-toggle">
+            <button class="toggle-btn active" id="tab-has" onclick="switchTab('has')">
+              I have a website<br><span style="font-size:10px;opacity:0.7">that isn't getting leads</span>
+            </button>
+            <button class="toggle-btn" id="tab-none" onclick="switchTab('none')">
+              I don't have<br><span style="font-size:10px;opacity:0.7">a website yet</span>
+            </button>
           </div>
-          <div class="form-success" id="hf-success">
-            <div class="tick">✓</div>
-            <h4>You're locked in!</h4>
-            <p>Your personalised audit will be with you within 24 hours. We'll reach out to book a 15-minute walkthrough too.</p>
+
+          <!-- PANEL A: Has a website -->
+          <div class="form-panel active" id="panel-has">
+            <p style="font-size:13px;color:#e8a020;font-weight:700;margin-bottom:14px;">→ We'll audit your site & show you exactly what's losing you leads.</p>
+            <div id="hf-content">
+              <div class="field"><input type="text" id="hf-name" placeholder="Your first name" /></div>
+              <div class="field"><input type="email" id="hf-email" placeholder="Your email address" /></div>
+              <div class="field"><input type="text" id="hf-biz" placeholder="Business name" /></div>
+              <div class="field"><input type="text" id="hf-url" placeholder="Your website URL" /></div>
+              <button class="form-btn" onclick="submitHero('audit')">Get My Free Audit →</button>
+              <p class="form-fine">✓ 100% Free &nbsp;|&nbsp; ✓ No Sales Pitch &nbsp;|&nbsp; ✓ Results in 24hrs</p>
+            </div>
+            <div class="form-success" id="hf-success" style="display:none">
+              <div class="tick">✓</div>
+              <h4>You're locked in!</h4>
+              <p>Your personalised audit will be with you within 24 hours. We'll reach out to book a 15-minute walkthrough too.</p>
+            </div>
           </div>
+
+          <!-- PANEL B: No website -->
+          <div class="form-panel" id="panel-none">
+            <p style="font-size:13px;color:#e8a020;font-weight:700;margin-bottom:14px;">→ We'll put together a free plan showing what your site could look like & what it would cost.</p>
+            <div id="nw-content">
+              <div class="field"><input type="text" id="nw-name" placeholder="Your first name" /></div>
+              <div class="field"><input type="email" id="nw-email" placeholder="Your email address" /></div>
+              <div class="field"><input type="text" id="nw-biz" placeholder="Business name" /></div>
+              <div class="field">
+                <select id="nw-type">
+                  <option value="" disabled selected>What type of business?</option>
+                  <option>Tradie (plumber, painter, builder etc.)</option>
+                  <option>Cafe / Restaurant / Hospitality</option>
+                  <option>Beauty / Wellness / Health</option>
+                  <option>Retail / Product-based</option>
+                  <option>Professional Services</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <button class="form-btn" onclick="submitHero('noweb')">Get My Free Website Plan →</button>
+              <p class="form-fine">✓ 100% Free &nbsp;|&nbsp; ✓ No Obligation &nbsp;|&nbsp; ✓ Response in 24hrs</p>
+            </div>
+            <div class="form-success" id="nw-success" style="display:none">
+              <div class="tick">✓</div>
+              <h4>Perfect — we'll be in touch!</h4>
+              <p>We'll put together a free plan and concept for your new site. Expect to hear from us within 24 hours.</p>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -600,6 +717,11 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
     <h2 class="anim">Sound familiar? <em>You're not alone.</em></h2>
     <p class="pain-intro anim">We've audited hundreds of Gold Coast small business websites. The same costly problems come up again and again — and every single one is silently bleeding money.</p>
     <div class="pain-grid">
+      <div class="pain-card anim d2">
+        <div class="pain-icon">🚫</div>
+        <div class="pain-title">"I don't even have a website"</div>
+        <div class="pain-desc">Without a website, you're invisible to every customer who searches online — and that's most of them. Every day without one is revenue walking straight to a competitor who does have one.</div>
+      </div>
       <div class="pain-card anim">
         <div class="pain-icon">😤</div>
         <div class="pain-title">"I rely on word of mouth"</div>
@@ -915,6 +1037,16 @@ function goToProcess() {
   document.getElementById('process').scrollIntoView({ behavior: 'smooth' });
 }
 
+// Toggle between has-website and no-website panels
+function switchTab(tab) {
+  document.getElementById('panel-has').classList.toggle('active', tab === 'has');
+  document.getElementById('panel-none').classList.toggle('active', tab === 'none');
+  document.getElementById('tab-has').classList.toggle('active', tab === 'has');
+  document.getElementById('tab-none').classList.toggle('active', tab === 'none');
+  if (tab === 'has') setTimeout(() => document.getElementById('hf-name').focus(), 100);
+  if (tab === 'none') setTimeout(() => document.getElementById('nw-name').focus(), 100);
+}
+
 // Scroll reveal
 const obs = new IntersectionObserver(entries => {
   entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
@@ -930,27 +1062,43 @@ function saveLead(data) {
   } catch(e) {}
 }
 
-// Hero form — submits to Formspree AND saves locally
-async function submitHero() {
-  const name  = document.getElementById('hf-name').value.trim();
-  const email = document.getElementById('hf-email').value.trim();
-  const biz   = document.getElementById('hf-biz').value.trim();
-  const url   = document.getElementById('hf-url').value.trim();
-  if (!name || !email || !biz) { alert('Please fill in your name, email and business name.'); return; }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Please enter a valid email.'); return; }
-
-  // Send to Formspree — replace YOUR_FORM_ID with your actual Formspree form ID
-  try {
-    await fetch('https://formspree.io/f/YOUR_FORM_ID', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ name, email, business: biz, website: url, source: 'Free Audit Request' })
-    });
-  } catch(e) { console.log('Formspree error:', e); }
-
-  saveLead({ name, email, biz, url, source: 'hero' });
-  document.getElementById('hf-content').style.display = 'none';
-  document.getElementById('hf-success').style.display = 'block';
+// Hero form — handles both audit and no-website submissions
+async function submitHero(type) {
+  if (type === 'audit') {
+    const name  = document.getElementById('hf-name').value.trim();
+    const email = document.getElementById('hf-email').value.trim();
+    const biz   = document.getElementById('hf-biz').value.trim();
+    const url   = document.getElementById('hf-url').value.trim();
+    if (!name || !email || !biz) { alert('Please fill in your name, email and business name.'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Please enter a valid email.'); return; }
+    try {
+      await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ name, email, business: biz, website: url, source: 'Free Audit Request' })
+      });
+    } catch(e) { console.log('Formspree error:', e); }
+    saveLead({ name, email, biz, url, source: 'hero-audit' });
+    document.getElementById('hf-content').style.display = 'none';
+    document.getElementById('hf-success').style.display = 'block';
+  } else {
+    const name  = document.getElementById('nw-name').value.trim();
+    const email = document.getElementById('nw-email').value.trim();
+    const biz   = document.getElementById('nw-biz').value.trim();
+    const type2 = document.getElementById('nw-type').value;
+    if (!name || !email || !biz || !type2) { alert('Please fill in all fields.'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Please enter a valid email.'); return; }
+    try {
+      await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ name, email, business: biz, businessType: type2, source: 'No Website — New Build Request' })
+      });
+    } catch(e) { console.log('Formspree error:', e); }
+    saveLead({ name, email, biz, type2, source: 'hero-noweb' });
+    document.getElementById('nw-content').style.display = 'none';
+    document.getElementById('nw-success').style.display = 'block';
+  }
 }
 
 // Final CTA form
