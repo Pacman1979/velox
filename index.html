@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Studio Velox — Are You Losing Customers Online Without Knowing It?</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Lato:wght@300;400;700&family=Oswald:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@formspree/ajax@1" defer></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -1047,6 +1048,9 @@ function saveLead(data) {
   } catch(e) {}
 }
 
+// Formspree form ID
+const FORM_ID = 'maqzdven';
+
 // Hero form — handles both audit and no-website submissions
 async function submitHero(type) {
   if (type === 'audit') {
@@ -1057,30 +1061,35 @@ async function submitHero(type) {
     if (!name || !email || !biz) { alert('Please fill in your name, email and business name.'); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Please enter a valid email.'); return; }
     try {
-      await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+      const res = await fetch(`https://formspree.io/f/${FORM_ID}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({ name, email, business: biz, website: url, source: 'Free Audit Request' })
+        body: JSON.stringify({ name, email, business: biz, website: url, _subject: `Free Audit Request — ${biz}` })
       });
-    } catch(e) { console.log('Formspree error:', e); }
+      const data = await res.json();
+      if (!res.ok) { console.error('Formspree error:', data); }
+    } catch(e) { console.log('Submission error:', e); }
     saveLead({ name, email, biz, url, source: 'hero-audit' });
     document.getElementById('hf-content').style.display = 'none';
     document.getElementById('hf-success').style.display = 'block';
+
   } else {
     const name  = document.getElementById('nw-name').value.trim();
     const email = document.getElementById('nw-email').value.trim();
     const biz   = document.getElementById('nw-biz').value.trim();
-    const type2 = document.getElementById('nw-type').value;
-    if (!name || !email || !biz || !type2) { alert('Please fill in all fields.'); return; }
+    const bizType = document.getElementById('nw-type').value;
+    if (!name || !email || !biz || !bizType) { alert('Please fill in all fields.'); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Please enter a valid email.'); return; }
     try {
-      await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+      const res = await fetch(`https://formspree.io/f/${FORM_ID}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({ name, email, business: biz, businessType: type2, source: 'No Website — New Build Request' })
+        body: JSON.stringify({ name, email, business: biz, businessType: bizType, _subject: `New Website Request — ${biz}` })
       });
-    } catch(e) { console.log('Formspree error:', e); }
-    saveLead({ name, email, biz, type2, source: 'hero-noweb' });
+      const data = await res.json();
+      if (!res.ok) { console.error('Formspree error:', data); }
+    } catch(e) { console.log('Submission error:', e); }
+    saveLead({ name, email, biz, bizType, source: 'hero-noweb' });
     document.getElementById('nw-content').style.display = 'none';
     document.getElementById('nw-success').style.display = 'block';
   }
@@ -1090,19 +1099,21 @@ async function submitHero(type) {
 async function submitFinal() {
   const email = document.getElementById('ff-email').value.trim();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Please enter a valid email.'); return; }
-
   try {
-    await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+    const res = await fetch(`https://formspree.io/f/${FORM_ID}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ email, source: 'Footer CTA' })
+      body: JSON.stringify({ email, _subject: 'Free Audit Request — Footer CTA' })
     });
-  } catch(e) { console.log('Formspree error:', e); }
-
+    const data = await res.json();
+    if (!res.ok) { console.error('Formspree error:', data); }
+  } catch(e) { console.log('Submission error:', e); }
   saveLead({ email, source: 'final-cta' });
   document.getElementById('ff-wrap').style.display = 'none';
   document.getElementById('ff-success').style.display = 'block';
 }
+
+// end of scripts
 
 // end of scripts
 </script>
