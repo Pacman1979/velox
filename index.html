@@ -561,16 +561,12 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
 </head>
 <body>
 
-<!-- ANNOUNCE BAR with EOFY countdown -->
+<!-- ANNOUNCE BAR with scrolling ticker -->
 <div class="announce">
   <span class="announce-track">
-    🚨 <strong>EOFY ALERT:</strong> Get your new site live before 30 June & your accountant may claim it as a <strong>$20,000 ATO instant asset write-off</strong> &nbsp;—&nbsp;
-    <span id="countdown-wrap">Time left: <strong id="cd-days">--</strong>d <strong id="cd-hours">--</strong>h <strong id="cd-mins">--</strong>m <strong id="cd-secs">--</strong>s</span>
-    &nbsp;—&nbsp; <strong onclick="goToAudit()" style="cursor:pointer;text-decoration:underline;">Claim your free audit now →</strong>
+    🚀 <strong>24-HOUR TURNAROUND:</strong> Submit your details today and receive your free website concept or audit <strong>within 24 hours.</strong> No catch. No obligation. Just results. &nbsp;—&nbsp; <strong onclick="goToAudit()" style="cursor:pointer;text-decoration:underline;">Claim yours now →</strong>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⚡&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    🚨 <strong>EOFY ALERT:</strong> Get your new site live before 30 June & your accountant may claim it as a <strong>$20,000 ATO instant asset write-off</strong> &nbsp;—&nbsp;
-    <span>Time left: <strong class="cd-days2">--</strong>d <strong class="cd-hours2">--</strong>h <strong class="cd-mins2">--</strong>m <strong class="cd-secs2">--</strong>s</span>
-    &nbsp;—&nbsp; <strong onclick="goToAudit()" style="cursor:pointer;text-decoration:underline;">Claim your free audit now →</strong>
+    🚀 <strong>24-HOUR TURNAROUND:</strong> Submit your details today and receive your free website concept or audit <strong>within 24 hours.</strong> No catch. No obligation. Just results. &nbsp;—&nbsp; <strong onclick="goToAudit()" style="cursor:pointer;text-decoration:underline;">Claim yours now →</strong>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⚡&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   </span>
 </div>
@@ -985,13 +981,8 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
 <!-- ══ FINAL CTA ══ JD Point 6 repeated: Data capture with WOW Factor urgency -->
 <section class="final-cta">
   <div class="final-inner">
-    <div class="urgency-tag">⏰ Only 5 Spots Left This Month</div>
-    <h2>Stop Leaving Money on the Table.<br>Get Your Free Website Audit Today.</h2>
-    <p>Find out exactly how many leads your current website is costing you — and what it would take to fix it. It's free, it takes 15 minutes to review, and it could be the most valuable thing you do for your business this year.</p>
-    <div style="background:rgba(10,22,40,0.15);border-left:4px solid var(--navy);padding:18px 24px;margin-bottom:32px;text-align:left;max-width:620px;margin-left:auto;margin-right:auto;">
-      <p style="font-size:15px;color:var(--navy);line-height:1.7;margin:0;font-weight:700;">💡 EOFY Tax Tip</p>
-      <p style="font-size:15px;color:var(--navy);line-height:1.7;margin:8px 0 0;opacity:0.85;">If you get your new site live before 30 June, your accountant may be able to put it through as an instant asset write-off under the ATO's $20,000 scheme — potentially the whole investment back as a tax deduction this financial year. We build in 14 days, so the window is tight but doable. <em>Check with your accountant to confirm eligibility.</em></p>
-    </div>
+    <h2>Ready to Get Started?<br>Claim Your Free Website Strategy Today.</h2>
+    <p>Find out exactly what we'd do with your business online — whether you need a brand new site or a complete transformation. It's free, it takes 15 minutes to review, and it could be the most valuable thing you do for your business this year.</p>
     <div id="ff-wrap">
       <div class="final-form">
         <input type="email" id="ff-email" placeholder="Enter your email address" />
@@ -1113,32 +1104,7 @@ async function submitFinal() {
   document.getElementById('ff-success').style.display = 'block';
 }
 
-// EOFY Countdown Timer — counts to 30 June 2026 midnight AEST
-function updateCountdown() {
-  const eofy = new Date('2026-06-30T23:59:59+10:00');
-  const now = new Date();
-  const diff = eofy - now;
-  if (diff <= 0) {
-    document.getElementById('countdown-wrap').innerHTML = '<strong>EOFY deadline has passed</strong>';
-    return;
-  }
-  const days  = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const mins  = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  const secs  = Math.floor((diff % (1000 * 60)) / 1000);
-  const d = days, h = hours, m = String(mins).padStart(2,'0'), s = String(secs).padStart(2,'0');
-  document.getElementById('cd-days').textContent  = d;
-  document.getElementById('cd-hours').textContent = h;
-  document.getElementById('cd-mins').textContent  = m;
-  document.getElementById('cd-secs').textContent  = s;
-  // Update duplicate copy in ticker
-  document.querySelectorAll('.cd-days2').forEach(el  => el.textContent = d);
-  document.querySelectorAll('.cd-hours2').forEach(el => el.textContent = h);
-  document.querySelectorAll('.cd-mins2').forEach(el  => el.textContent = m);
-  document.querySelectorAll('.cd-secs2').forEach(el  => el.textContent = s);
-}
-updateCountdown();
-setInterval(updateCountdown, 1000);
+// end of scripts
 </script>
 </body>
 </html>
