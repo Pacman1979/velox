@@ -78,7 +78,7 @@ nav {
 .nav-btn { font-size: 14px; padding: 12px 28px; }
 
 /* ── HERO ── */
-.hero { background: var(--navy); color: var(--white); padding: 72px 0 64px; position: relative; overflow: hidden; }
+.hero { background: var(--navy); color: var(--white); padding: 36px 0 40px; position: relative; overflow: hidden; }
 .hero::after {
   content: ''; position: absolute; top: 0; right: 0; width: 45%; height: 100%;
   background: linear-gradient(135deg, transparent, rgba(232,160,32,0.07));
@@ -87,44 +87,44 @@ nav {
 .hero-inner { display: grid; grid-template-columns: 1fr 420px; gap: 60px; align-items: start; }
 .eyebrow {
   font-family: var(--font-accent); font-size: 12px; letter-spacing: 0.2em;
-  text-transform: uppercase; color: var(--gold); margin-bottom: 20px;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 12px;
   display: flex; align-items: center; gap: 12px;
 }
 .eyebrow::before { content: ''; display: block; width: 36px; height: 2px; background: var(--gold); flex-shrink: 0; }
 .hero h1 {
   font-family: var(--font-head); font-size: clamp(30px, 3.8vw, 48px);
-  font-weight: 900; line-height: 1.1; margin-bottom: 28px; color: var(--white);
+  font-weight: 900; line-height: 1.05; margin-bottom: 16px; color: var(--white);
 }
 .hero h1 em { font-style: normal; color: var(--gold); display: block; white-space: nowrap; }
-.agitate { font-size: 17px; line-height: 1.75; color: #b0bfd4; margin-bottom: 14px; max-width: 560px; }
+.agitate { font-size: 15px; line-height: 1.6; color: #b0bfd4; margin-bottom: 8px; max-width: 560px; }
 .agitate strong { color: var(--white); }
 .agitate .pain { color: #ff8a80; font-weight: 700; }
 .stats-row {
-  display: flex; gap: 32px; flex-wrap: wrap;
-  margin: 36px 0; padding: 22px 0;
+  display: flex; gap: 24px; flex-wrap: wrap;
+  margin: 16px 0; padding: 14px 0;
   border-top: 1px solid rgba(255,255,255,0.1);
   border-bottom: 1px solid rgba(255,255,255,0.1);
 }
-.stat-num { font-family: var(--font-accent); font-size: 30px; font-weight: 600; color: var(--gold); line-height: 1; }
-.stat-lbl { font-size: 11px; color: #6a7f9a; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px; }
-.cta-row { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
-.hero-guarantee { font-size: 13px; color: #6a7f9a; margin-top: 16px; display: flex; align-items: center; gap: 8px; }
+.stat-num { font-family: var(--font-accent); font-size: 24px; font-weight: 600; color: var(--gold); line-height: 1; }
+.stat-lbl { font-size: 10px; color: #6a7f9a; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 3px; }
+.cta-row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-top: 16px; }
+.hero-guarantee { font-size: 12px; color: #6a7f9a; margin-top: 10px; display: flex; align-items: center; gap: 8px; }
 .hero-guarantee::before { content: '✓'; color: var(--lime); font-weight: 700; }
 
 /* FORM CARD */
 .form-card {
-  background: var(--white); color: var(--navy); padding: 40px 36px;
+  background: var(--white); color: var(--navy); padding: 28px 28px;
   box-shadow: 0 20px 60px rgba(0,0,0,0.45); position: relative;
 }
 .form-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; background: var(--gold); }
 .form-badge {
   background: var(--red); color: var(--white); font-family: var(--font-accent);
   font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
-  padding: 5px 14px; display: inline-block; margin-bottom: 16px;
+  padding: 4px 12px; display: inline-block; margin-bottom: 10px;
 }
-.form-card h3 { font-family: var(--font-head); font-size: 21px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; color: var(--navy); }
-.form-card > p { font-size: 13px; color: var(--gray); line-height: 1.6; margin-bottom: 22px; }
-.field { margin-bottom: 13px; }
+.form-card h3 { font-family: var(--font-head); font-size: 19px; font-weight: 800; line-height: 1.2; margin-bottom: 6px; color: var(--navy); }
+.form-card > p { font-size: 12px; color: var(--gray); line-height: 1.5; margin-bottom: 14px; }
+.field { margin-bottom: 10px; }
 .field input, .field select {
   width: 100%; background: var(--offwhite); border: 2px solid #dde2ea;
   color: var(--navy); font-family: var(--font-body); font-size: 14px;
