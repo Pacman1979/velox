@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Studio Velox — Pricing & Packages</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700&family=Lato:wght@300;400;700&family=Oswald:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:     #0a1628;
+  --navy2:    #122040;
+  --gold:     #e8a020;
+  --gold2:    #f5b732;
+  --white:    #ffffff;
+  --offwhite: #f8f6f1;
+  --gray:     #6b7280;
+  --light:    #eef2f7;
+  --border:   #e2e8f0;
+  --font-head: 'Playfair Display', Georgia, serif;
+  --font-body: 'Lato', sans-serif;
+  --font-acc:  'Oswald', sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); background: var(--offwhite); color: var(--navy); }
+
+/* ── NAV ── */
+nav {
+  background: var(--navy);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+}
+.logo { font-family: var(--font-acc); font-size: 22px; font-weight: 600; color: var(--white); letter-spacing: 0.04em; }
+.logo span { color: var(--gold); }
+.private-badge {
+  font-family: var(--font-acc); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  background: rgba(232,160,32,0.15); color: var(--gold);
+  border: 1px solid rgba(232,160,32,0.3);
+  padding: 5px 14px;
+}
+
+/* ── HERO ── */
+.hero {
+  background: var(--navy);
+  padding: 64px 32px 56px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: 'PRICING';
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-head);
+  font-size: clamp(80px, 16vw, 180px);
+  font-weight: 900;
+  color: rgba(255,255,255,0.025);
+  letter-spacing: -0.04em;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.hero-eyebrow {
+  font-family: var(--font-acc);
+  font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 16px;
+}
+.hero h1 {
+  font-family: var(--font-head);
+  font-size: clamp(32px, 5vw, 56px);
+  font-weight: 900; line-height: 1.1;
+  color: var(--white); margin-bottom: 20px;
+}
+.hero h1 em { font-style: normal; color: var(--gold); }
+.hero-sub {
+  font-size: 17px; line-height: 1.75;
+  color: #b0bfd4; max-width: 620px;
+  margin: 0 auto 12px;
+}
+.hero-note {
+  font-family: var(--font-acc);
+  font-size: 13px; letter-spacing: 0.06em;
+  color: rgba(232,160,32,0.7);
+  margin-top: 8px;
+}
+
+/* ── CONTAINER ── */
+.container { max-width: 1060px; margin: 0 auto; padding: 0 24px; }
+
+/* ── SECTION LABEL ── */
+.sec-label {
+  font-family: var(--font-acc);
+  font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 8px;
+}
+.sec-title {
+  font-family: var(--font-head);
+  font-size: clamp(26px, 3.5vw, 38px);
+  font-weight: 900; line-height: 1.15;
+  color: var(--navy); margin-bottom: 8px;
+}
+.sec-title em { font-style: normal; color: var(--gold); }
+.sec-sub { font-size: 15px; color: var(--gray); line-height: 1.7; margin-bottom: 40px; max-width: 560px; }
+
+/* ── ENTRY POINT BANNER ── */
+.entry-banner {
+  background: var(--navy);
+  margin: 48px 0 0;
+  padding: 36px 40px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  position: relative;
+  overflow: hidden;
+}
+.entry-banner::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--gold), var(--gold2));
+}
+.entry-icon { font-size: 40px; flex-shrink: 0; }
+.entry-content h3 {
+  font-family: var(--font-head); font-size: 22px; font-weight: 800;
+  color: var(--white); margin-bottom: 6px;
+}
+.entry-content p { font-size: 15px; color: #b0bfd4; line-height: 1.65; }
+.entry-badge {
+  flex-shrink: 0; margin-left: auto;
+  background: var(--gold); color: var(--navy);
+  font-family: var(--font-acc); font-size: 22px; font-weight: 600;
+  padding: 12px 28px; letter-spacing: 0.04em;
+}
+
+/* ── CORE PACKAGES ── */
+.packages { padding: 56px 0 48px; }
+.packages-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.pkg-card {
+  background: var(--white);
+  border: 2px solid var(--border);
+  padding: 32px 28px;
+  position: relative;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  display: flex; flex-direction: column;
+}
+.pkg-card:hover {
+  border-color: var(--gold);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(10,22,40,0.1);
+}
+.pkg-card.featured {
+  border-color: var(--gold);
+  background: var(--navy);
+}
+.pkg-card.featured::before {
+  content: 'MOST POPULAR';
+  position: absolute; top: -1px; left: 50%; transform: translateX(-50%);
+  background: var(--gold); color: var(--navy);
+  font-family: var(--font-acc); font-size: 10px; font-weight: 600;
+  letter-spacing: 0.14em; padding: 4px 16px;
+}
+.pkg-num {
+  font-family: var(--font-acc); font-size: 11px; letter-spacing: 0.15em;
+  color: var(--gold); margin-bottom: 12px;
+}
+.pkg-name {
+  font-family: var(--font-head); font-size: 22px; font-weight: 800;
+  color: var(--navy); margin-bottom: 8px; line-height: 1.2;
+}
+.pkg-card.featured .pkg-name { color: var(--white); }
+.pkg-desc { font-size: 14px; color: var(--gray); line-height: 1.7; margin-bottom: 24px; flex: 1; }
+.pkg-card.featured .pkg-desc { color: #8aaac8; }
+.pkg-price {
+  font-family: var(--font-head); font-size: 32px; font-weight: 900;
+  color: var(--gold); line-height: 1;
+}
+.pkg-price-note { font-size: 12px; color: var(--gray); margin-top: 4px; }
+.pkg-card.featured .pkg-price-note { color: #5a7090; }
+.pkg-divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+.pkg-card.featured .pkg-divider { border-color: rgba(255,255,255,0.08); }
+.pkg-features { list-style: none; }
+.pkg-features li {
+  font-size: 13px; color: var(--navy);
+  padding: 5px 0; display: flex; align-items: flex-start; gap: 8px;
+}
+.pkg-card.featured .pkg-features li { color: #b0bfd4; }
+.pkg-features li::before { content: '✓'; color: var(--gold); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+/* ── ADD-ONS ── */
+.addons { background: var(--white); padding: 56px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.addons-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.addon-card {
+  border: 1px solid var(--border);
+  padding: 24px 26px;
+  display: flex; gap: 20px; align-items: flex-start;
+  transition: border-color 0.2s;
+  background: var(--offwhite);
+}
+.addon-card:hover { border-color: var(--gold); }
+.addon-icon { font-size: 28px; flex-shrink: 0; margin-top: 2px; }
+.addon-name {
+  font-family: var(--font-acc); font-size: 14px; font-weight: 600;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--navy); margin-bottom: 4px;
+}
+.addon-desc { font-size: 13px; color: var(--gray); line-height: 1.6; margin-bottom: 10px; }
+.addon-price {
+  font-family: var(--font-head); font-size: 20px; font-weight: 800;
+  color: var(--gold);
+}
+.addon-price-note { font-size: 11px; color: var(--gray); }
+
+/* ── MONTHLY PLANS ── */
+.monthly { padding: 56px 0; }
+.monthly-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.monthly-card {
+  background: var(--navy);
+  padding: 36px 32px;
+  position: relative; overflow: hidden;
+}
+.monthly-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--gold);
+}
+.monthly-name {
+  font-family: var(--font-acc); font-size: 13px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 10px;
+}
+.monthly-title {
+  font-family: var(--font-head); font-size: 22px; font-weight: 800;
+  color: var(--white); margin-bottom: 10px; line-height: 1.2;
+}
+.monthly-desc { font-size: 14px; color: #8aaac8; line-height: 1.65; margin-bottom: 24px; }
+.monthly-price {
+  font-family: var(--font-head); font-size: 36px; font-weight: 900;
+  color: var(--gold); line-height: 1;
+}
+.monthly-period { font-size: 13px; color: #5a7090; margin-top: 4px; }
+.monthly-features { list-style: none; margin-top: 20px; }
+.monthly-features li {
+  font-size: 13px; color: #b0bfd4;
+  padding: 5px 0; display: flex; align-items: flex-start; gap: 8px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.monthly-features li:first-child { border-top: none; }
+.monthly-features li::before { content: '—'; color: var(--gold); flex-shrink: 0; }
+
+/* ── NOTES ── */
+.notes { background: var(--offwhite); padding: 48px 0; border-top: 1px solid var(--border); }
+.notes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.note-item { padding: 24px; background: var(--white); border-left: 3px solid var(--gold); }
+.note-title {
+  font-family: var(--font-acc); font-size: 13px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--navy); margin-bottom: 8px;
+}
+.note-text { font-size: 13px; color: var(--gray); line-height: 1.7; }
+
+/* ── FOOTER ── */
+footer {
+  background: var(--navy);
+  padding: 32px;
+  text-align: center;
+  font-family: var(--font-acc);
+  font-size: 13px; color: #4a6080;
+  letter-spacing: 0.06em;
+}
+footer span { color: var(--gold); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 860px) {
+  .packages-grid { grid-template-columns: 1fr; }
+  .addons-grid { grid-template-columns: 1fr; }
+  .monthly-grid { grid-template-columns: 1fr; }
+  .notes-grid { grid-template-columns: 1fr; }
+  .entry-banner { flex-direction: column; text-align: center; }
+  .entry-badge { margin-left: 0; }
+  nav { padding: 14px 20px; }
+  .hero { padding: 48px 20px 40px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">STUD<span>IO</span> <span>VE</span>LOX<span>.</span></div>
+  <div class="private-badge">🔒 Private Pricing Page</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">Studio Velox — Gold Coast Web Design</div>
+  <h1>Packages & <em>Pricing</em></h1>
+  <p class="hero-sub">Every engagement starts with a free AI mockup — no commitment, no cost. If you love it, we build it.</p>
+  <p class="hero-note">This page is private and shared directly with clients — it is not publicly listed.</p>
+</section>
+
+<div class="container">
+
+  <!-- ENTRY POINT -->
+  <div class="entry-banner">
+    <div class="entry-icon">🎁</div>
+    <div class="entry-content">
+      <h3>Start here: Free AI Mockup</h3>
+      <p>Before you spend a cent, I'll put together a 1–2 screen AI-generated concept of what your website could look like — delivered within 24 hours. No obligation. It's the best way to see if we're a good fit before committing to anything.</p>
+    </div>
+    <div class="entry-badge">FREE</div>
+  </div>
+
+  <!-- CORE PACKAGES -->
+  <section class="packages">
+    <div class="sec-label">Core packages</div>
+    <h2 class="sec-title">Website Builds</h2>
+    <p class="sec-sub">All packages include the free mockup stage. Pricing varies based on complexity, content provided and revisions required.</p>
+
+    <div class="packages-grid">
+
+      <div class="pkg-card">
+        <div class="pkg-num">TIER 01</div>
+        <div class="pkg-name">Starter Site</div>
+        <div class="pkg-desc">Your free mockup refined into a live, working website. Perfect for businesses that need a clean online presence fast — service pages, contact form, stock imagery.</div>
+        <div class="pkg-price">$350–$500</div>
+        <div class="pkg-price-note">1–3 pages · Stock/AI imagery · Basic copy included</div>
+        <hr class="pkg-divider">
+        <ul class="pkg-features">
+          <li>Up to 3 pages (Home, About, Contact)</li>
+          <li>Mobile responsive design</li>
+          <li>Contact form setup</li>
+          <li>Stock or AI-generated imagery</li>
+          <li>Basic copy written for you</li>
+          <li>Live within 14 days</li>
+        </ul>
+      </div>
+
+      <div class="pkg-card featured">
+        <div class="pkg-num">TIER 02</div>
+        <div class="pkg-name">Standard Business Site</div>
+        <div class="pkg-desc">A complete business website with more pages, real photos pulled from your social media, SEO foundations and copy tailored to your business.</div>
+        <div class="pkg-price">$700–$1,000</div>
+        <div class="pkg-price-note">4–6 pages · Client photos sourced · SEO setup</div>
+        <hr class="pkg-divider">
+        <ul class="pkg-features">
+          <li>4–6 pages including services</li>
+          <li>Photos sourced from your Facebook/Instagram</li>
+          <li>AI-assisted copy, edited for your voice</li>
+          <li>Basic SEO — titles, meta, structure</li>
+          <li>Google Business Profile setup</li>
+          <li>Mobile responsive + fast loading</li>
+        </ul>
+      </div>
+
+      <div class="pkg-card">
+        <div class="pkg-num">TIER 03</div>
+        <div class="pkg-name">Premium Custom Site</div>
+        <div class="pkg-desc">A fully bespoke website built around your brand — with professional photography, custom features and a design that stands apart from anything template-based.</div>
+        <div class="pkg-price">$1,200–$1,800</div>
+        <div class="pkg-price-note">Full custom · Pro photography · Tailored features</div>
+        <hr class="pkg-divider">
+        <ul class="pkg-features">
+          <li>Fully custom design — no templates</li>
+          <li>Professional photo shoot included</li>
+          <li>Booking forms, galleries, custom features</li>
+          <li>Full SEO setup + sitemap</li>
+          <li>Priority build — faster turnaround</li>
+          <li>30-day post-launch support</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+
+<!-- ADD-ONS -->
+<section class="addons">
+  <div class="container">
+    <div class="sec-label">Extras & Add-ons</div>
+    <h2 class="sec-title">Bolt-On <em>Services</em></h2>
+    <p class="sec-sub">Add any of these to a core package or book them as standalone services.</p>
+
+    <div class="addons-grid">
+
+      <div class="addon-card">
+        <div class="addon-icon">📸</div>
+        <div>
+          <div class="addon-name">Photography Add-on</div>
+          <div class="addon-desc">Standalone professional photo shoot for your business — headshots, premises, product or lifestyle imagery for use across your site and socials.</div>
+          <div class="addon-price">$150–$300</div>
+          <div class="addon-price-note">Half-day shoot · Edited images delivered digitally</div>
+        </div>
+      </div>
+
+      <div class="addon-card">
+        <div class="addon-icon">⚡</div>
+        <div>
+          <div class="addon-name">Rush Delivery</div>
+          <div class="addon-desc">Need it fast? Starter and Standard tier sites can be delivered in 48–72 hours with a rush surcharge applied to the base package price.</div>
+          <div class="addon-price">+30% surcharge</div>
+          <div class="addon-price-note">Applies to Starter & Standard tiers only</div>
+        </div>
+      </div>
+
+      <div class="addon-card">
+        <div class="addon-icon">🛒</div>
+        <div>
+          <div class="addon-name">E-commerce Add-on</div>
+          <div class="addon-desc">Add an online shop or booking system to any website package — product listings, checkout, payment gateway setup or appointment booking integration.</div>
+          <div class="addon-price">$300–$600</div>
+          <div class="addon-price-note">Added to any core package</div>
+        </div>
+      </div>
+
+      <div class="addon-card">
+        <div class="addon-icon">🔄</div>
+        <div>
+          <div class="addon-name">Website Refresh</div>
+          <div class="addon-desc">Already have a website but it's looking tired? A refresh updates your design, copy and structure without a full rebuild — faster and more affordable.</div>
+          <div class="addon-price">$250–$450</div>
+          <div class="addon-price-note">Design & copy update · No full rebuild needed</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- MONTHLY PLANS -->
+<section class="monthly">
+  <div class="container">
+    <div class="sec-label">Ongoing support</div>
+    <h2 class="sec-title">Monthly <em>Plans</em></h2>
+    <p class="sec-sub">Optional ongoing services to keep your site healthy and your content fresh.</p>
+
+    <div class="monthly-grid">
+
+      <div class="monthly-card">
+        <div class="monthly-name">Care Plan</div>
+        <div class="monthly-title">Hosting, Maintenance & Security</div>
+        <div class="monthly-desc">I handle the behind-the-scenes stuff so your website stays fast, secure and up to date — including minor text and image edits as needed.</div>
+        <div class="monthly-price">$49–$99</div>
+        <div class="monthly-period">per month · No lock-in contract</div>
+        <ul class="monthly-features">
+          <li>Hosting & uptime monitoring</li>
+          <li>Security checks & updates</li>
+          <li>Minor edits (text, images, hours)</li>
+          <li>Monthly performance report</li>
+        </ul>
+      </div>
+
+      <div class="monthly-card">
+        <div class="monthly-name">Content Retainer</div>
+        <div class="monthly-title">AI-Assisted Content Creation</div>
+        <div class="monthly-desc">Regular blog posts, social captions or product descriptions written in your brand voice using AI tools — reviewed and edited before delivery.</div>
+        <div class="monthly-price">$150–$300</div>
+        <div class="monthly-period">per month · Flexible volume</div>
+        <ul class="monthly-features">
+          <li>Blog posts (SEO-optimised)</li>
+          <li>Social media captions</li>
+          <li>Product or service descriptions</li>
+          <li>Delivered ready to publish</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- NOTES -->
+<section class="notes">
+  <div class="container">
+    <div class="notes-grid">
+      <div class="note-item">
+        <div class="note-title">💬 How it works</div>
+        <div class="note-text">Every project starts with a free mockup. Once you're happy with the direction, I'll confirm the package and price in writing before any work begins. No surprises.</div>
+      </div>
+      <div class="note-item">
+        <div class="note-title">💳 Payment terms</div>
+        <div class="note-text">50% deposit to begin, 50% on completion before the site goes live. Monthly plans are billed at the start of each month and can be cancelled anytime.</div>
+      </div>
+      <div class="note-item">
+        <div class="note-title">📋 What I need from you</div>
+        <div class="note-text">Your logo (if you have one), any photos, your brand colours, and an idea of what pages you need. I handle everything else — copy, layout, imagery and build.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>STUD<span>IO</span> <span>VE</span>LOX<span>.</span> &nbsp;·&nbsp; phil@studiovelox.com &nbsp;·&nbsp; 0422 777 865</p>
+  <p style="margin-top:8px;font-size:11px;opacity:0.5;">This pricing page is private and intended for direct sharing only. Prices are indicative and may vary based on project scope.</p>
+</footer>
+
+</body>
+</html>
