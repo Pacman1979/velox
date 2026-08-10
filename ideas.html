@@ -122,6 +122,25 @@ nav {
 .tasks-col .item-card.done { border-left-color: var(--green); opacity: 0.7; }
 .tasks-col .item-card.done .item-text { text-decoration: line-through; color: var(--gray); }
 
+.item-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 6px; }
+.item-importance { font-size: 12px; flex-shrink: 0; letter-spacing: -1px; line-height: 1.4; }
+.importance-editor {
+  display: flex; align-items: center; gap: 6px;
+  margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border);
+}
+.imp-label { font-family: var(--font-acc); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray); }
+.imp-slider { flex: 1; accent-color: var(--gold); cursor: pointer; height: 3px; }
+.imp-val { font-family: var(--font-acc); font-size: 12px; color: var(--gold); font-weight: 600; width: 24px; text-align: right; }
+.importance-select {
+  width: 80px; flex-shrink: 0;
+  font-family: var(--font-body); font-size: 14px;
+  padding: 10px 8px; border: 1.5px solid var(--border);
+  background: var(--offwhite); color: var(--navy);
+  cursor: pointer; appearance: none; -webkit-appearance: none;
+  outline: none; text-align: center;
+}
+.importance-select:focus { border-color: var(--gold); }
+
 .item-meta {
   display: flex; align-items: center; gap: 8px;
   margin-bottom: 8px;
@@ -196,7 +215,21 @@ footer span { color: var(--gold); }
         </select>
         <textarea class="text-input" id="idea-text" rows="2" placeholder="New idea — website feature, content, marketing..."></textarea>
       </div>
-      <button class="add-btn" onclick="addIdea()">+ Add idea</button>
+      <div class="form-row">
+        <select class="importance-select" id="idea-imp">
+          <option value="10">10 ❗</option>
+          <option value="9">9 ❗</option>
+          <option value="8">8 ❗</option>
+          <option value="7">7 ❗</option>
+          <option value="6">6 ❗</option>
+          <option value="5" selected>5 ❗</option>
+          <option value="4">4 ❗</option>
+          <option value="3">3 ❗</option>
+          <option value="2">2 ❗</option>
+          <option value="1">1 ❗</option>
+        </select>
+        <button class="add-btn" onclick="addIdea()">+ Add idea</button>
+      </div>
     </div>
     <div class="items-list" id="ideas-list"></div>
   </div>
@@ -216,7 +249,21 @@ footer span { color: var(--gold); }
         </select>
         <textarea class="text-input" id="task-text" rows="2" placeholder="Must-do task — e.g. Facebook ads, Google profile, client follow-up..."></textarea>
       </div>
-      <button class="add-btn" onclick="addTask()">+ Add task</button>
+      <div class="form-row">
+        <select class="importance-select" id="task-imp">
+          <option value="10">10 ❗</option>
+          <option value="9">9 ❗</option>
+          <option value="8">8 ❗</option>
+          <option value="7">7 ❗</option>
+          <option value="6">6 ❗</option>
+          <option value="5" selected>5 ❗</option>
+          <option value="4">4 ❗</option>
+          <option value="3">3 ❗</option>
+          <option value="2">2 ❗</option>
+          <option value="1">1 ❗</option>
+        </select>
+        <button class="add-btn" onclick="addTask()">+ Add task</button>
+      </div>
     </div>
     <div class="items-list" id="tasks-list"></div>
   </div>
@@ -239,6 +286,8 @@ function timeAgo(ts) {
   return days + 'd ago';
 }
 
+function exclamations(n) { return '❗'.repeat(n || 1); }
+
 function renderIdeas(items) {
   const list = document.getElementById('ideas-list');
   document.getElementById('ideas-count').textContent = items.length;
@@ -246,13 +295,24 @@ function renderIdeas(items) {
     list.innerHTML = '<div class="empty-state">No ideas yet — add the first one above!</div>';
     return;
   }
-  list.innerHTML = items.slice().reverse().map(item => `
+  const sorted = items.slice().sort((a, b) => (b.importance||5) - (a.importance||5) || b.ts - a.ts);
+  list.innerHTML = sorted.map(item => `
     <div class="item-card">
+      <div class="item-top">
+        <div class="item-importance">${exclamations(item.importance||5)}</div>
+        <div class="item-text">${item.text}</div>
+      </div>
       <div class="item-meta">
         <span class="item-author">${item.author}</span>
         <span class="item-time">${timeAgo(item.ts)}</span>
       </div>
-      <div class="item-text">${item.text}</div>
+      <div class="importance-editor">
+        <span class="imp-label">Priority</span>
+        <input type="range" class="imp-slider" min="1" max="10" value="${item.importance||5}"
+          onchange="updateIdeaImportance('${item.id}', this.value)"
+          oninput="this.nextElementSibling.textContent = this.value">
+        <span class="imp-val">${item.importance||5}</span>
+      </div>
       <div class="item-actions">
         <button class="action-btn del-btn" onclick="deleteIdea('${item.id}')">Delete</button>
       </div>
@@ -266,14 +326,25 @@ function renderTasks(items) {
     list.innerHTML = '<div class="empty-state">No tasks yet — add the first one above!</div>';
     return;
   }
-  const sorted = items.slice().sort((a, b) => a.done - b.done || b.ts - a.ts);
-  list.innerHTML = sorted.map(item => `
+  const active = items.filter(i => !i.done).sort((a, b) => (b.importance||5) - (a.importance||5) || b.ts - a.ts);
+  const done = items.filter(i => i.done).sort((a, b) => b.ts - a.ts);
+  list.innerHTML = [...active, ...done].map(item => `
     <div class="item-card ${item.done ? 'done' : ''}">
+      <div class="item-top">
+        <div class="item-importance">${exclamations(item.importance||5)}</div>
+        <div class="item-text">${item.text}</div>
+      </div>
       <div class="item-meta">
         <span class="item-author">${item.done ? '✓ ' : ''}${item.author}</span>
         <span class="item-time">${timeAgo(item.ts)}</span>
       </div>
-      <div class="item-text">${item.text}</div>
+      <div class="importance-editor">
+        <span class="imp-label">Priority</span>
+        <input type="range" class="imp-slider" min="1" max="10" value="${item.importance||5}"
+          onchange="updateTaskImportance('${item.id}', this.value)"
+          oninput="this.nextElementSibling.textContent = this.value">
+        <span class="imp-val">${item.importance||5}</span>
+      </div>
       <div class="item-actions">
         <button class="action-btn done-btn ${item.done ? 'active' : ''}" onclick="toggleTask('${item.id}')">${item.done ? 'Undo' : 'Mark done'}</button>
         <button class="action-btn del-btn" onclick="deleteTask('${item.id}')">Delete</button>
@@ -283,25 +354,24 @@ function renderTasks(items) {
 
 async function loadIdeas() {
   const res = await fetch('/api/ideas');
-  const items = await res.json();
-  renderIdeas(items);
+  renderIdeas(await res.json());
 }
 
 async function loadTasks() {
   const res = await fetch('/api/tasks');
-  const items = await res.json();
-  renderTasks(items);
+  renderTasks(await res.json());
 }
 
 async function addIdea() {
   const text = document.getElementById('idea-text').value.trim();
   const author = document.getElementById('idea-author').value;
+  const importance = parseInt(document.getElementById('idea-imp').value);
   if (!text) return;
   document.getElementById('idea-text').value = '';
   const res = await fetch('/api/ideas', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, author })
+    body: JSON.stringify({ text, author, importance })
   });
   renderIdeas(await res.json());
 }
@@ -309,12 +379,31 @@ async function addIdea() {
 async function addTask() {
   const text = document.getElementById('task-text').value.trim();
   const author = document.getElementById('task-author').value;
+  const importance = parseInt(document.getElementById('task-imp').value);
   if (!text) return;
   document.getElementById('task-text').value = '';
   const res = await fetch('/api/tasks', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, author })
+    body: JSON.stringify({ text, author, importance })
+  });
+  renderTasks(await res.json());
+}
+
+async function updateIdeaImportance(id, value) {
+  const res = await fetch('/api/ideas', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, importance: parseInt(value) })
+  });
+  renderIdeas(await res.json());
+}
+
+async function updateTaskImportance(id, value) {
+  const res = await fetch('/api/tasks', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, importance: parseInt(value) })
   });
   renderTasks(await res.json());
 }
