@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phil — Life Command Centre</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700&family=Lato:wght@300;400;700&family=Oswald:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy: #0a1628; --navy2: #122040; --gold: #e8a020; --gold2: #f5b732;
+  --white: #ffffff; --offwhite: #f8f6f1; --gray: #6b7280; --border: #e2e8f0;
+  --red: #c0392b; --green: #1b6b3a; --orange: #e05a2b;
+  --font-head: 'Playfair Display', Georgia, serif;
+  --font-body: 'Lato', sans-serif;
+  --font-acc: 'Oswald', sans-serif;
+}
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); background: var(--offwhite); color: var(--navy); min-height: 100vh; }
+
+/* ── PIN SCREEN ── */
+#pin-screen {
+  position: fixed; inset: 0; background: var(--navy);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 1000;
+}
+#pin-screen::before {
+  content: 'LIFE'; position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-head); font-size: clamp(80px, 18vw, 200px);
+  font-weight: 900; color: rgba(255,255,255,0.025);
+  letter-spacing: -0.04em; pointer-events: none; white-space: nowrap;
+}
+.pin-logo {
+  font-family: var(--font-acc); font-size: 22px; font-weight: 600;
+  color: var(--white); letter-spacing: 0.04em; margin-bottom: 48px;
+  position: relative;
+}
+.pin-logo span { color: var(--gold); }
+.pin-title {
+  font-family: var(--font-head); font-size: clamp(24px, 4vw, 36px);
+  font-weight: 900; color: var(--white); margin-bottom: 8px;
+  text-align: center; position: relative;
+}
+.pin-sub {
+  font-size: 14px; color: #5a7090; margin-bottom: 40px;
+  text-align: center; position: relative;
+}
+.pin-dots {
+  display: flex; gap: 16px; margin-bottom: 32px; position: relative;
+}
+.pin-dot {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.2);
+  transition: background 0.15s, border-color 0.15s;
+}
+.pin-dot.filled { background: var(--gold); border-color: var(--gold); }
+.pin-dot.error { background: var(--red); border-color: var(--red); }
+.pin-keypad {
+  display: grid; grid-template-columns: repeat(3, 72px);
+  gap: 12px; position: relative;
+}
+.pin-key {
+  width: 72px; height: 72px; border: 1.5px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04); color: var(--white);
+  font-family: var(--font-acc); font-size: 22px; font-weight: 500;
+  cursor: pointer; transition: background 0.15s, border-color 0.15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.pin-key:hover { background: rgba(232,160,32,0.15); border-color: var(--gold); }
+.pin-key:active { background: rgba(232,160,32,0.3); }
+.pin-key.del { font-size: 18px; color: #5a7090; }
+.pin-error {
+  font-family: var(--font-acc); font-size: 13px; letter-spacing: 0.1em;
+  color: var(--red); text-transform: uppercase; margin-top: 20px;
+  position: relative; min-height: 20px; text-align: center;
+}
+
+/* ── MAIN APP (hidden until PIN correct) ── */
+#app { display: none; }
+
+/* ── NAV ── */
+nav {
+  background: var(--navy); padding: 14px 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.3);
+}
+.logo { font-family: var(--font-acc); font-size: 20px; font-weight: 600; color: var(--white); letter-spacing: 0.04em; }
+.logo span { color: var(--gold); }
+.nav-right { display: flex; align-items: center; gap: 16px; }
+.private-badge {
+  font-family: var(--font-acc); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  background: rgba(232,160,32,0.12); color: var(--gold);
+  border: 1px solid rgba(232,160,32,0.25); padding: 4px 12px;
+}
+.lock-btn {
+  font-family: var(--font-acc); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  background: rgba(192,57,43,0.15); color: #e88; border: 1px solid rgba(192,57,43,0.3);
+  padding: 4px 12px; cursor: pointer; transition: all 0.2s;
+}
+.lock-btn:hover { background: rgba(192,57,43,0.3); }
+
+/* ── PAGE HEADER ── */
+.page-header {
+  background: var(--navy); padding: 40px 28px 36px; text-align: center;
+  position: relative; overflow: hidden;
+}
+.page-header::before {
+  content: 'COMMAND'; position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-head); font-size: clamp(40px, 10vw, 110px);
+  font-weight: 900; color: rgba(255,255,255,0.025);
+  letter-spacing: -0.04em; white-space: nowrap; pointer-events: none;
+}
+.page-header h1 {
+  font-family: var(--font-head); font-size: clamp(24px, 4vw, 38px);
+  font-weight: 900; color: var(--white); margin-bottom: 8px; position: relative;
+}
+.page-header h1 em { font-style: normal; color: var(--gold); }
+.page-header p { font-size: 15px; color: #b0bfd4; line-height: 1.6; position: relative; }
+
+/* ── BOARD ── */
+.board {
+  max-width: 1100px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 24px; padding: 32px 24px 48px;
+}
+.column { display: flex; flex-direction: column; gap: 16px; }
+
+/* ── COLUMN HEADERS ── */
+.col-header {
+  background: var(--navy); color: var(--white);
+  padding: 18px 22px; display: flex; align-items: center; gap: 12px;
+  position: relative;
+}
+.col-header::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+}
+.business-col .col-header::before { background: var(--gold); }
+.personal-col .col-header::before { background: var(--orange); }
+.col-icon { font-size: 20px; }
+.col-title { font-family: var(--font-acc); font-size: 16px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+.col-count {
+  margin-left: auto; font-family: var(--font-acc); font-size: 13px;
+  background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7);
+  padding: 2px 10px; letter-spacing: 0.06em;
+}
+
+/* ── ADD FORM ── */
+.add-form { background: var(--white); border: 1px solid var(--border); padding: 20px; }
+.form-row { display: flex; gap: 10px; margin-bottom: 10px; }
+.form-row:last-child { margin-bottom: 0; }
+.text-input {
+  flex: 1; font-family: var(--font-body); font-size: 14px;
+  padding: 10px 14px; border: 1.5px solid var(--border);
+  background: var(--white); color: var(--navy);
+  outline: none; resize: none;
+}
+.text-input:focus { border-color: var(--gold); }
+.importance-select {
+  width: 80px; flex-shrink: 0;
+  font-family: var(--font-body); font-size: 14px;
+  padding: 10px 8px; border: 1.5px solid var(--border);
+  background: var(--offwhite); color: var(--navy);
+  cursor: pointer; appearance: none; -webkit-appearance: none;
+  outline: none; text-align: center;
+}
+.importance-select:focus { border-color: var(--gold); }
+.add-btn {
+  width: 100%; font-family: var(--font-acc); font-size: 14px;
+  font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 12px; border: none; cursor: pointer; transition: opacity 0.15s;
+}
+.add-btn:hover { opacity: 0.88; }
+.business-col .add-btn { background: var(--gold); color: var(--navy); }
+.personal-col .add-btn { background: var(--orange); color: var(--white); }
+
+/* ── ITEMS ── */
+.items-list { display: flex; flex-direction: column; gap: 10px; }
+.item-card {
+  background: var(--white); border: 1px solid var(--border);
+  padding: 16px 18px; position: relative;
+  border-left: 4px solid transparent;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.item-card:hover { box-shadow: 0 4px 16px rgba(10,22,40,0.08); }
+.business-col .item-card { border-left-color: var(--gold); }
+.personal-col .item-card { border-left-color: var(--orange); }
+.item-card.done { opacity: 0.6; }
+.item-card.done .item-text { text-decoration: line-through; color: var(--gray); }
+
+.item-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+.item-importance {
+  font-size: 13px; line-height: 1.4; flex-shrink: 0;
+  letter-spacing: -1px;
+}
+.item-text { font-size: 14px; color: var(--navy); line-height: 1.6; flex: 1; }
+.item-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.item-time { font-size: 11px; color: var(--gray); }
+
+/* ── IMPORTANCE EDITOR ── */
+.importance-editor {
+  display: flex; align-items: center; gap: 6px; margin-top: 8px;
+  padding-top: 8px; border-top: 1px solid var(--border);
+}
+.imp-label { font-family: var(--font-acc); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray); }
+.imp-slider {
+  flex: 1; accent-color: var(--gold); cursor: pointer;
+  height: 3px;
+}
+.imp-val { font-family: var(--font-acc); font-size: 12px; color: var(--gold); font-weight: 600; width: 24px; text-align: right; }
+
+.item-actions { display: flex; gap: 8px; margin-top: 10px; }
+.action-btn {
+  font-family: var(--font-acc); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 4px 12px; border: 1px solid var(--border);
+  background: transparent; color: var(--gray); cursor: pointer;
+  transition: all 0.15s;
+}
+.action-btn:hover { color: var(--navy); border-color: var(--navy); }
+.action-btn.done-btn.active { color: var(--green); border-color: var(--green); background: rgba(27,107,58,0.06); }
+.action-btn.done-btn:hover { color: var(--green); border-color: var(--green); }
+.action-btn.del-btn:hover { color: var(--red); border-color: var(--red); }
+
+.empty-state {
+  text-align: center; padding: 32px 20px;
+  font-size: 14px; color: var(--gray); font-style: italic;
+  background: var(--white); border: 1px dashed var(--border);
+}
+
+/* ── FOOTER ── */
+footer {
+  background: var(--navy); padding: 24px; text-align: center;
+  font-family: var(--font-acc); font-size: 12px; color: #4a6080; letter-spacing: 0.06em;
+}
+footer span { color: var(--gold); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 700px) {
+  .board { grid-template-columns: 1fr; padding: 16px 16px 40px; }
+  .form-row { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<!-- PIN SCREEN -->
+<div id="pin-screen">
+  <div class="pin-logo">STUD<span>IO</span> <span>VE</span>LOX<span>.</span></div>
+  <h2 class="pin-title">Life Command Centre</h2>
+  <p class="pin-sub">Enter your PIN to continue</p>
+  <div class="pin-dots">
+    <div class="pin-dot" id="d0"></div>
+    <div class="pin-dot" id="d1"></div>
+    <div class="pin-dot" id="d2"></div>
+    <div class="pin-dot" id="d3"></div>
+  </div>
+  <div class="pin-keypad">
+    <button class="pin-key" onclick="pinPress('1')">1</button>
+    <button class="pin-key" onclick="pinPress('2')">2</button>
+    <button class="pin-key" onclick="pinPress('3')">3</button>
+    <button class="pin-key" onclick="pinPress('4')">4</button>
+    <button class="pin-key" onclick="pinPress('5')">5</button>
+    <button class="pin-key" onclick="pinPress('6')">6</button>
+    <button class="pin-key" onclick="pinPress('7')">7</button>
+    <button class="pin-key" onclick="pinPress('8')">8</button>
+    <button class="pin-key" onclick="pinPress('9')">9</button>
+    <button class="pin-key" onclick="pinPress('')"></button>
+    <button class="pin-key" onclick="pinPress('0')">0</button>
+    <button class="pin-key del" onclick="pinDel()">⌫</button>
+  </div>
+  <div class="pin-error" id="pin-error"></div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+
+<nav>
+  <div class="logo">STUD<span>IO</span> <span>VE</span>LOX<span>.</span></div>
+  <div class="nav-right">
+    <div class="private-badge">🔒 Phil only</div>
+    <button class="lock-btn" onclick="lockPage()">Lock</button>
+  </div>
+</nav>
+
+<div class="page-header">
+  <h1>Life <em>Command Centre</em></h1>
+  <p>Business ideas on the left — personal tasks on the right. Ordered by importance. Saves across all your devices.</p>
+</div>
+
+<div class="board">
+
+  <!-- BUSINESS IDEAS -->
+  <div class="column business-col">
+    <div class="col-header">
+      <span class="col-icon">💼</span>
+      <span class="col-title">Business Ideas</span>
+      <span class="col-count" id="biz-count">0</span>
+    </div>
+    <div class="add-form">
+      <div class="form-row">
+        <textarea class="text-input" id="biz-text" rows="2" placeholder="Business idea, opportunity, strategy..."></textarea>
+      </div>
+      <div class="form-row">
+        <select class="importance-select" id="biz-imp">
+          <option value="10">10 ❗</option>
+          <option value="9">9 ❗</option>
+          <option value="8">8 ❗</option>
+          <option value="7">7 ❗</option>
+          <option value="6">6 ❗</option>
+          <option value="5" selected>5 ❗</option>
+          <option value="4">4 ❗</option>
+          <option value="3">3 ❗</option>
+          <option value="2">2 ❗</option>
+          <option value="1">1 ❗</option>
+        </select>
+        <button class="add-btn" onclick="addItem('biz')">+ Add idea</button>
+      </div>
+    </div>
+    <div class="items-list" id="biz-list"></div>
+  </div>
+
+  <!-- PERSONAL TASKS -->
+  <div class="column personal-col">
+    <div class="col-header">
+      <span class="col-icon">🏠</span>
+      <span class="col-title">Personal Tasks</span>
+      <span class="col-count" id="personal-count">0</span>
+    </div>
+    <div class="add-form">
+      <div class="form-row">
+        <textarea class="text-input" id="personal-text" rows="2" placeholder="Personal task, errand, life admin..."></textarea>
+      </div>
+      <div class="form-row">
+        <select class="importance-select" id="personal-imp">
+          <option value="10">10 ❗</option>
+          <option value="9">9 ❗</option>
+          <option value="8">8 ❗</option>
+          <option value="7">7 ❗</option>
+          <option value="6">6 ❗</option>
+          <option value="5" selected>5 ❗</option>
+          <option value="4">4 ❗</option>
+          <option value="3">3 ❗</option>
+          <option value="2">2 ❗</option>
+          <option value="1">1 ❗</option>
+        </select>
+        <button class="add-btn" onclick="addItem('personal')">+ Add task</button>
+      </div>
+    </div>
+    <div class="items-list" id="personal-list"></div>
+  </div>
+
+</div>
+
+<footer>
+  <p>STUD<span>IO</span> <span>VE</span>LOX<span>.</span> &nbsp;·&nbsp; Life Command Centre &nbsp;·&nbsp; Private — not publicly listed</p>
+</footer>
+
+</div><!-- end #app -->
+
+<script>
+// ── PIN ──────────────────────────────────────────────────────────
+const CORRECT_PIN = '9709';
+let pinEntry = '';
+
+function pinPress(digit) {
+  if (!digit || pinEntry.length >= 4) return;
+  pinEntry += digit;
+  updateDots();
+  if (pinEntry.length === 4) checkPin();
+}
+
+function pinDel() {
+  pinEntry = pinEntry.slice(0, -1);
+  updateDots();
+  document.getElementById('pin-error').textContent = '';
+  document.querySelectorAll('.pin-dot').forEach(d => d.classList.remove('error'));
+}
+
+function updateDots() {
+  for (let i = 0; i < 4; i++) {
+    document.getElementById('d' + i).classList.toggle('filled', i < pinEntry.length);
+  }
+}
+
+function checkPin() {
+  if (pinEntry === CORRECT_PIN) {
+    document.getElementById('pin-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    sessionStorage.setItem('sv_life_auth', '1');
+    loadAll();
+  } else {
+    document.querySelectorAll('.pin-dot').forEach(d => {
+      d.classList.remove('filled');
+      d.classList.add('error');
+    });
+    document.getElementById('pin-error').textContent = 'Incorrect PIN — try again';
+    setTimeout(() => {
+      document.querySelectorAll('.pin-dot').forEach(d => d.classList.remove('error'));
+      document.getElementById('pin-error').textContent = '';
+      pinEntry = '';
+    }, 1200);
+  }
+}
+
+function lockPage() {
+  sessionStorage.removeItem('sv_life_auth');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('pin-screen').style.display = 'flex';
+  pinEntry = '';
+  updateDots();
+}
+
+// Auto-unlock if same session
+if (sessionStorage.getItem('sv_life_auth') === '1') {
+  document.getElementById('pin-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+}
+
+// Keyboard PIN entry
+document.addEventListener('keydown', e => {
+  if (document.getElementById('pin-screen').style.display === 'none') return;
+  if (e.key >= '0' && e.key <= '9') pinPress(e.key);
+  if (e.key === 'Backspace') pinDel();
+});
+
+// ── HELPERS ──────────────────────────────────────────────────────
+function timeAgo(ts) {
+  const diff = Date.now() - ts;
+  const mins = Math.floor(diff / 60000);
+  const hrs = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return mins + 'm ago';
+  if (hrs < 24) return hrs + 'h ago';
+  return days + 'd ago';
+}
+
+function exclamations(n) {
+  return '❗'.repeat(n);
+}
+
+// ── RENDER ───────────────────────────────────────────────────────
+function renderItems(items, listId, countId, type) {
+  const list = document.getElementById(listId);
+  const isDone = type === 'personal';
+  const active = items.filter(i => !i.done);
+  const done = items.filter(i => i.done);
+  document.getElementById(countId).textContent = active.length + ' active';
+
+  if (!items.length) {
+    list.innerHTML = `<div class="empty-state">Nothing here yet — add the first one above!</div>`;
+    return;
+  }
+
+  // Sort by importance desc, then by time desc within same importance
+  const sorted = [...active].sort((a, b) => b.importance - a.importance || b.ts - a.ts);
+  const sortedDone = [...done].sort((a, b) => b.ts - a.ts);
+  const all = [...sorted, ...sortedDone];
+
+  list.innerHTML = all.map(item => `
+    <div class="item-card ${item.done ? 'done' : ''}">
+      <div class="item-top">
+        <div class="item-importance" title="${item.importance}/10">${exclamations(item.importance)}</div>
+        <div class="item-text">${item.text}</div>
+      </div>
+      <div class="item-meta">
+        <span class="item-time">${timeAgo(item.ts)}</span>
+      </div>
+      <div class="importance-editor">
+        <span class="imp-label">Priority</span>
+        <input type="range" class="imp-slider" min="1" max="10" value="${item.importance}"
+          onchange="updateImportance('${type}', '${item.id}', this.value)"
+          oninput="this.nextElementSibling.textContent = this.value">
+        <span class="imp-val">${item.importance}</span>
+      </div>
+      <div class="item-actions">
+        ${isDone || type === 'personal' ? `<button class="action-btn done-btn ${item.done ? 'active' : ''}" onclick="toggleDone('${type}', '${item.id}')">${item.done ? 'Undo' : 'Mark done'}</button>` : ''}
+        <button class="action-btn del-btn" onclick="deleteItem('${type}', '${item.id}')">Delete</button>
+      </div>
+    </div>`).join('');
+}
+
+// ── API CALLS ─────────────────────────────────────────────────────
+async function loadAll() {
+  try {
+    const [bizRes, perRes] = await Promise.all([
+      fetch('/api/life_biz'),
+      fetch('/api/life_personal')
+    ]);
+    const biz = await bizRes.json();
+    const per = await perRes.json();
+    renderItems(biz, 'biz-list', 'biz-count', 'biz');
+    renderItems(per, 'personal-list', 'personal-count', 'personal');
+  } catch(e) {
+    console.error('Load error:', e);
+  }
+}
+
+async function addItem(type) {
+  const textEl = document.getElementById(type + '-text');
+  const impEl = document.getElementById(type + '-imp');
+  const text = textEl.value.trim();
+  const importance = parseInt(impEl.value);
+  if (!text) return;
+  textEl.value = '';
+  const endpoint = type === 'biz' ? '/api/life_biz' : '/api/life_personal';
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text, importance })
+  });
+  const items = await res.json();
+  renderItems(items, type + '-list', type + '-count', type);
+}
+
+async function updateImportance(type, id, value) {
+  const endpoint = type === 'biz' ? '/api/life_biz' : '/api/life_personal';
+  const res = await fetch(endpoint, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, importance: parseInt(value) })
+  });
+  const items = await res.json();
+  renderItems(items, type + '-list', type + '-count', type);
+}
+
+async function toggleDone(type, id) {
+  const endpoint = type === 'biz' ? '/api/life_biz' : '/api/life_personal';
+  const res = await fetch(endpoint, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, toggleDone: true })
+  });
+  const items = await res.json();
+  renderItems(items, type + '-list', type + '-count', type);
+}
+
+async function deleteItem(type, id) {
+  if (!confirm('Delete this item?')) return;
+  const endpoint = type === 'biz' ? '/api/life_biz' : '/api/life_personal';
+  const res = await fetch(endpoint, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id })
+  });
+  const items = await res.json();
+  renderItems(items, type + '-list', type + '-count', type);
+}
+
+// Keyboard shortcut
+document.getElementById('biz-text').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); addItem('biz'); }
+});
+document.getElementById('personal-text').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); addItem('personal'); }
+});
+
+// Auto-refresh every 60 seconds
+setInterval(loadAll, 60000);
+
+// Load on start if already authed
+if (sessionStorage.getItem('sv_life_auth') === '1') loadAll();
+</script>
+</body>
+</html>
