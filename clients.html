@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Studio Velox — Client Work Log</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700&family=Lato:wght@300;400;700&family=Oswald:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy: #0a1628; --navy2: #122040; --gold: #e8a020; --gold2: #f5b732;
+  --white: #ffffff; --offwhite: #f8f6f1; --gray: #6b7280; --border: #e2e8f0;
+  --green: #1b6b3a; --purple: #7b5ea7; --orange: #e05a2b; --red: #c0392b;
+  --font-head: 'Playfair Display', Georgia, serif;
+  --font-body: 'Lato', sans-serif;
+  --font-acc: 'Oswald', sans-serif;
+}
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); background: var(--offwhite); color: var(--navy); min-height: 100vh; }
+
+/* PIN SCREEN */
+#pin-screen {
+  position: fixed; inset: 0; background: var(--navy);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; z-index: 1000;
+}
+#pin-screen::before {
+  content: 'CLIENTS'; position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-head); font-size: clamp(60px, 14vw, 160px);
+  font-weight: 900; color: rgba(255,255,255,0.025);
+  letter-spacing: -0.04em; pointer-events: none; white-space: nowrap;
+}
+.pin-logo { font-family: var(--font-acc); font-size: 22px; font-weight: 600; color: var(--white); letter-spacing: 0.04em; margin-bottom: 48px; position: relative; }
+.pin-logo span { color: var(--gold); }
+.pin-title { font-family: var(--font-head); font-size: clamp(22px, 4vw, 34px); font-weight: 900; color: var(--white); margin-bottom: 8px; text-align: center; position: relative; }
+.pin-sub { font-size: 14px; color: #5a7090; margin-bottom: 40px; text-align: center; position: relative; }
+.pin-dots { display: flex; gap: 16px; margin-bottom: 32px; position: relative; }
+.pin-dot { width: 16px; height: 16px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.2); transition: all 0.15s; }
+.pin-dot.filled { background: var(--gold); border-color: var(--gold); }
+.pin-dot.error { background: var(--red); border-color: var(--red); }
+.pin-keypad { display: grid; grid-template-columns: repeat(3, 72px); gap: 12px; position: relative; }
+.pin-key { width: 72px; height: 72px; border: 1.5px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: var(--white); font-family: var(--font-acc); font-size: 22px; font-weight: 500; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; }
+.pin-key:hover { background: rgba(232,160,32,0.15); border-color: var(--gold); }
+.pin-key:active { background: rgba(232,160,32,0.3); }
+.pin-key.del { font-size: 18px; color: #5a7090; }
+.pin-error { font-family: var(--font-acc); font-size: 13px; letter-spacing: 0.1em; color: var(--red); text-transform: uppercase; margin-top: 20px; position: relative; min-height: 20px; text-align: center; }
+
+/* APP */
+#app { display: none; }
+
+/* NAV */
+nav { background: var(--navy); padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 16px rgba(0,0,0,0.3); }
+.logo { font-family: var(--font-acc); font-size: 20px; font-weight: 600; color: var(--white); letter-spacing: 0.04em; }
+.logo span { color: var(--gold); }
+.nav-right { display: flex; align-items: center; gap: 16px; }
+.private-badge { font-family: var(--font-acc); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; background: rgba(232,160,32,0.12); color: var(--gold); border: 1px solid rgba(232,160,32,0.25); padding: 4px 12px; }
+.lock-btn { font-family: var(--font-acc); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; background: rgba(192,57,43,0.15); color: #e88; border: 1px solid rgba(192,57,43,0.3); padding: 4px 12px; cursor: pointer; transition: all 0.2s; }
+.lock-btn:hover { background: rgba(192,57,43,0.3); }
+
+/* PAGE HEADER */
+.page-header { background: var(--navy); padding: 40px 28px 36px; text-align: center; position: relative; overflow: hidden; }
+.page-header::before { content: 'WORK LOG'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: var(--font-head); font-size: clamp(40px, 9vw, 100px); font-weight: 900; color: rgba(255,255,255,0.025); letter-spacing: -0.04em; white-space: nowrap; pointer-events: none; }
+.page-header h1 { font-family: var(--font-head); font-size: clamp(24px, 4vw, 38px); font-weight: 900; color: var(--white); margin-bottom: 8px; position: relative; }
+.page-header h1 em { font-style: normal; color: var(--gold); }
+.page-header p { font-size: 15px; color: #b0bfd4; line-height: 1.6; position: relative; }
+
+/* STATS BAR */
+.stats-bar { background: rgba(232,160,32,0.08); border-bottom: 1px solid rgba(232,160,32,0.15); padding: 16px 28px; }
+.stats-inner { max-width: 1100px; margin: 0 auto; display: flex; gap: 40px; flex-wrap: wrap; }
+.stat-item { text-align: center; }
+.stat-num { font-family: var(--font-head); font-size: 28px; font-weight: 900; color: var(--gold); line-height: 1; }
+.stat-lbl { font-family: var(--font-acc); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: #5a7090; margin-top: 2px; }
+
+/* CLIENTS */
+.clients-wrap { max-width: 1100px; margin: 0 auto; padding: 40px 24px 60px; display: flex; flex-direction: column; gap: 32px; }
+
+.client-card { background: var(--white); border: 1px solid var(--border); position: relative; }
+.client-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+.client-card.status-live::before { background: var(--gold); }
+.client-card.status-concept::before { background: var(--purple); }
+.client-card.status-progress::before { background: var(--orange); }
+
+.client-header { padding: 22px 26px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--border); cursor: pointer; }
+.client-header:hover { background: rgba(232,160,32,0.02); }
+.client-header-left { flex: 1; }
+.client-num { font-family: var(--font-acc); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
+.client-name { font-family: var(--font-head); font-size: 22px; font-weight: 800; color: var(--navy); margin-bottom: 4px; }
+.client-url { font-size: 13px; color: var(--gray); }
+.client-url a { color: var(--gold); text-decoration: none; }
+.client-url a:hover { text-decoration: underline; }
+.client-meta { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.status-badge { font-family: var(--font-acc); font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; padding: 4px 12px; }
+.badge-live { background: rgba(232,160,32,0.12); color: var(--gold); border: 1px solid rgba(232,160,32,0.25); }
+.badge-concept { background: rgba(123,94,167,0.1); color: var(--purple); border: 1px solid rgba(123,94,167,0.25); }
+.badge-progress { background: rgba(224,90,43,0.1); color: var(--orange); border: 1px solid rgba(224,90,43,0.25); }
+.client-price { font-family: var(--font-acc); font-size: 13px; font-weight: 600; color: var(--green); }
+.client-date { font-size: 12px; color: var(--gray); }
+.client-toggle { font-size: 18px; color: var(--gray); flex-shrink: 0; transition: transform 0.2s; }
+.client-card.open .client-toggle { transform: rotate(180deg); }
+
+.client-body { display: none; padding: 24px 26px; border-top: 1px solid var(--border); }
+.client-card.open .client-body { display: block; }
+.client-body-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+
+.work-section h4 { font-family: var(--font-acc); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+.work-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.work-list li { font-size: 14px; color: var(--navy); line-height: 1.6; display: flex; gap: 10px; }
+.work-list li::before { content: '·'; color: var(--gold); font-size: 18px; flex-shrink: 0; line-height: 1.4; }
+
+.notes-section { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); }
+.notes-section h4 { font-family: var(--font-acc); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gray); margin-bottom: 8px; }
+.notes-section p { font-size: 13px; color: var(--gray); line-height: 1.7; font-style: italic; }
+
+/* FOOTER */
+footer { background: var(--navy); padding: 24px 28px; text-align: center; font-family: var(--font-acc); font-size: 12px; color: #4a6080; letter-spacing: 0.06em; }
+footer span { color: var(--gold); }
+
+@media (max-width: 700px) {
+  .client-body-grid { grid-template-columns: 1fr; }
+  .stats-inner { gap: 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- PIN SCREEN -->
+<div id="pin-screen">
+  <div class="pin-logo">STUD<span>IO</span> <span>VE</span>LOX<span>.</span></div>
+  <h2 class="pin-title">Client Work Log</h2>
+  <p class="pin-sub">Private — Enter your PIN</p>
+  <div class="pin-dots">
+    <div class="pin-dot" id="d0"></div>
+    <div class="pin-dot" id="d1"></div>
+    <div class="pin-dot" id="d2"></div>
+    <div class="pin-dot" id="d3"></div>
+  </div>
+  <div class="pin-keypad">
+    <button class="pin-key" onclick="pinPress('1')">1</button>
+    <button class="pin-key" onclick="pinPress('2')">2</button>
+    <button class="pin-key" onclick="pinPress('3')">3</button>
+    <button class="pin-key" onclick="pinPress('4')">4</button>
+    <button class="pin-key" onclick="pinPress('5')">5</button>
+    <button class="pin-key" onclick="pinPress('6')">6</button>
+    <button class="pin-key" onclick="pinPress('7')">7</button>
+    <button class="pin-key" onclick="pinPress('8')">8</button>
+    <button class="pin-key" onclick="pinPress('9')">9</button>
+    <button class="pin-key"></button>
+    <button class="pin-key" onclick="pinPress('0')">0</button>
+    <button class="pin-key del" onclick="pinDel()">⌫</button>
+  </div>
+  <div class="pin-error" id="pin-error"></div>
+</div>
+
+<!-- APP -->
+<div id="app">
+
+<nav>
+  <div class="logo">STUD<span>IO</span> <span>VE</span>LOX<span>.</span></div>
+  <div class="nav-right">
+    <div class="private-badge">🔒 Private Work Log</div>
+    <button class="lock-btn" onclick="lockPage()">Lock</button>
+  </div>
+</nav>
+
+<div class="page-header">
+  <h1>Client <em>Work Log</em></h1>
+  <p>Every client, every site, every piece of work — all in one place.</p>
+</div>
+
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat-item"><div class="stat-num">8</div><div class="stat-lbl">Total Clients</div></div>
+    <div class="stat-item"><div class="stat-num">4</div><div class="stat-lbl">Live Sites</div></div>
+    <div class="stat-item"><div class="stat-num">4</div><div class="stat-lbl">Concepts</div></div>
+    <div class="stat-item"><div class="stat-num">5</div><div class="stat-lbl">GC Based</div></div>
+  </div>
+</div>
+
+<div class="clients-wrap">
+
+  <!-- 1. ELLIE -->
+  <div class="client-card status-live" id="c1">
+    <div class="client-header" onclick="toggleClient('c1')">
+      <div class="client-header-left">
+        <div class="client-num">Client 01</div>
+        <div class="client-name">Ellie Gronkowski — DoGood Pet Nutrition</div>
+        <div class="client-url"><a href="https://dogoodgc.com.au" target="_blank">dogoodgc.com.au</a> · Gold Coast</div>
+      </div>
+      <div class="client-meta">
+        <span class="status-badge badge-live">Live</span>
+        <span class="client-price">Review given ✓</span>
+        <span class="client-date">2026</span>
+      </div>
+      <div class="client-toggle">▾</div>
+    </div>
+    <div class="client-body">
+      <div class="client-body-grid">
+        <div class="work-section">
+          <h4>Work Completed</h4>
+          <ul class="work-list">
+            <li>Website redesign and rebuild</li>
+            <li>Improved mobile responsiveness</li>
+            <li>Updated copy and brand positioning</li>
+            <li>Future concept (v2) designed as upgrade proposal</li>
+            <li>Before/after screen recordings produced</li>
+            <li>Google review received</li>
+            <li>Testimonial received</li>
+            <li>Featured on Studio Velox portfolio</li>
+          </ul>
+        </div>
+        <div class="work-section">
+          <h4>Status & Notes</h4>
+          <ul class="work-list">
+            <li>Current live site has minor improvements from original</li>
+            <li>V2 concept ready — not yet implemented by client</li>
+            <li>Ellie open to full redesign in future</li>
+            <li>Ideas board set up at dogoodgc.com.au/ideas</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. EVAN -->
+  <div class="client-card status-live" id="c2">
+    <div class="client-header" onclick="toggleClient('c2')">
+      <div class="client-header-left">
+        <div class="client-num">Client 02</div>
+        <div class="client-name">Evan Courtney — Tri-Axle Group</div>
+        <div class="client-url"><a href="https://triaxlegroup.com.au" target="_blank">triaxlegroup.com.au</a> · Brisbane / SE QLD</div>
+      </div>
+      <div class="client-meta">
+        <span class="status-badge badge-live">Live</span>
+        <span class="client-price">Review given ✓</span>
+        <span class="client-date">2026</span>
+      </div>
+      <div class="client-toggle">▾</div>
+    </div>
+    <div class="client-body">
+      <div class="client-body-grid">
+        <div class="work-section">
+          <h4>Work Completed</h4>
+          <ul class="work-list">
+            <li>Full website redesign and rebuild</li>
+            <li>Improved structure, navigation and copy</li>
+            <li>Professional visual refresh</li>
+            <li>Before/after screen recordings produced</li>
+            <li>Google review received</li>
+            <li>Testimonial received</li>
+            <li>Featured on Studio Velox portfolio</li>
+            <li>Evan given access to Studio Velox Facebook page</li>
+          </ul>
+        </div>
+        <div class="work-section">
+          <h4>Status & Notes</h4>
+          <ul class="work-list">
+            <li>Redesigned site is live</li>
+            <li>Evan helping with Facebook ads for Studio Velox</li>
+            <li>Operates in SE QLD and expanding to North QLD</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. TAYLOR -->
+  <div class="client-card status-live" id="c3">
+    <div class="client-header" onclick="toggleClient('c3')">
+      <div class="client-header-left">
+        <div class="client-num">Client 03</div>
+        <div class="client-name">Taylor Valentino — The Breath Therapy</div>
+        <div class="client-url"><a href="https://thebreaththerapy.com.au" target="_blank">thebreaththerapy.com.au</a> · Gold Coast</div>
+      </div>
+      <div class="client-meta">
+        <span class="status-badge badge-live">Live</span>
+        <span class="client-price">Review given ✓</span>
+        <span class="client-date">2026</span>
+      </div>
+      <div class="client-toggle">▾</div>
+    </div>
+    <div class="client-body">
+      <div class="client-body-grid">
+        <div class="work-section">
+          <h4>Work Completed</h4>
+          <ul class="work-list">
+            <li>New website designed and built</li>
+            <li>Brand-aligned design reflecting breathwork practice</li>
+            <li>Copy written to convert visitors to bookings</li>
+            <li>Mobile optimised</li>
+            <li>Testimonial received</li>
+            <li>Featured on Studio Velox portfolio</li>
+            <li>Ideas board set up (Cloudflare KV backed)</li>
+          </ul>
+        </div>
+        <div class="work-section">
+          <h4>Status & Notes</h4>
+          <ul class="work-list">
+            <li>Site is live</li>
+            <li>Taylor very happy — strong testimonial provided</li>
+            <li>Google review pending</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. BOULANGERIE VIETNAM -->
+  <div class="client-card status-live" id="c4">
+    <div class="client-header" onclick="toggleClient('c4')">
+      <div class="client-header-left">
+        <div class="client-num">Client 04</div>
+        <div class="client-name">Jeremy & Jenny — Boulangerie Vietnam Artisan Bakery</div>
+        <div class="client-url"><a href="https://boulangerievietnam.com.au" target="_blank">boulangerievietnam.com.au</a> · Gold Coast</div>
+      </div>
+      <div class="client-meta">
+        <span class="status-badge badge-live">Live</span>
+        <span class="client-date">2026</span>
+      </div>
+      <div class="client-toggle">▾</div>
+    </div>
+    <div class="client-body">
+      <div class="client-body-grid">
+        <div class="work-section">
+          <h4>Work Completed</h4>
+          <ul class="work-list">
+            <li>Brand new website — previously Facebook only</li>
+            <li>Online menu and contact capability added</li>
+            <li>Vietnamese-inspired artisan bakery branding</li>
+            <li>Before/after screen recordings produced</li>
+            <li>Featured on Studio Velox portfolio</li>
+            <li>Ideas board set up (Cloudflare KV backed)</li>
+          </ul>
+        </div>
+        <div class="work-section">
+          <h4>Status & Notes</h4>
+          <ul class="work-list">
+            <li>Site is live</li>
+            <li>Google review pending</li>
+            <li>Testimonial pending</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. HELEN -->
+  <div class="client-card status-concept" id="c5">
+    <div class="client-header" onclick="toggleClient('c5')">
+      <div class="client-header-left">
+        <div class="client-num">Client 05</div>
+        <div class="client-name">Helen</div>
+        <div class="client-url">Concept — Gold Coast</div>
+      </div>
+      <div class="client-meta">
+        <span class="status-badge badge-concept">Concept</span>
+        <span class="client-date">2026</span>
+      </div>
+      <div class="client-toggle">▾</div>
+    </div>
+    <div class="client-body">
+      <div class="client-body-grid">
+        <div class="work-section">
+          <h4>Work Completed</h4>
+          <ul class="work-list">
+            <li>Website concept / redesign proposal created</li>
+            <li>Before/after concept videos produced</li>
+            <li>Featured on Studio Velox portfolio as concept</li>
+          </ul>
+        </div>
+        <div class="work-section">
+          <h4>Status & Notes</h4>
+          <ul class="work-list">
+            <li>Client has not yet taken up the redesign offer</li>
+            <li>Concept ready to implement when client is ready</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. MR SPIROS -->
+  <div class="client-card status-concept" id="c6">
+    <div class="client-header" onclick="toggleClient('c6')">
+      <div class="client-header-left">
+        <div class="client-num">Client 06</div>
+        <div class="client-name">Mr Spiros</div>
+        <div class="client-url">Concept — Gold Coast</div>
+      </div>
+      <div class="client-meta">
+        <span class="status-badge badge-concept">Concept</span>
+        <span class="client-date">2026</span>
+      </div>
+      <div class="client-toggle">▾</div>
+    </div>
+    <div class="client-body">
+      <div class="client-body-grid">
+        <div class="work-section">
+          <h4>Work Completed</h4>
+          <ul class="work-list">
+            <li>Custom website concept designed</li>
+            <li>Featured on Studio Velox portfolio as concept</li>
+          </ul>
+        </div>
+        <div class="work-section">
+          <h4>Status & Notes</h4>
+          <ul class="work-list">
+            <li>Concept ready — awaiting client decision</li>
+            <li>Add details here as project progresses</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. TMCP -->
+  <div class="client-card status-concept" id="c7">
+    <div class="client-header" onclick="toggleClient('c7')">
+      <div class="client-header-left">
+        <div class="client-num">Client 07</div>
+        <div class="client-name">Tamborine Mountain Coffee Plantation (TMCP)</div>
+        <div class="client-url">Concept — Tamborine Mountain, QLD</div>
+      </div>
+      <div class="client-meta">
+        <span class="status-badge badge-concept">Concept</span>
+        <span class="client-date">2026</span>
+      </div>
+      <div class="client-toggle">▾</div>
+    </div>
+    <div class="client-body">
+      <div class="client-body-grid">
+        <div class="work-section">
+          <h4>Work Completed</h4>
+          <ul class="work-list">
+            <li>Website concept designed for tourism/hospitality site</li>
+            <li>Focused on visitor bookings and experience showcase</li>
+            <li>Featured on Studio Velox portfolio as concept</li>
+          </ul>
+        </div>
+        <div class="work-section">
+          <h4>Status & Notes</h4>
+          <ul class="work-list">
+            <li>Concept ready — awaiting client decision</li>
+            <li>Add details here as project progresses</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. STUDIO VELOX -->
+  <div class="client-card status-live" id="c8">
+    <div class="client-header" onclick="toggleClient('c8')">
+      <div class="client-header-left">
+        <div class="client-num">Own Site</div>
+        <div class="client-name">Studio Velox — Own Website</div>
+        <div class="client-url"><a href="https://studiovelox.com" target="_blank">studiovelox.com</a></div>
+      </div>
+      <div class="client-meta">
+        <span class="status-badge badge-live">Live</span>
+        <span class="client-date">2026</span>
+      </div>
+      <div class="client-toggle">▾</div>
+    </div>
+    <div class="client-body">
+      <div class="client-body-grid">
+        <div class="work-section">
+          <h4>Work Completed</h4>
+          <ul class="work-list">
+            <li>Full site designed and built from scratch</li>
+            <li>JD Dwyer 8-point framework applied throughout</li>
+            <li>Formspree contact form integration</li>
+            <li>Dual-audience form (has website / no website)</li>
+            <li>Before/after showcase section with YouTube embeds</li>
+            <li>Real testimonials from Ellie, Evan and Taylor</li>
+            <li>Google Business Profile set up</li>
+            <li>Google review link integrated site-wide</li>
+            <li>Hosted on Cloudflare</li>
+            <li>Custom domain studiovelox.com</li>
+            <li>phil@studiovelox.com email via Proton Mail</li>
+            <li>GitHub repo connected for auto-deploy</li>
+            <li>Private pages: /pricing, /ideas, /life, /clients, /portfolio</li>
+            <li>Google Ads campaign set up</li>
+            <li>Facebook Business page created</li>
+            <li>Facebook ads in progress (with Evan)</li>
+          </ul>
+        </div>
+        <div class="work-section">
+          <h4>Status & Notes</h4>
+          <ul class="work-list">
+            <li>Live and fully operational</li>
+            <li>Formspree form working</li>
+            <li>Google reviews needed — link deployed site-wide</li>
+            <li>Welcome video placeholder still needs filming</li>
+            <li>Real photo of Phil needed for hero section</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end clients-wrap -->
+
+<footer>
+  <p>STUD<span>IO</span> <span>VE</span>LOX<span>.</span> &nbsp;·&nbsp; Private Client Log &nbsp;·&nbsp; Not publicly listed</p>
+</footer>
+
+</div><!-- end #app -->
+
+<script>
+const CORRECT_PIN = 'YOUR_PIN';
+let pinEntry = '';
+
+function pinPress(digit) {
+  if (!digit || pinEntry.length >= 4) return;
+  pinEntry += digit;
+  updateDots();
+  if (pinEntry.length === 4) checkPin();
+}
+function pinDel() {
+  pinEntry = pinEntry.slice(0, -1);
+  updateDots();
+  document.getElementById('pin-error').textContent = '';
+  document.querySelectorAll('.pin-dot').forEach(d => d.classList.remove('error'));
+}
+function updateDots() {
+  for (let i = 0; i < 4; i++) {
+    document.getElementById('d' + i).classList.toggle('filled', i < pinEntry.length);
+  }
+}
+async function checkPin() {
+  try {
+    const res = await fetch('/api/checkpin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pin: pinEntry })
+    });
+    const { ok } = await res.json();
+    if (ok) {
+      document.getElementById('pin-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      sessionStorage.setItem('sv_clients_auth', '1');
+    } else {
+      showPinError();
+    }
+  } catch(e) {
+    showPinError();
+  }
+}
+function showPinError() {
+  document.querySelectorAll('.pin-dot').forEach(d => { d.classList.remove('filled'); d.classList.add('error'); });
+  document.getElementById('pin-error').textContent = 'Incorrect PIN — try again';
+  setTimeout(() => {
+    document.querySelectorAll('.pin-dot').forEach(d => d.classList.remove('error'));
+    document.getElementById('pin-error').textContent = '';
+    pinEntry = '';
+  }, 1200);
+}
+function lockPage() {
+  sessionStorage.removeItem('sv_clients_auth');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('pin-screen').style.display = 'flex';
+  pinEntry = ''; updateDots();
+}
+if (sessionStorage.getItem('sv_clients_auth') === '1') {
+  document.getElementById('pin-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+}
+document.addEventListener('keydown', e => {
+  if (document.getElementById('pin-screen').style.display === 'none') return;
+  if (e.key >= '0' && e.key <= '9') pinPress(e.key);
+  if (e.key === 'Backspace') pinDel();
+});
+
+function toggleClient(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+</script>
+</body>
+</html>

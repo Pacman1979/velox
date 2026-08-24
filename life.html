@@ -366,7 +366,7 @@ footer span { color: var(--gold); }
 
 <script>
 // ── PIN ──────────────────────────────────────────────────────────
-const CORRECT_PIN = '9709';
+const CORRECT_PIN = 'YOUR_PIN';
 let pinEntry = '';
 
 function pinPress(digit) {
@@ -389,24 +389,38 @@ function updateDots() {
   }
 }
 
-function checkPin() {
-  if (pinEntry === CORRECT_PIN) {
-    document.getElementById('pin-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    sessionStorage.setItem('sv_life_auth', '1');
-    loadAll();
-  } else {
-    document.querySelectorAll('.pin-dot').forEach(d => {
-      d.classList.remove('filled');
-      d.classList.add('error');
+async function checkPin() {
+  try {
+    const res = await fetch('/api/checkpin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pin: pinEntry })
     });
-    document.getElementById('pin-error').textContent = 'Incorrect PIN — try again';
-    setTimeout(() => {
-      document.querySelectorAll('.pin-dot').forEach(d => d.classList.remove('error'));
-      document.getElementById('pin-error').textContent = '';
-      pinEntry = '';
-    }, 1200);
+    const { ok } = await res.json();
+    if (ok) {
+      document.getElementById('pin-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      sessionStorage.setItem('sv_life_auth', '1');
+      loadAll();
+    } else {
+      showPinError();
+    }
+  } catch(e) {
+    showPinError();
   }
+}
+
+function showPinError() {
+  document.querySelectorAll('.pin-dot').forEach(d => {
+    d.classList.remove('filled');
+    d.classList.add('error');
+  });
+  document.getElementById('pin-error').textContent = 'Incorrect PIN — try again';
+  setTimeout(() => {
+    document.querySelectorAll('.pin-dot').forEach(d => d.classList.remove('error'));
+    document.getElementById('pin-error').textContent = '';
+    pinEntry = '';
+  }, 1200);
 }
 
 function lockPage() {

@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio — Studio Velox | Gold Coast Web Design</title>
+<meta name="description" content="Real websites built by Studio Velox for Gold Coast businesses. See our work across hospitality, health, trades and more.">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700&family=Lato:wght@300;400;700&family=Oswald:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy: #0a1628; --navy2: #122040; --gold: #e8a020; --gold2: #f5b732;
+  --white: #ffffff; --offwhite: #f8f6f1; --gray: #6b7280; --border: #e2e8f0;
+  --font-head: 'Playfair Display', Georgia, serif;
+  --font-body: 'Lato', sans-serif;
+  --font-acc: 'Oswald', sans-serif;
+}
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); background: var(--offwhite); color: var(--navy); }
+
+/* NAV */
+nav {
+  background: var(--navy); padding: 16px 0;
+  position: sticky; top: 0; z-index: 200;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.35);
+}
+.nav-inner {
+  max-width: 1100px; margin: 0 auto; padding: 0 24px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo { font-family: var(--font-acc); font-size: 22px; font-weight: 600; color: var(--white); letter-spacing: 0.04em; text-decoration: none; }
+.logo span { color: var(--gold); }
+.nav-links { display: flex; align-items: center; gap: 32px; }
+.nav-link {
+  font-family: var(--font-acc); font-size: 13px; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(255,255,255,0.65); text-decoration: none; transition: color 0.2s;
+}
+.nav-link:hover, .nav-link.active { color: var(--gold); }
+.nav-btn {
+  font-family: var(--font-acc); font-size: 13px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  background: var(--gold); color: var(--navy);
+  border: none; padding: 11px 24px; cursor: pointer;
+  text-decoration: none; display: inline-block;
+  transition: background 0.2s;
+}
+.nav-btn:hover { background: var(--gold2); }
+
+/* HERO */
+.hero {
+  background: var(--navy); padding: 64px 0 56px;
+  text-align: center; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: 'PORTFOLIO';
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-head); font-size: clamp(60px, 12vw, 140px);
+  font-weight: 900; color: rgba(255,255,255,0.025);
+  letter-spacing: -0.04em; white-space: nowrap; pointer-events: none;
+}
+.eyebrow {
+  font-family: var(--font-acc); font-size: 12px; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 16px;
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+}
+.eyebrow::before, .eyebrow::after {
+  content: ''; display: block; width: 32px; height: 1px; background: var(--gold);
+}
+.hero h1 {
+  font-family: var(--font-head); font-size: clamp(32px, 5vw, 56px);
+  font-weight: 900; color: var(--white); line-height: 1.1; margin-bottom: 16px;
+  position: relative;
+}
+.hero h1 em { font-style: normal; color: var(--gold); }
+.hero-sub {
+  font-size: 17px; color: #b0bfd4; line-height: 1.7;
+  max-width: 560px; margin: 0 auto; position: relative;
+}
+
+/* FILTER TABS */
+.filter-bar {
+  background: var(--white); border-bottom: 1px solid var(--border);
+  padding: 0; position: sticky; top: 62px; z-index: 100;
+}
+.filter-inner {
+  max-width: 1100px; margin: 0 auto; padding: 0 24px;
+  display: flex; gap: 0; overflow-x: auto;
+}
+.filter-btn {
+  font-family: var(--font-acc); font-size: 12px; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--gray); background: transparent; border: none;
+  padding: 16px 20px; cursor: pointer; white-space: nowrap;
+  border-bottom: 3px solid transparent; transition: all 0.2s;
+}
+.filter-btn:hover { color: var(--navy); }
+.filter-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+/* GRID */
+.portfolio-section { padding: 56px 0 72px; }
+.container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+.portfolio-count {
+  font-family: var(--font-acc); font-size: 12px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--gray); margin-bottom: 32px;
+}
+.portfolio-count span { color: var(--gold); }
+.portfolio-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+/* CARDS */
+.port-card {
+  background: var(--white); border: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  position: relative;
+}
+.port-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(10,22,40,0.1);
+  border-color: var(--gold);
+}
+.port-card[data-status="concept"] { border-top: 3px solid #7b5ea7; }
+.port-card[data-status="live"] { border-top: 3px solid var(--gold); }
+
+/* STATUS BADGE */
+.port-badge {
+  position: absolute; top: 16px; right: 16px;
+  font-family: var(--font-acc); font-size: 10px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 4px 10px;
+}
+.badge-live { background: rgba(232,160,32,0.15); color: var(--gold); border: 1px solid rgba(232,160,32,0.3); }
+.badge-concept { background: rgba(123,94,167,0.12); color: #9b72cf; border: 1px solid rgba(123,94,167,0.25); }
+
+/* CARD IMAGE */
+.port-thumb {
+  width: 100%; aspect-ratio: 16/9;
+  background: var(--navy2);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.port-thumb-logo {
+  font-family: var(--font-acc); font-size: clamp(18px, 3vw, 28px);
+  font-weight: 600; color: var(--white); letter-spacing: 0.06em;
+  text-align: center; padding: 0 16px;
+}
+.port-thumb-logo span { color: var(--gold); display: block; font-size: 0.6em; margin-top: 4px; letter-spacing: 0.14em; opacity: 0.7; }
+.port-thumb::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(232,160,32,0.08), transparent);
+}
+.port-thumb-link {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  background: rgba(10,22,40,0.7); opacity: 0; transition: opacity 0.2s;
+  text-decoration: none;
+}
+.port-card:hover .port-thumb-link { opacity: 1; }
+.port-thumb-link span {
+  font-family: var(--font-acc); font-size: 13px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--gold); border: 1px solid var(--gold); padding: 10px 20px;
+}
+
+/* CARD BODY */
+.port-body { padding: 22px 22px 20px; flex: 1; display: flex; flex-direction: column; }
+.port-category {
+  font-family: var(--font-acc); font-size: 10px; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 6px;
+}
+.port-name {
+  font-family: var(--font-head); font-size: 20px; font-weight: 800;
+  color: var(--navy); line-height: 1.2; margin-bottom: 8px;
+}
+.port-desc { font-size: 13px; color: var(--gray); line-height: 1.7; flex: 1; margin-bottom: 18px; }
+.port-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.port-url {
+  font-family: var(--font-acc); font-size: 11px; letter-spacing: 0.08em;
+  color: var(--gray); text-decoration: none; transition: color 0.2s;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.port-url:hover { color: var(--gold); }
+.port-link {
+  font-family: var(--font-acc); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--navy); border: 1px solid var(--border);
+  padding: 6px 14px; text-decoration: none; flex-shrink: 0;
+  transition: all 0.2s;
+}
+.port-link:hover { background: var(--gold); color: var(--navy); border-color: var(--gold); }
+.port-link.disabled { color: var(--gray); cursor: default; pointer-events: none; }
+
+/* CTA */
+.portfolio-cta {
+  background: var(--navy); padding: 72px 0; text-align: center;
+}
+.portfolio-cta h2 {
+  font-family: var(--font-head); font-size: clamp(28px, 4vw, 44px);
+  font-weight: 900; color: var(--white); line-height: 1.1; margin-bottom: 12px;
+}
+.portfolio-cta h2 em { font-style: normal; color: var(--gold); }
+.portfolio-cta p { font-size: 17px; color: #b0bfd4; margin-bottom: 32px; }
+
+/* FOOTER */
+footer {
+  background: var(--navy2); color: #7a8fa8; padding: 32px 0;
+}
+.foot-inner {
+  max-width: 1100px; margin: 0 auto; padding: 0 24px;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+}
+.foot-logo { font-family: var(--font-acc); font-size: 18px; color: var(--white); }
+.foot-logo span { color: var(--gold); }
+.foot-copy { font-size: 13px; }
+.foot-links { display: flex; gap: 20px; }
+.foot-links a { font-size: 13px; color: #7a8fa8; text-decoration: none; transition: color 0.2s; }
+.foot-links a:hover { color: var(--gold); }
+
+/* HIDDEN */
+.port-card.hidden { display: none; }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .portfolio-grid { grid-template-columns: 1fr 1fr; }
+  .nav-links { display: none; }
+}
+@media (max-width: 600px) {
+  .portfolio-grid { grid-template-columns: 1fr; }
+}
+
+/* ANIM */
+@keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+.port-card { animation: fadeUp 0.5s ease both; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="logo">STUD<span>IO</span> <span>VE</span>LOX<span>.</span></a>
+    <div class="nav-links">
+      <a href="/portfolio" class="nav-link active">Portfolio</a>
+      <a href="/#how" class="nav-link">How it works</a>
+      <a href="/#audit-form" class="nav-link">Free Audit</a>
+    </div>
+    <a href="/#audit-form" class="nav-btn">Get My Free Audit →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="eyebrow">Our Work</div>
+  <h1>Real Websites.<br><em>Real Businesses.</em></h1>
+  <p class="hero-sub">Every site Studio Velox has designed or redesigned for Gold Coast businesses and beyond. Click any card to visit the live site.</p>
+</section>
+
+<!-- FILTER TABS -->
+<div class="filter-bar">
+  <div class="filter-inner">
+    <button class="filter-btn active" onclick="filterCards('all')">All Work</button>
+    <button class="filter-btn" onclick="filterCards('live')">Live Sites</button>
+    <button class="filter-btn" onclick="filterCards('concept')">Concepts</button>
+    <button class="filter-btn" onclick="filterCards('hospitality')">Hospitality</button>
+    <button class="filter-btn" onclick="filterCards('health')">Health & Wellness</button>
+    <button class="filter-btn" onclick="filterCards('trade')">Trade & Services</button>
+    <button class="filter-btn" onclick="filterCards('food')">Food & Beverage</button>
+  </div>
+</div>
+
+<!-- PORTFOLIO GRID -->
+<section class="portfolio-section">
+  <div class="container">
+    <div class="portfolio-count" id="count">Showing <span id="count-num">8</span> projects</div>
+    <div class="portfolio-grid" id="grid">
+
+      <!-- 1. DoGood Pet Nutrition -->
+      <div class="port-card" data-status="live" data-cats="live health">
+        <span class="port-badge badge-live">Live</span>
+        <div class="port-thumb" style="background:#1a2e1a;">
+          <div class="port-thumb-logo">DoGood Pet Nutrition<span>dogoodgc.com.au</span></div>
+          <a href="https://dogoodgc.com.au" target="_blank" rel="noopener" class="port-thumb-link"><span>Visit Site →</span></a>
+        </div>
+        <div class="port-body">
+          <div class="port-category">Health & Wellness — Pet Nutrition</div>
+          <div class="port-name">DoGood Pet Nutrition</div>
+          <div class="port-desc">Website redesign and concept rebuild for Ellie Gronkowski's Gold Coast pet nutrition business. Modernised design, improved mobile experience and clearer brand positioning.</div>
+          <div class="port-footer">
+            <a href="https://dogoodgc.com.au" target="_blank" rel="noopener" class="port-url">dogoodgc.com.au</a>
+            <a href="https://dogoodgc.com.au" target="_blank" rel="noopener" class="port-link">Visit →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Tri-Axle Group -->
+      <div class="port-card" data-status="live" data-cats="live trade">
+        <span class="port-badge badge-live">Live</span>
+        <div class="port-thumb" style="background:#1c1c2e;">
+          <div class="port-thumb-logo">Tri-Axle Group<span>triaxlegroup.com.au</span></div>
+          <a href="https://triaxlegroup.com.au" target="_blank" rel="noopener" class="port-thumb-link"><span>Visit Site →</span></a>
+        </div>
+        <div class="port-body">
+          <div class="port-category">Trade & Services — Transport</div>
+          <div class="port-name">Tri-Axle Group</div>
+          <div class="port-desc">Full website redesign for Evan Courtney's Brisbane-based transport and logistics business. Clean, professional rebuild with improved structure, copy and visual impact.</div>
+          <div class="port-footer">
+            <a href="https://triaxlegroup.com.au" target="_blank" rel="noopener" class="port-url">triaxlegroup.com.au</a>
+            <a href="https://triaxlegroup.com.au" target="_blank" rel="noopener" class="port-link">Visit →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. The Breath Therapy -->
+      <div class="port-card" data-status="live" data-cats="live health">
+        <span class="port-badge badge-live">Live</span>
+        <div class="port-thumb" style="background:#1a2030;">
+          <div class="port-thumb-logo">The Breath Therapy<span>thebreaththerapy.com.au</span></div>
+          <a href="https://thebreaththerapy.com.au" target="_blank" rel="noopener" class="port-thumb-link"><span>Visit Site →</span></a>
+        </div>
+        <div class="port-body">
+          <div class="port-category">Health & Wellness — Breathwork</div>
+          <div class="port-name">The Breath Therapy</div>
+          <div class="port-desc">New website design for Taylor Valentino's Gold Coast breathwork practice. Brand-aligned design that reflects her calm, holistic approach and converts visitors into bookings.</div>
+          <div class="port-footer">
+            <a href="https://thebreaththerapy.com.au" target="_blank" rel="noopener" class="port-url">thebreaththerapy.com.au</a>
+            <a href="https://thebreaththerapy.com.au" target="_blank" rel="noopener" class="port-link">Visit →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Boulangerie Vietnam -->
+      <div class="port-card" data-status="live" data-cats="live food hospitality">
+        <span class="port-badge badge-live">Live</span>
+        <div class="port-thumb" style="background:#2a1a0a;">
+          <div class="port-thumb-logo">Boulangerie Vietnam<span>boulangerievietnam.com.au</span></div>
+          <a href="https://boulangerievietnam.com.au" target="_blank" rel="noopener" class="port-thumb-link"><span>Visit Site →</span></a>
+        </div>
+        <div class="port-body">
+          <div class="port-category">Food & Beverage — Artisan Bakery</div>
+          <div class="port-name">Boulangerie Vietnam Artisan Bakery</div>
+          <div class="port-desc">Brand new website for Jeremy & Jenny's Vietnamese-inspired artisan bakery. Previously Facebook-only — now with a full web presence, online menu and contact capability.</div>
+          <div class="port-footer">
+            <a href="https://boulangerievietnam.com.au" target="_blank" rel="noopener" class="port-url">boulangerievietnam.com.au</a>
+            <a href="https://boulangerievietnam.com.au" target="_blank" rel="noopener" class="port-link">Visit →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Helen (concept) -->
+      <div class="port-card" data-status="concept" data-cats="concept trade">
+        <span class="port-badge badge-concept">Concept</span>
+        <div class="port-thumb" style="background:#1e1a2a;">
+          <div class="port-thumb-logo">Helen's Business<span>Website Concept</span></div>
+        </div>
+        <div class="port-body">
+          <div class="port-category">Trade & Services — Website Concept</div>
+          <div class="port-name">Helen</div>
+          <div class="port-desc">A full website redesign concept created for Helen's Gold Coast business — showcasing what a modern, conversion-focused site could look like for her industry.</div>
+          <div class="port-footer">
+            <span class="port-url">Concept — not yet live</span>
+            <span class="port-link disabled">Coming Soon</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. Mr Spiros (concept) -->
+      <div class="port-card" data-status="concept" data-cats="concept hospitality food">
+        <span class="port-badge badge-concept">Concept</span>
+        <div class="port-thumb" style="background:#1a1510;">
+          <div class="port-thumb-logo">Mr Spiros<span>Website Concept</span></div>
+        </div>
+        <div class="port-body">
+          <div class="port-category">Hospitality — Website Concept</div>
+          <div class="port-name">Mr Spiros</div>
+          <div class="port-desc">A custom website concept designed for Mr Spiros — built to reflect the personality of the brand and capture more enquiries and bookings online.</div>
+          <div class="port-footer">
+            <span class="port-url">Concept — not yet live</span>
+            <span class="port-link disabled">Coming Soon</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. Tamborine Mountain Coffee Plantation (concept) -->
+      <div class="port-card" data-status="concept" data-cats="concept food hospitality">
+        <span class="port-badge badge-concept">Concept</span>
+        <div class="port-thumb" style="background:#1a1a10;">
+          <div class="port-thumb-logo">TMCP<span>Tamborine Mountain Coffee Plantation</span></div>
+        </div>
+        <div class="port-body">
+          <div class="port-category">Food & Beverage — Tourism</div>
+          <div class="port-name">Tamborine Mountain Coffee Plantation</div>
+          <div class="port-desc">A website concept for the Tamborine Mountain Coffee Plantation — designed to showcase their unique experience and drive visitor bookings and enquiries.</div>
+          <div class="port-footer">
+            <span class="port-url">Concept — not yet live</span>
+            <span class="port-link disabled">Coming Soon</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 8. Studio Velox (this site) -->
+      <div class="port-card" data-status="live" data-cats="live trade">
+        <span class="port-badge badge-live">Live</span>
+        <div class="port-thumb" style="background:#0a1628;">
+          <div class="port-thumb-logo" style="color:#e8a020;">STUDIO VELOX<span style="color:rgba(255,255,255,0.5);">studiovelox.com</span></div>
+          <a href="https://studiovelox.com" target="_blank" rel="noopener" class="port-thumb-link"><span>Visit Site →</span></a>
+        </div>
+        <div class="port-body">
+          <div class="port-category">Web Design — Agency Site</div>
+          <div class="port-name">Studio Velox</div>
+          <div class="port-desc">The Studio Velox website itself — designed and built from scratch. A JD Dwyer-inspired direct-response site with lead capture, before/after showcase and full mobile optimisation.</div>
+          <div class="port-footer">
+            <a href="https://studiovelox.com" target="_blank" rel="noopener" class="port-url">studiovelox.com</a>
+            <a href="https://studiovelox.com" target="_blank" rel="noopener" class="port-link">Visit →</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="portfolio-cta">
+  <div class="container" style="text-align:center;">
+    <h2>Want Your Business<br><em>on This Page?</em></h2>
+    <p>Start with a free website concept — delivered within 24 hours, no obligation.</p>
+    <a href="/#audit-form" class="nav-btn" style="font-size:15px;padding:16px 36px;">Get My Free Website Concept →</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-inner">
+    <div class="foot-logo">STUD<span>IO</span> <span>VE</span>LOX<span>.</span></div>
+    <div class="foot-copy">© 2026 Studio Velox. Gold Coast Web Design.</div>
+    <div class="foot-links">
+      <a href="/">Home</a>
+      <a href="/portfolio">Portfolio</a>
+      <a href="mailto:phil@studiovelox.com">phil@studiovelox.com</a>
+      <a href="tel:0422777865">0422 777 865</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+function filterCards(cat) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  const cards = document.querySelectorAll('.port-card');
+  let visible = 0;
+  cards.forEach((card, i) => {
+    const cats = card.dataset.cats || '';
+    const status = card.dataset.status || '';
+    const show = cat === 'all' || cats.includes(cat) || status === cat;
+    card.classList.toggle('hidden', !show);
+    if (show) { card.style.animationDelay = (visible * 0.06) + 's'; visible++; }
+  });
+  document.getElementById('count-num').textContent = visible;
+}
+</script>
+</body>
+</html>

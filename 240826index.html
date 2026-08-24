@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Studio Velox — Are You Losing Customers Online Without Knowing It?</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Lato:wght@300;400;700&family=Oswald:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@formspree/ajax@1" defer></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -45,11 +46,11 @@ a { text-decoration: none; color: inherit; }
 
 /* ── ANNOUNCE BAR ── */
 .announce {
-  background: var(--red); color: var(--white);
+  background: var(--gold); color: var(--navy);
   padding: 11px 0; font-family: var(--font-accent); font-size: 14px; letter-spacing: 0.04em;
   overflow: hidden; white-space: nowrap;
 }
-.announce strong { color: var(--gold2); }
+.announce strong { color: var(--navy); font-weight: 900; }
 .announce-track {
   display: inline-block;
   animation: ticker 38s linear infinite;
@@ -70,11 +71,14 @@ nav {
 .nav-inner { display: flex; align-items: center; justify-content: space-between; }
 .logo { font-family: var(--font-accent); font-size: 28px; font-weight: 600; color: var(--white); letter-spacing: 0.04em; }
 .logo span { color: var(--gold); }
+.nav-contact { display: flex; align-items: center; gap: 12px; }
 .nav-phone { font-family: var(--font-accent); color: var(--gold2); font-size: 15px; letter-spacing: 0.04em; }
+.nav-email { font-family: var(--font-accent); color: var(--gold2); font-size: 15px; letter-spacing: 0.04em; }
+.nav-divider { color: rgba(232,160,32,0.3); font-size: 18px; }
 .nav-btn { font-size: 14px; padding: 12px 28px; }
 
 /* ── HERO ── */
-.hero { background: var(--navy); color: var(--white); padding: 72px 0 64px; position: relative; overflow: hidden; }
+.hero { background: var(--navy); color: var(--white); padding: 36px 0 40px; position: relative; overflow: hidden; }
 .hero::after {
   content: ''; position: absolute; top: 0; right: 0; width: 45%; height: 100%;
   background: linear-gradient(135deg, transparent, rgba(232,160,32,0.07));
@@ -83,44 +87,44 @@ nav {
 .hero-inner { display: grid; grid-template-columns: 1fr 420px; gap: 60px; align-items: start; }
 .eyebrow {
   font-family: var(--font-accent); font-size: 12px; letter-spacing: 0.2em;
-  text-transform: uppercase; color: var(--gold); margin-bottom: 20px;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 12px;
   display: flex; align-items: center; gap: 12px;
 }
 .eyebrow::before { content: ''; display: block; width: 36px; height: 2px; background: var(--gold); flex-shrink: 0; }
 .hero h1 {
-  font-family: var(--font-head); font-size: clamp(30px, 4.2vw, 54px);
-  font-weight: 900; line-height: 1.1; margin-bottom: 28px; color: var(--white);
+  font-family: var(--font-head); font-size: clamp(30px, 3.8vw, 48px);
+  font-weight: 900; line-height: 1.05; margin-bottom: 16px; color: var(--white);
 }
-.hero h1 em { font-style: normal; color: var(--gold); display: block; }
-.agitate { font-size: 17px; line-height: 1.75; color: #b0bfd4; margin-bottom: 14px; max-width: 560px; }
+.hero h1 em { font-style: normal; color: var(--gold); display: block; white-space: nowrap; }
+.agitate { font-size: 15px; line-height: 1.6; color: #b0bfd4; margin-bottom: 8px; max-width: 560px; }
 .agitate strong { color: var(--white); }
 .agitate .pain { color: #ff8a80; font-weight: 700; }
 .stats-row {
-  display: flex; gap: 32px; flex-wrap: wrap;
-  margin: 36px 0; padding: 22px 0;
+  display: flex; gap: 24px; flex-wrap: wrap;
+  margin: 16px 0; padding: 14px 0;
   border-top: 1px solid rgba(255,255,255,0.1);
   border-bottom: 1px solid rgba(255,255,255,0.1);
 }
-.stat-num { font-family: var(--font-accent); font-size: 30px; font-weight: 600; color: var(--gold); line-height: 1; }
-.stat-lbl { font-size: 11px; color: #6a7f9a; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px; }
-.cta-row { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
-.hero-guarantee { font-size: 13px; color: #6a7f9a; margin-top: 16px; display: flex; align-items: center; gap: 8px; }
+.stat-num { font-family: var(--font-accent); font-size: 24px; font-weight: 600; color: var(--gold); line-height: 1; }
+.stat-lbl { font-size: 10px; color: #6a7f9a; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 3px; }
+.cta-row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-top: 16px; }
+.hero-guarantee { font-size: 12px; color: #6a7f9a; margin-top: 10px; display: flex; align-items: center; gap: 8px; }
 .hero-guarantee::before { content: '✓'; color: var(--lime); font-weight: 700; }
 
 /* FORM CARD */
 .form-card {
-  background: var(--white); color: var(--navy); padding: 40px 36px;
+  background: var(--white); color: var(--navy); padding: 28px 28px;
   box-shadow: 0 20px 60px rgba(0,0,0,0.45); position: relative;
 }
 .form-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; background: var(--gold); }
 .form-badge {
   background: var(--red); color: var(--white); font-family: var(--font-accent);
   font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
-  padding: 5px 14px; display: inline-block; margin-bottom: 16px;
+  padding: 4px 12px; display: inline-block; margin-bottom: 10px;
 }
-.form-card h3 { font-family: var(--font-head); font-size: 21px; font-weight: 800; line-height: 1.25; margin-bottom: 8px; color: var(--navy); }
-.form-card > p { font-size: 13px; color: var(--gray); line-height: 1.6; margin-bottom: 22px; }
-.field { margin-bottom: 13px; }
+.form-card h3 { font-family: var(--font-head); font-size: 19px; font-weight: 800; line-height: 1.2; margin-bottom: 6px; color: var(--navy); }
+.form-card > p { font-size: 12px; color: var(--gray); line-height: 1.5; margin-bottom: 14px; }
+.field { margin-bottom: 10px; }
 .field input, .field select {
   width: 100%; background: var(--offwhite); border: 2px solid #dde2ea;
   color: var(--navy); font-family: var(--font-body); font-size: 14px;
@@ -472,29 +476,98 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
 
 /* RESPONSIVE */
 @media (max-width: 900px) {
-  .hero-inner, .video-grid, .trust-grid { grid-template-columns: 1fr; gap: 40px; }
-  .pain-grid, .ben-grid, .testi-grid { grid-template-columns: 1fr; }
-  .steps { grid-template-columns: 1fr 1fr; gap: 36px; }
+  /* Layout */
+  .hero-inner, .video-grid, .trust-grid { grid-template-columns: 1fr; gap: 32px; }
+  .pain-grid, .ben-grid, .testi-grid { grid-template-columns: 1fr; gap: 16px; }
+  .steps { grid-template-columns: 1fr 1fr; gap: 28px; }
   .steps::before { display: none; }
   .final-form { flex-direction: column; }
-  .proof-inner { gap: 20px; }
-  .stats-row { gap: 20px; }
-  .nav-phone { display: none; }
+  .proof-inner { gap: 14px; justify-content: flex-start; overflow-x: auto; padding: 0 16px; flex-wrap: nowrap; }
+  .proof-item { flex-shrink: 0; }
+  .stats-row { gap: 16px; flex-wrap: wrap; }
+  .nav-contact { display: none; }
+  .cta-row { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .btn-gold, .btn-outline { width: 100%; text-align: center; padding: 16px 20px; }
+
+  /* Typography */
+  .hero h1 { font-size: clamp(28px, 7vw, 42px); }
+  .agitate { font-size: 15px; }
+  .sec-title { font-size: clamp(22px, 6vw, 34px); }
+  .section-title { font-size: clamp(22px, 6vw, 34px); }
+
+  /* Sections */
+  .hero { padding: 40px 0 48px; }
+  .section, .pain-section, .video-section, .benefits,
+  .process, .testimonials, .trust, .showcase { padding: 52px 0; }
+  .container { padding: 0 18px; }
+  .final-cta { padding: 52px 0; }
+  .velox-definition { padding: 52px 0; }
+
+  /* Form card */
+  .form-card { padding: 28px 22px; }
+  .hero-form-card { padding: 28px 22px; }
+
+  /* Stats */
+  .stat-num { font-size: 24px; }
+  .stat-lbl { font-size: 10px; }
+
+  /* Process */
+  .step-circle { width: 56px; height: 56px; font-size: 17px; }
+
+  /* Trust */
+  .creds { padding: 32px 24px; }
+  .cred-n { font-size: 36px; }
+
+  /* Showcase */
+  .showcase-item { grid-template-columns: 1fr; gap: 24px; }
+  .showcase-item::before { display: none; }
+
+  /* Footer */
+  .foot-inner { flex-direction: column; align-items: center; text-align: center; gap: 14px; }
+  .foot-links { flex-wrap: wrap; justify-content: center; gap: 16px; }
+
+  /* Velox definition */
+  .velox-def-word { font-size: clamp(48px, 14vw, 80px); }
+  .velox-def-meaning { font-size: clamp(18px, 5vw, 26px); }
+
+  /* Nav */
+  nav { padding: 14px 0; }
+  .logo { font-size: 22px; }
+  .nav-btn { font-size: 13px; padding: 10px 18px; }
 }
+
+@media (max-width: 480px) {
+  .steps { grid-template-columns: 1fr; gap: 24px; }
+  .ben-grid { grid-template-columns: 1fr; }
+  .hero h1 { font-size: clamp(26px, 8vw, 36px); }
+  .proof-inner { gap: 10px; }
+  .announce-track { font-size: 13px; }
+}
+
+/* NO-WEBSITE TOGGLE */
+.form-toggle {
+  display: flex; background: #eef2f7; border-radius: 0;
+  margin-bottom: 20px; overflow: hidden;
+}
+.toggle-btn {
+  flex: 1; padding: 10px 8px; border: none; background: transparent;
+  font-family: var(--font-accent); font-size: 12px; font-weight: 600;
+  letter-spacing: 0.05em; text-transform: uppercase; cursor: pointer;
+  color: #8a9ab0; transition: all 0.2s; line-height: 1.3; text-align: center;
+}
+.toggle-btn.active { background: var(--navy); color: var(--gold); }
+.form-panel { display: none; }
+.form-panel.active { display: block; }
 </style>
 </head>
 <body>
 
-<!-- ANNOUNCE BAR with EOFY countdown -->
+<!-- ANNOUNCE BAR with scrolling ticker -->
 <div class="announce">
   <span class="announce-track">
-    🚨 <strong>EOFY ALERT:</strong> Get your new site live before 30 June & your accountant may claim it as a <strong>$20,000 ATO instant asset write-off</strong> &nbsp;—&nbsp;
-    <span id="countdown-wrap">Time left: <strong id="cd-days">--</strong>d <strong id="cd-hours">--</strong>h <strong id="cd-mins">--</strong>m <strong id="cd-secs">--</strong>s</span>
-    &nbsp;—&nbsp; <strong onclick="goToAudit()" style="cursor:pointer;text-decoration:underline;">Claim your free audit now →</strong>
+    🚀 <strong>24-HOUR TURNAROUND:</strong> Submit your details today and receive your free website concept or audit <strong>within 24 hours.</strong> No catch. No obligation. Just results. &nbsp;—&nbsp; <strong onclick="goToAudit()" style="cursor:pointer;text-decoration:underline;">Claim yours now →</strong>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⚡&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    🚨 <strong>EOFY ALERT:</strong> Get your new site live before 30 June & your accountant may claim it as a <strong>$20,000 ATO instant asset write-off</strong> &nbsp;—&nbsp;
-    <span>Time left: <strong class="cd-days2">--</strong>d <strong class="cd-hours2">--</strong>h <strong class="cd-mins2">--</strong>m <strong class="cd-secs2">--</strong>s</span>
-    &nbsp;—&nbsp; <strong onclick="goToAudit()" style="cursor:pointer;text-decoration:underline;">Claim your free audit now →</strong>
+    🚀 <strong>24-HOUR TURNAROUND:</strong> Submit your details today and receive your free website concept or audit <strong>within 24 hours.</strong> No catch. No obligation. Just results. &nbsp;—&nbsp; <strong onclick="goToAudit()" style="cursor:pointer;text-decoration:underline;">Claim yours now →</strong>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⚡&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   </span>
 </div>
@@ -502,8 +575,12 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
 <!-- NAV -->
 <nav>
   <div class="container nav-inner">
-    <div class="logo">STUDIO VELOX<span>.</span></div>
-    <div class="nav-phone">📞 <a href="tel:0422777865" style="color:inherit">0422 777 865</a></div>
+    <div class="logo">STUD<span style="color:var(--gold)">IO</span> <span style="color:var(--gold)">VE</span>LOX<span>.</span></div>
+    <div class="nav-contact">
+      <span class="nav-phone">📞 <a href="tel:0422777865" style="color:inherit">0422 777 865</a></span>
+      <span class="nav-divider">|</span>
+      <span class="nav-email">✉️ <a href="mailto:phil@studiovelox.com" style="color:inherit">phil@studiovelox.com</a></span>
+    </div>
     <button class="btn-gold nav-btn" onclick="goToAudit()">Get My Free Audit →</button>
   </div>
 </nav>
@@ -513,24 +590,18 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
   <div class="container">
     <div class="hero-inner">
       <div>
-        <div class="eyebrow anim">Gold Coast AI Automation & Web Design</div>
-        <!-- JD POINT 1: Problem/Solution Headline -->
+        <div class="eyebrow anim">Gold Coast Web Design</div>
         <h1 class="anim d1">
-          Is Your Website Quietly Sending
-          <em>Customers Straight to Your Competitor?</em>
+          <em>A website your<br>business deserves.</em>
         </h1>
-        <!-- JD POINT 2: Agitation — make them feel the pain -->
         <p class="agitate anim d2">
-          <strong>Most Gold Coast small business websites fail our 8-point test.</strong> Yours probably does too — and every day it does, you're handing jobs directly to your competitors.
-        </p>
-        <p class="agitate anim d2">
-          People are finding you online right now. They're checking your site. And they're leaving — <span class="pain">silently, without ever calling</span> — because your website didn't grab them in the first five seconds. You never know they were there. You never get the call.
+          Clean, modern websites designed for Gold Coast businesses that need their first website or a fresh new look. <strong>Initial design concepts delivered within 24 hours.</strong>
         </p>
         <div class="stats-row anim d3">
           <div><div class="stat-num">8–15</div><div class="stat-lbl">Leads lost per month</div></div>
           <div><div class="stat-num">5 sec</div><div class="stat-lbl">Before visitors leave</div></div>
           <div><div class="stat-num">99%</div><div class="stat-lbl">Google you first</div></div>
-          <div><div class="stat-num">24/7</div><div class="stat-lbl">AI works for you</div></div>
+          <div><div class="stat-num">24hr</div><div class="stat-lbl">Concept delivery</div></div>
         </div>
         <div class="cta-row anim d4">
           <button class="btn-gold" onclick="goToAudit()">Get My Free Website Audit →</button>
@@ -539,25 +610,69 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
         <div class="hero-guarantee anim d4">100% free. No obligation. Results in 24 hours.</div>
       </div>
 
-      <!-- JD POINT 6: Lead magnet form — above the fold -->
+      <!-- JD POINT 6: Lead magnet form — two audiences -->
       <div id="audit-form">
         <div class="form-card anim d1">
           <span class="form-badge">🎁 Free — No Catch</span>
-          <h3>Claim Your Free Website Audit</h3>
-          <p>We score your site against our proven 8-point framework and show you exactly how many leads you're losing — and how to fix every one. Takes us 24 hours. Takes you 15 minutes to review.</p>
-          <div id="hf-content">
-            <div class="field"><input type="text" id="hf-name" placeholder="Your first name" /></div>
-            <div class="field"><input type="email" id="hf-email" placeholder="Your email address" /></div>
-            <div class="field"><input type="text" id="hf-biz" placeholder="Business name" /></div>
-            <div class="field"><input type="text" id="hf-url" placeholder="Website URL (or 'no website')" /></div>
-            <button class="form-btn" onclick="submitHero()">Send Me My Free Audit →</button>
-            <p class="form-fine">✓ 100% Free &nbsp;|&nbsp; ✓ No Sales Pitch &nbsp;|&nbsp; ✓ Results in 24hrs</p>
+          <h3>Get Your Free Website Strategy</h3>
+          <p>Tell us where you're at and we'll show you exactly what we'd do — at zero cost, zero obligation.</p>
+
+          <!-- TOGGLE -->
+          <div class="form-toggle">
+            <button class="toggle-btn active" id="tab-has" onclick="switchTab('has')">
+              I have a website<br><span style="font-size:10px;opacity:0.7">that isn't getting leads</span>
+            </button>
+            <button class="toggle-btn" id="tab-none" onclick="switchTab('none')">
+              I don't have<br><span style="font-size:10px;opacity:0.7">a website yet</span>
+            </button>
           </div>
-          <div class="form-success" id="hf-success">
-            <div class="tick">✓</div>
-            <h4>You're locked in!</h4>
-            <p>Your personalised audit will be with you within 24 hours. We'll reach out to book a 15-minute walkthrough too.</p>
+
+          <!-- PANEL A: Has a website -->
+          <div class="form-panel active" id="panel-has">
+            <p style="font-size:13px;color:#e8a020;font-weight:700;margin-bottom:14px;">→ We'll audit your site & show you exactly what's losing you leads.</p>
+            <div id="hf-content">
+              <div class="field"><input type="text" id="hf-name" placeholder="Your first name" /></div>
+              <div class="field"><input type="email" id="hf-email" placeholder="Your email address" /></div>
+              <div class="field"><input type="text" id="hf-biz" placeholder="Business name" /></div>
+              <div class="field"><input type="text" id="hf-url" placeholder="Your website URL" /></div>
+              <button class="form-btn" onclick="submitHero('audit')">Get My Free Audit →</button>
+              <p class="form-fine">✓ 100% Free &nbsp;|&nbsp; ✓ No Sales Pitch &nbsp;|&nbsp; ✓ Results in 24hrs</p>
+            </div>
+            <div class="form-success" id="hf-success" style="display:none">
+              <div class="tick">✓</div>
+              <h4>You're locked in!</h4>
+              <p>Your personalised audit will be with you within 24 hours. We'll reach out to book a 15-minute walkthrough too.</p>
+            </div>
           </div>
+
+          <!-- PANEL B: No website -->
+          <div class="form-panel" id="panel-none">
+            <p style="font-size:13px;color:#e8a020;font-weight:700;margin-bottom:14px;">→ We'll put together a free plan showing what your site could look like & what it would cost.</p>
+            <div id="nw-content">
+              <div class="field"><input type="text" id="nw-name" placeholder="Your first name" /></div>
+              <div class="field"><input type="email" id="nw-email" placeholder="Your email address" /></div>
+              <div class="field"><input type="text" id="nw-biz" placeholder="Business name" /></div>
+              <div class="field">
+                <select id="nw-type">
+                  <option value="" disabled selected>What type of business?</option>
+                  <option>Tradie (plumber, painter, builder etc.)</option>
+                  <option>Cafe / Restaurant / Hospitality</option>
+                  <option>Beauty / Wellness / Health</option>
+                  <option>Retail / Product-based</option>
+                  <option>Professional Services</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <button class="form-btn" onclick="submitHero('noweb')">Get My Free Website Plan →</button>
+              <p class="form-fine">✓ 100% Free &nbsp;|&nbsp; ✓ No Obligation &nbsp;|&nbsp; ✓ Response in 24hrs</p>
+            </div>
+            <div class="form-success" id="nw-success" style="display:none">
+              <div class="tick">✓</div>
+              <h4>Perfect — we'll be in touch!</h4>
+              <p>We'll put together a free plan and concept for your new site. Expect to hear from us within 24 hours.</p>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -567,11 +682,11 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
 <!-- PROOF BAR -->
 <div class="proof-bar">
   <div class="container proof-inner">
-    <div class="proof-item">⭐ 5-Star Rated on Google</div>
+    <div class="proof-item"><a href="https://g.page/r/Cfdm27s-FYjPEAI/review" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">⭐ Leave Us a Google Review</a></div>
     <div class="proof-item">📍 Gold Coast Based</div>
     <div class="proof-item">🤝 No Lock-In Contracts</div>
     <div class="proof-item">⚡ Sites Live in 14 Days</div>
-    <div class="proof-item">🤖 AI Automation Included</div>
+    <div class="proof-item">🎨 Custom Design Every Time</div>
   </div>
 </div>
 
@@ -587,79 +702,14 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
   </div>
 </section>
 
-<!-- ══ PAIN ══ JD: Agitate the wound deeper -->
-<section class="pain-section">
-  <div class="container">
-    <h2 class="anim">Sound familiar? <em>You're not alone.</em></h2>
-    <p class="pain-intro anim">We've audited hundreds of Gold Coast small business websites. The same costly problems come up again and again — and every single one is silently bleeding money.</p>
-    <div class="pain-grid">
-      <div class="pain-card anim">
-        <div class="pain-icon">😤</div>
-        <div class="pain-title">"I rely on word of mouth"</div>
-        <div class="pain-desc">Word of mouth is great — until it dries up. And every referral you get will Google you before they call. What they find will either confirm the recommendation... or kill it dead.</div>
-      </div>
-      <div class="pain-card anim d1">
-        <div class="pain-icon">😩</div>
-        <div class="pain-title">"My website exists but does nothing"</div>
-        <div class="pain-desc">There's a massive difference between a website that exists and one that sells. Most local sites are digital brochures. They don't capture leads, follow up, or convert visitors into paying customers.</div>
-      </div>
-      <div class="pain-card anim d2">
-        <div class="pain-icon">🤦</div>
-        <div class="pain-title">"I'm too busy to chase quotes"</div>
-        <div class="pain-desc">You send a quote, hear nothing back, and move on. But that customer was ready to buy — they just needed one more nudge. Our AI sends the follow-up for you, automatically, every time.</div>
-      </div>
-      <div class="pain-card anim">
-        <div class="pain-icon">😰</div>
-        <div class="pain-title">"Enquiries go cold overnight"</div>
-        <div class="pain-desc">Someone fills your contact form at 9pm Sunday. You don't see it until Monday morning. By then, they've booked with someone else. Response speed wins the job — every single time.</div>
-      </div>
-      <div class="pain-card anim d1">
-        <div class="pain-icon">📉</div>
-        <div class="pain-title">"My competitor is outranking me"</div>
-        <div class="pain-desc">You've been in business longer. You're better at the job. But they show up first on Google and they're getting the calls. A properly built, SEO-optimised site changes that — fast.</div>
-      </div>
-      <div class="pain-card anim d2">
-        <div class="pain-icon">💸</div>
-        <div class="pain-title">"I wasted money on ads that flopped"</div>
-        <div class="pain-desc">Ads don't fail — bad websites do. If you're sending paid traffic to a site that doesn't convert, you're pouring money into a leaky bucket. Fix the site first. Then ads pay for themselves.</div>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- ══ VIDEO ══ JD Point 4: Welcome Video + JD Point 3: Reinforcing images -->
-<section class="video-section" id="how">
-  <div class="container">
-    <div class="video-grid">
-      <!-- JD POINT 4: Welcome video placeholder -->
-      <div class="video-ph anim" onclick="alert('Replace this with your welcome video embed!')">
-        <div class="play-btn">▶</div>
-        <div class="vid-label">Watch: How Studio Velox Works (2 mins)</div>
-      </div>
-      <div>
-        <div class="sec-label anim">Meet the Studio Velox Team</div>
-        <h2 class="sec-title anim">We Fix the Exact Things That Are <em>Costing You Leads Right Now</em></h2>
-        <p class="body-copy anim">Hi — we're Studio Velox. A Gold Coast AI automation and web design agency with one obsession: turning local business websites into 24/7 lead-generating machines.</p>
-        <p class="body-copy anim">We use a proven 8-point framework — the same system used across 27,000 Australian businesses — to find every place your site is losing customers, then fix every single one.</p>
-        <ul class="check-list anim">
-          <li>New website or full redesign — live in 14 days</li>
-          <li>AI chatbot responds to enquiries in under 60 seconds</li>
-          <li>Automated quote follow-ups that close jobs for you</li>
-          <li>Google Review campaigns that run on autopilot</li>
-          <li>SEO that puts you above your competitors on Google</li>
-        </ul>
-        <button class="btn-gold anim" onclick="goToAudit()">Get My Free Audit First →</button>
-      </div>
-    </div>
-  </div>
-</section>
 
 <!-- ══ BEFORE / AFTER SHOWCASE ══ -->
 <section class="showcase">
   <div class="container">
-    <div class="sec-label">Real Gold Coast transformations</div>
+    <div class="sec-label">Real business transformations</div>
     <h2 class="sec-title anim">See Exactly What We Do —<br><em>Before & After, Side by Side</em></h2>
-    <p class="showcase-intro anim">These are real Gold Coast businesses. Real websites we've transformed. Watch the before, watch the after — and ask yourself honestly which one you'd call.</p>
+    <p class="showcase-intro anim">Real businesses. Real websites we've transformed. Watch the before, watch the after — and ask yourself honestly which one you'd call.</p>
 
     <div class="showcase-grid">
 
@@ -668,87 +718,69 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
         <div class="showcase-panel">
           <span class="showcase-label label-before">Before</span>
           <div class="showcase-video" id="ellie-before">
-            <div class="sv-placeholder">
-              <div class="sv-play">▶</div>
-              <div class="sv-label">Ellie's site — original<br>Video coming soon</div>
-            </div>
+            <iframe src="https://www.youtube.com/embed/lbebKxfUOBw" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:none;"></iframe>
           </div>
           <div class="showcase-meta">
-            <div class="showcase-biz">Ellie's Business</div>
-            <div class="showcase-type">Original website</div>
+            <div class="showcase-biz">DoGood Pet Nutrition</div>
+            <div class="showcase-type">Current website — <a href="https://dogoodgc.com.au" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">dogoodgc.com.au</a></div>
           </div>
         </div>
         <div class="showcase-panel">
-          <span class="showcase-label label-after">After</span>
+          <span class="showcase-label label-after" style="background:#7b5ea7;">Future</span>
           <div class="showcase-video" id="ellie-after">
-            <div class="sv-placeholder">
-              <div class="sv-play">▶</div>
-              <div class="sv-label">Ellie's site — Studio Velox v2<br>Video coming soon</div>
-            </div>
+            <iframe src="https://www.youtube.com/embed/XmISAMu9ZOw" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:none;"></iframe>
           </div>
           <div class="showcase-meta">
-            <div class="showcase-biz">Ellie's Business</div>
-            <div class="showcase-type">Rebuilt by Studio Velox</div>
+            <div class="showcase-biz">DoGood Pet Nutrition</div>
+            <div class="showcase-type">Future redesign — <a href="https://pacman1979.github.io/DoGoodGC/v2/" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">preview here</a></div>
           </div>
         </div>
       </div>
 
-      <!-- CLIENT 2: Taylor -->
+      <!-- CLIENT 2: Evan / Tri-Axle Group -->
       <div class="showcase-item anim">
         <div class="showcase-panel">
           <span class="showcase-label label-before">Before</span>
-          <div class="showcase-video" id="taylor-before">
-            <div class="sv-placeholder">
-              <div class="sv-play">▶</div>
-              <div class="sv-label">Taylor's site — original<br>Video coming soon</div>
-            </div>
+          <div class="showcase-video" id="evan-before">
+            <iframe src="https://www.youtube.com/embed/q6Cxh5QlteI" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:none;"></iframe>
           </div>
           <div class="showcase-meta">
-            <div class="showcase-biz">Taylor's Business</div>
-            <div class="showcase-type">Original website</div>
+            <div class="showcase-biz">Tri-Axle Group</div>
+            <div class="showcase-type">Original website — <a href="https://triaxlegroup.com.au" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">triaxlegroup.com.au</a></div>
           </div>
         </div>
         <div class="showcase-panel">
           <span class="showcase-label label-after">After</span>
-          <div class="showcase-video" id="taylor-after">
-            <div class="sv-placeholder">
-              <div class="sv-play">▶</div>
-              <div class="sv-label">Taylor's site — Studio Velox<br>Video coming soon</div>
-            </div>
+          <div class="showcase-video" id="evan-after">
+            <iframe src="https://www.youtube.com/embed/vY5qykkGIrA" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:none;"></iframe>
           </div>
           <div class="showcase-meta">
-            <div class="showcase-biz">Taylor's Business</div>
-            <div class="showcase-type">Rebuilt by Studio Velox</div>
+            <div class="showcase-biz">Tri-Axle Group</div>
+            <div class="showcase-type">Redesigned by Studio Velox — <a href="https://triaxlegroup.com.au" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">triaxlegroup.com.au</a></div>
           </div>
         </div>
       </div>
 
-      <!-- CLIENT 3: Helen -->
+      <!-- CLIENT 3: Boulangerie Vietnam -->
       <div class="showcase-item anim">
         <div class="showcase-panel">
           <span class="showcase-label label-before">Before</span>
-          <div class="showcase-video" id="helen-before">
-            <div class="sv-placeholder">
-              <div class="sv-play">▶</div>
-              <div class="sv-label">Helen's site — current<br>Video coming soon</div>
-            </div>
+          <div class="showcase-video" id="bv-before">
+            <iframe src="https://www.youtube.com/embed/aAtABzX_WQY" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:none;"></iframe>
           </div>
           <div class="showcase-meta">
-            <div class="showcase-biz">Helen's Business</div>
-            <div class="showcase-type">Current website</div>
+            <div class="showcase-biz">Boulangerie Vietnam Artisan Bakery</div>
+            <div class="showcase-type">Facebook only — <a href="https://boulangerievietnam.com.au" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">boulangerievietnam.com.au</a></div>
           </div>
         </div>
         <div class="showcase-panel">
           <span class="showcase-label label-after">After</span>
-          <div class="showcase-video" id="helen-after">
-            <div class="sv-placeholder">
-              <div class="sv-play">▶</div>
-              <div class="sv-label">Helen's site — Studio Velox concept<br>Video coming soon</div>
-            </div>
+          <div class="showcase-video" id="bv-after">
+            <iframe src="https://www.youtube.com/embed/FUC4RubKtmY" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:none;"></iframe>
           </div>
           <div class="showcase-meta">
-            <div class="showcase-biz">Helen's Business</div>
-            <div class="showcase-type">Studio Velox concept redesign</div>
+            <div class="showcase-biz">Boulangerie Vietnam Artisan Bakery</div>
+            <div class="showcase-type">New website concept — <a href="https://boulangerievietnam.com.au" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">boulangerievietnam.com.au</a></div>
           </div>
         </div>
       </div>
@@ -762,22 +794,6 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
   </div>
 </section>
 
-<!-- ══ BENEFITS ══ JD Point 5: Benefits (WIIFM — What's In It For Me) -->
-<section class="benefits">
-  <div class="container">
-    <div class="sec-label">What's in it for you</div>
-    <h2 class="sec-title">Stop Losing Sleep Over Where Your<br><em>Next Customer Is Coming From</em></h2>
-    <p class="sec-sub">Every service we offer has one goal: more customers, less effort, more money in your pocket — without you needing to become a tech expert.</p>
-    <div class="ben-grid">
-      <div class="ben-card anim"><div class="ben-num">01</div><div class="ben-icon">🌐</div><div class="ben-title">A Website That Actually Sells</div><div class="ben-desc">Stop being embarrassed by your website. We build conversion-focused sites that answer your customer's questions instantly — and make picking up the phone feel like the obvious next step.</div></div>
-      <div class="ben-card anim d1"><div class="ben-num">02</div><div class="ben-icon">🤖</div><div class="ben-title">Leads Captured Around the Clock</div><div class="ben-desc">Your AI chatbot never sleeps. It responds in under 60 seconds, qualifies the lead, and notifies you — so you wake up to booked appointments, not missed opportunities.</div></div>
-      <div class="ben-card anim d2"><div class="ben-num">03</div><div class="ben-icon">📲</div><div class="ben-title">Follow-Up That Closes Jobs</div><div class="ben-desc">Every quote gets followed up automatically. Every past customer gets a re-engagement message. Your business keeps working even while you're on the tools — or on the couch.</div></div>
-      <div class="ben-card anim"><div class="ben-num">04</div><div class="ben-icon">⭐</div><div class="ben-title">5-Star Reviews on Autopilot</div><div class="ben-desc">Automated review-request campaigns go out after every job. Most clients see their Google rating jump within 30 days — and more reviews means higher rankings and more trust.</div></div>
-      <div class="ben-card anim d1"><div class="ben-num">05</div><div class="ben-icon">📈</div><div class="ben-title">Rank Above Your Competitors</div><div class="ben-desc">We build your site with Google in mind from day one. Fast-loading, mobile-optimised, keyword-rich — so when someone searches your service on the Gold Coast, you show up first.</div></div>
-      <div class="ben-card anim d2"><div class="ben-num">06</div><div class="ben-icon">💰</div><div class="ben-title">ROI You Can Measure</div><div class="ben-desc">You'll know exactly how many leads came through the site, how many the AI handled, and what your return is — every single month. No vague promises. Just clear numbers.</div></div>
-    </div>
-  </div>
-</section>
 
 <!-- PROCESS -->
 <section class="process" id="process">
@@ -786,9 +802,9 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
     <h2 class="sec-title anim">From Free Audit to Live & <em>Generating Leads in Under 2 Weeks</em></h2>
     <div class="steps">
       <div class="step-item anim"><div class="step-circle">1</div><div class="step-title">Free Audit</div><div class="step-desc">We score your site against our 8-point framework and show you exactly what we'd fix. Zero cost. Zero obligation.</div></div>
-      <div class="step-item anim d1"><div class="step-circle">2</div><div class="step-title">Custom Plan</div><div class="step-desc">We map out exactly what to build — which automations, what to redesign, and what results to target.</div></div>
+      <div class="step-item anim d1"><div class="step-circle">2</div><div class="step-title">Custom Plan</div><div class="step-desc">We map out exactly what to build — what to design, what pages you need, and what results to target.</div></div>
       <div class="step-item anim d2"><div class="step-circle">3</div><div class="step-title">We Build It</div><div class="step-desc">Our team does all the heavy lifting. You spend less than 2 hours on your end total. Live in 14 days.</div></div>
-      <div class="step-item anim d3"><div class="step-circle">4</div><div class="step-title">Leads Roll In</div><div class="step-desc">Your site captures leads. The AI follows up. You get notified. You focus on the work — we handle the rest.</div></div>
+      <div class="step-item anim d3"><div class="step-circle">4</div><div class="step-title">Leads Roll In</div><div class="step-desc">Your site captures leads, visitors can contact you instantly, and you focus on the work — we handle the rest.</div></div>
     </div>
   </div>
 </section>
@@ -801,21 +817,21 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
     <div class="testi-grid">
       <div class="testi-card anim">
         <div class="stars">★★★★★</div>
-        <div class="testi-quote">"Before Studio Velox I relied entirely on word of mouth with no idea how many people were finding me and leaving. After they rebuilt my site and set up the AI follow-ups, I picked up 6 new regular clients in the first month alone."</div>
-        <div class="testi-result">📈 Result: 6 new clients in Month 1</div>
-        <div class="testi-author"><div class="testi-avatar">MK</div><div><div class="testi-name">Mike K.</div><div class="testi-biz">Painter — Labrador, Gold Coast</div></div></div>
+        <div class="testi-quote">"Phillip is incredibly knowledgeable and always willing to help. He consistently comes up with great ideas to improve my website and always finds a solution, no matter how challenging the problem is. For him, nothing seems impossible. He's easy to communicate with, takes the time needed to properly fix any issue, and never makes you feel rushed. His pricing is very affordable, and working with him gives you complete confidence that you're in good hands."</div>
+        <div class="testi-result">⭐ "I can't recommend Phillip highly enough."</div>
+        <div class="testi-author"><div class="testi-avatar">EG</div><div><div class="testi-name">Ellie Gronkowski</div><div class="testi-biz">DoGood Pet Nutrition — <a href="https://dogoodgc.com.au" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">dogoodgc.com.au</a></div></div></div>
       </div>
       <div class="testi-card anim d1">
         <div class="stars">★★★★★</div>
-        <div class="testi-quote">"I was embarrassed to send anyone to my old website. Studio Velox rebuilt it in two weeks and suddenly I looked as professional as the big players. The Google Review system alone changed everything — 11 reviews to 84 in 8 weeks."</div>
-        <div class="testi-result">⭐ Result: 11 reviews → 84 in 8 weeks</div>
-        <div class="testi-author"><div class="testi-avatar">SL</div><div><div class="testi-name">Sarah L.</div><div class="testi-biz">Beauty Salon — Burleigh Heads</div></div></div>
+        <div class="testi-quote">"Studio Velox did a redesign of our website and the experience was excellent from start to finish. Phil was great to deal with, communication was spot on throughout, but what stood out was how fast he turned around an initial concept. Seeing what the site could become so quickly made the whole process easy and got us excited from day one. Would definitely use them again, and I'd recommend Phil and the team to anyone who needs a new website or wants to refresh their existing website."</div>
+        <div class="testi-result">🚀 Fast concept — excited from day one</div>
+        <div class="testi-author"><div class="testi-avatar">EC</div><div><div class="testi-name">Evan Courtney</div><div class="testi-biz">Tri-Axle Group — <a href="https://triaxlegroup.com.au" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">triaxlegroup.com.au</a></div></div></div>
       </div>
       <div class="testi-card anim d2">
         <div class="stars">★★★★★</div>
-        <div class="testi-quote">"The AI chatbot was the thing I was most sceptical about. Now I can't imagine running without it. It responds at 11pm, qualifies the customer, and I wake up with booked jobs already in the diary. It's like having a free employee."</div>
-        <div class="testi-result">🤖 Result: Booked jobs every morning</div>
-        <div class="testi-author"><div class="testi-avatar">DT</div><div><div class="testi-name">Dave T.</div><div class="testi-biz">Plumber — Pimpama, Gold Coast</div></div></div>
+        <div class="testi-quote">"I couldn't recommend Phil highly enough for creating your website! He made the whole process of creating mine so easy and stress-free. For someone who is terrible at anything tech related (me), he has been incredibly patient and basically took the entire process off my hands. If you are looking for someone who is knowledgeable, reliable and most importantly cares about building something that truly aligns with your brand and your vision, Phil is the person to go to. Thank you so much again for everything 🙏"</div>
+        <div class="testi-result">✨ "Took the entire process off my hands"</div>
+        <div class="testi-author"><div class="testi-avatar">TV</div><div><div class="testi-name">Taylor Valentino</div><div class="testi-biz">The Breath Therapy — <a href="https://thebreaththerapy.com.au" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">thebreaththerapy.com.au</a></div></div></div>
       </div>
     </div>
     <div class="vid-testi-note">
@@ -833,9 +849,9 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
         <h2 class="sec-title" style="margin-bottom:28px;">5 Reasons Gold Coast Businesses <em>Choose Us Over the Rest</em></h2>
         <ul class="trust-list anim">
           <li class="trust-item"><div class="trust-num">01</div><div><div class="trust-ttl">We're Gold Coast locals — we know your market</div><div class="trust-dsc">Not an offshore agency or a faceless corporation. We're based here, we know the local market, and we're available when you need us.</div></div></li>
-          <li class="trust-item"><div class="trust-num">02</div><div><div class="trust-ttl">We build to a proven conversion framework — not just looks</div><div class="trust-dsc">Our 8-point homepage formula has been proven across 27,000+ Australian businesses. Pretty sites don't pay bills — sites built to convert do.</div></div></li>
+          <li class="trust-item"><div class="trust-num">02</div><div><div class="trust-ttl">We build to a proven conversion framework — not just looks</div><div class="trust-dsc">Our 8-point homepage formula is built on direct-response principles proven across thousands of Australian businesses. Pretty sites don't pay bills — sites built to convert do.</div></div></li>
           <li class="trust-item"><div class="trust-num">03</div><div><div class="trust-ttl">Live in 14 days — not 14 weeks</div><div class="trust-dsc">Other agencies drag projects on for months. We have a streamlined system that gets you live and generating leads in 14 days flat.</div></div></li>
-          <li class="trust-item"><div class="trust-num">04</div><div><div class="trust-ttl">AI automation is included — not a costly add-on</div><div class="trust-dsc">Every build includes AI systems as standard. You're not getting a website — you're getting a 24/7 sales and follow-up machine.</div></div></li>
+          <li class="trust-item"><div class="trust-num">04</div><div><div class="trust-ttl">We keep it simple — no tech jargon</div><div class="trust-dsc">You don't need to understand code or web design to work with us. We handle everything and explain it in plain English throughout the process.</div></div></li>
           <li class="trust-item"><div class="trust-num">05</div><div><div class="trust-ttl">No lock-in contracts — ever</div><div class="trust-dsc">We earn your ongoing business by delivering results, not by trapping you in a long contract. Stay because it's working — not because you have to.</div></div></li>
         </ul>
       </div>
@@ -844,14 +860,14 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
           <div class="creds-label">Studio Velox by the numbers</div>
           <div class="cred-row"><div class="cred-n">14</div><div class="cred-l">days average from start to live</div></div>
           <hr class="cred-div">
-          <div class="cred-row"><div class="cred-n">60s</div><div class="cred-l">average AI response time to new enquiries</div></div>
+          <div class="cred-row"><div class="cred-n">24hr</div><div class="cred-l">initial concept turnaround</div></div>
           <hr class="cred-div">
           <div class="cred-row"><div class="cred-n">8pt</div><div class="cred-l">proven homepage conversion framework</div></div>
           <hr class="cred-div">
           <div class="cred-row"><div class="cred-n">5★</div><div class="cred-l">Google-rated service</div></div>
           <div class="guarantee">
-            <h4>🛡️ Our Promise to You</h4>
-            <p>If you don't see a measurable increase in leads within the first 60 days, we keep working — at no extra cost — until you do. We back our work completely.</p>
+            <h4>🤝 The Studio Velox Commitment</h4>
+            <p>We care genuinely about every website we build. You'll have direct access to Phil throughout the entire process — no account managers, no outsourcing, no disappearing acts. Just honest work, clear communication, and a site you're proud to share.</p>
           </div>
         </div>
       </div>
@@ -862,13 +878,8 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
 <!-- ══ FINAL CTA ══ JD Point 6 repeated: Data capture with WOW Factor urgency -->
 <section class="final-cta">
   <div class="final-inner">
-    <div class="urgency-tag">⏰ Only 5 Spots Left This Month</div>
-    <h2>Stop Leaving Money on the Table.<br>Get Your Free Website Audit Today.</h2>
-    <p>Find out exactly how many leads your current website is costing you — and what it would take to fix it. It's free, it takes 15 minutes to review, and it could be the most valuable thing you do for your business this year.</p>
-    <div style="background:rgba(10,22,40,0.15);border-left:4px solid var(--navy);padding:18px 24px;margin-bottom:32px;text-align:left;max-width:620px;margin-left:auto;margin-right:auto;">
-      <p style="font-size:15px;color:var(--navy);line-height:1.7;margin:0;font-weight:700;">💡 EOFY Tax Tip</p>
-      <p style="font-size:15px;color:var(--navy);line-height:1.7;margin:8px 0 0;opacity:0.85;">If you get your new site live before 30 June, your accountant may be able to put it through as an instant asset write-off under the ATO's $20,000 scheme — potentially the whole investment back as a tax deduction this financial year. We build in 14 days, so the window is tight but doable. <em>Check with your accountant to confirm eligibility.</em></p>
-    </div>
+    <h2>Ready to Get Started?<br>Claim Your Free Website Strategy Today.</h2>
+    <p>Find out exactly what we'd do with your business online — whether you need a brand new site or a complete transformation. It's free, it takes 15 minutes to review, and it could be the most valuable thing you do for your business this year.</p>
     <div id="ff-wrap">
       <div class="final-form">
         <input type="email" id="ff-email" placeholder="Enter your email address" />
@@ -887,12 +898,14 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
 <!-- FOOTER -->
 <footer>
   <div class="container foot-inner">
-    <div class="foot-logo">STUDIO VELOX<span>.</span></div>
-    <div class="foot-copy">© 2026 Studio Velox. Gold Coast AI Automation & Web Design.</div>
+    <div class="foot-logo">STUD<span style="color:var(--gold)">IO</span> <span style="color:var(--gold)">VE</span>LOX<span style="color:var(--gold)">.</span></div>
+    <div class="foot-copy">© 2026 Studio Velox. Gold Coast Web Design.</div>
     <div class="foot-links">
       <a href="#">Privacy</a>
       <a href="#">Terms</a>
-      <a href="mailto:hello@studiovelox.com">hello@studiovelox.com</a>
+      <a href="mailto:phil@studiovelox.com">phil@studiovelox.com</a>
+      <a href="tel:0422777865">0422 777 865</a>
+      <a href="https://g.page/r/Cfdm27s-FYjPEAI/review" target="_blank" rel="noopener" style="color:var(--gold);">⭐ Google Review</a>
     </div>
   </div>
 </footer>
@@ -905,6 +918,16 @@ function goToAudit() {
 
 function goToProcess() {
   document.getElementById('process').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Toggle between has-website and no-website panels
+function switchTab(tab) {
+  document.getElementById('panel-has').classList.toggle('active', tab === 'has');
+  document.getElementById('panel-none').classList.toggle('active', tab === 'none');
+  document.getElementById('tab-has').classList.toggle('active', tab === 'has');
+  document.getElementById('tab-none').classList.toggle('active', tab === 'none');
+  if (tab === 'has') setTimeout(() => document.getElementById('hf-name').focus(), 100);
+  if (tab === 'none') setTimeout(() => document.getElementById('nw-name').focus(), 100);
 }
 
 // Scroll reveal
@@ -922,73 +945,74 @@ function saveLead(data) {
   } catch(e) {}
 }
 
-// Hero form — submits to Formspree AND saves locally
-async function submitHero() {
-  const name  = document.getElementById('hf-name').value.trim();
-  const email = document.getElementById('hf-email').value.trim();
-  const biz   = document.getElementById('hf-biz').value.trim();
-  const url   = document.getElementById('hf-url').value.trim();
-  if (!name || !email || !biz) { alert('Please fill in your name, email and business name.'); return; }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Please enter a valid email.'); return; }
+// Formspree form ID
+const FORM_ID = 'maqzdven';
 
-  // Send to Formspree — replace YOUR_FORM_ID with your actual Formspree form ID
-  try {
-    await fetch('https://formspree.io/f/YOUR_FORM_ID', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ name, email, business: biz, website: url, source: 'Free Audit Request' })
-    });
-  } catch(e) { console.log('Formspree error:', e); }
+// Hero form — handles both audit and no-website submissions
+async function submitHero(type) {
+  if (type === 'audit') {
+    const name  = document.getElementById('hf-name').value.trim();
+    const email = document.getElementById('hf-email').value.trim();
+    const biz   = document.getElementById('hf-biz').value.trim();
+    const url   = document.getElementById('hf-url').value.trim();
+    if (!name || !email || !biz) { alert('Please fill in your name, email and business name.'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Please enter a valid email.'); return; }
+    try {
+      const res = await fetch(`https://formspree.io/f/${FORM_ID}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ name, email, business: biz, website: url, _subject: `Free Audit Request — ${biz}` })
+      });
+      const data = await res.json();
+      if (!res.ok) { console.error('Formspree error:', data); }
+    } catch(e) { console.log('Submission error:', e); }
+    saveLead({ name, email, biz, url, source: 'hero-audit' });
+    document.getElementById('hf-content').style.display = 'none';
+    document.getElementById('hf-success').style.display = 'block';
 
-  saveLead({ name, email, biz, url, source: 'hero' });
-  document.getElementById('hf-content').style.display = 'none';
-  document.getElementById('hf-success').style.display = 'block';
+  } else {
+    const name  = document.getElementById('nw-name').value.trim();
+    const email = document.getElementById('nw-email').value.trim();
+    const biz   = document.getElementById('nw-biz').value.trim();
+    const bizType = document.getElementById('nw-type').value;
+    if (!name || !email || !biz || !bizType) { alert('Please fill in all fields.'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Please enter a valid email.'); return; }
+    try {
+      const res = await fetch(`https://formspree.io/f/${FORM_ID}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ name, email, business: biz, businessType: bizType, _subject: `New Website Request — ${biz}` })
+      });
+      const data = await res.json();
+      if (!res.ok) { console.error('Formspree error:', data); }
+    } catch(e) { console.log('Submission error:', e); }
+    saveLead({ name, email, biz, bizType, source: 'hero-noweb' });
+    document.getElementById('nw-content').style.display = 'none';
+    document.getElementById('nw-success').style.display = 'block';
+  }
 }
 
 // Final CTA form
 async function submitFinal() {
   const email = document.getElementById('ff-email').value.trim();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Please enter a valid email.'); return; }
-
   try {
-    await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+    const res = await fetch(`https://formspree.io/f/${FORM_ID}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ email, source: 'Footer CTA' })
+      body: JSON.stringify({ email, _subject: 'Free Audit Request — Footer CTA' })
     });
-  } catch(e) { console.log('Formspree error:', e); }
-
+    const data = await res.json();
+    if (!res.ok) { console.error('Formspree error:', data); }
+  } catch(e) { console.log('Submission error:', e); }
   saveLead({ email, source: 'final-cta' });
   document.getElementById('ff-wrap').style.display = 'none';
   document.getElementById('ff-success').style.display = 'block';
 }
 
-// EOFY Countdown Timer — counts to 30 June 2026 midnight AEST
-function updateCountdown() {
-  const eofy = new Date('2026-06-30T23:59:59+10:00');
-  const now = new Date();
-  const diff = eofy - now;
-  if (diff <= 0) {
-    document.getElementById('countdown-wrap').innerHTML = '<strong>EOFY deadline has passed</strong>';
-    return;
-  }
-  const days  = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const mins  = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  const secs  = Math.floor((diff % (1000 * 60)) / 1000);
-  const d = days, h = hours, m = String(mins).padStart(2,'0'), s = String(secs).padStart(2,'0');
-  document.getElementById('cd-days').textContent  = d;
-  document.getElementById('cd-hours').textContent = h;
-  document.getElementById('cd-mins').textContent  = m;
-  document.getElementById('cd-secs').textContent  = s;
-  // Update duplicate copy in ticker
-  document.querySelectorAll('.cd-days2').forEach(el  => el.textContent = d);
-  document.querySelectorAll('.cd-hours2').forEach(el => el.textContent = h);
-  document.querySelectorAll('.cd-mins2').forEach(el  => el.textContent = m);
-  document.querySelectorAll('.cd-secs2').forEach(el  => el.textContent = s);
-}
-updateCountdown();
-setInterval(updateCountdown, 1000);
+// end of scripts
+
+// end of scripts
 </script>
 </body>
 </html>

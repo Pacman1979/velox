@@ -76,6 +76,13 @@ nav {
 .nav-email { font-family: var(--font-accent); color: var(--gold2); font-size: 15px; letter-spacing: 0.04em; }
 .nav-divider { color: rgba(232,160,32,0.3); font-size: 18px; }
 .nav-btn { font-size: 14px; padding: 12px 28px; }
+.nav-portfolio {
+  font-family: var(--font-accent); font-size: 14px; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: rgba(255,255,255,0.7); text-decoration: none;
+  transition: color 0.2s; padding: 4px 0;
+}
+.nav-portfolio:hover { color: var(--gold); }
 
 /* ── HERO ── */
 .hero { background: var(--navy); color: var(--white); padding: 36px 0 40px; position: relative; overflow: hidden; }
@@ -576,6 +583,7 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
 <nav>
   <div class="container nav-inner">
     <div class="logo">STUD<span style="color:var(--gold)">IO</span> <span style="color:var(--gold)">VE</span>LOX<span>.</span></div>
+    <a href="/portfolio" class="nav-portfolio">Portfolio</a>
     <div class="nav-contact">
       <span class="nav-phone">📞 <a href="tel:0422777865" style="color:inherit">0422 777 865</a></span>
       <span class="nav-divider">|</span>
@@ -790,6 +798,7 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
     <div class="showcase-cta anim">
       <p>Want to see what we'd do with your website?</p>
       <button class="btn-gold" onclick="goToAudit()">Get My Free Audit — See Your Transformation →</button>
+      <p style="margin-top:16px;"><a href="/portfolio" style="font-family:var(--font-accent);font-size:13px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);text-decoration:none;">View Full Portfolio →</a></p>
     </div>
   </div>
 </section>
