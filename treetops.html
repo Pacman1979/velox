@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Studio Velox — Free Website for Your Business</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --charcoal: #1A1A1A;
+    --cream: #FAF7F4;
+    --accent: #E8491D;
+    --accent-light: #FBE3D8;
+    --gray: #6b6b6b;
+    --border: #E4DDD5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--cream);
+    color: var(--charcoal);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 40px 24px 72px;
+  }
+
+  /* ── HEADER ── */
+  .mark {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+  }
+  .mark em { color: var(--accent); font-style: normal; }
+  .tag {
+    margin-top: 24px;
+    display: inline-block;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 100px;
+  }
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 900;
+    font-size: clamp(36px, 9vw, 44px);
+    line-height: 1.08;
+    margin-top: 16px;
+    letter-spacing: -0.5px;
+  }
+  h1 .hl { color: var(--accent); }
+  .lede {
+    margin-top: 14px;
+    font-size: 17px;
+    color: #4a4a4a;
+    line-height: 1.6;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 36px 0;
+  }
+
+  /* ── PROOF POINTS ── */
+  .proof { display: flex; flex-direction: column; gap: 16px; }
+  .proof-item { display: flex; gap: 14px; align-items: flex-start; }
+  .proof-icon {
+    flex-shrink: 0; width: 36px; height: 36px; border-radius: 8px;
+    background: var(--accent-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+  }
+  .proof-text h3 { font-size: 15px; font-weight: 700; }
+  .proof-text p { font-size: 14px; color: var(--gray); margin-top: 2px; }
+
+  /* ── PRICING BOX ── */
+  .price-box {
+    margin-top: 36px;
+    border: 2px solid var(--charcoal);
+    border-radius: 14px;
+    padding: 24px;
+  }
+  .price-box h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+  .price-row:first-of-type { border-top: none; padding-top: 10px; margin-top: 10px; }
+  .price-row .label { font-size: 14px; font-weight: 600; max-width: 55%; line-height: 1.4; }
+  .price-row .price { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 17px; text-align: right; }
+  .price-row .price .acc { color: var(--accent); }
+
+  /* ── TESTIMONIAL ── */
+  .quote {
+    margin-top: 36px;
+    font-size: 15px;
+    color: #4a4a4a;
+    font-style: italic;
+    border-left: 3px solid var(--accent);
+    padding-left: 16px;
+    line-height: 1.65;
+  }
+  .quote span { display: block; margin-top: 8px; font-style: normal; font-weight: 600; font-size: 13px; color: var(--charcoal); }
+
+  /* ── FORM ── */
+  .form-section {
+    margin-top: 36px;
+  }
+  .form-section h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .form-section p {
+    font-size: 14px;
+    color: var(--gray);
+    margin-bottom: 20px;
+  }
+  .field {
+    margin-bottom: 12px;
+  }
+  .field input,
+  .field textarea,
+  .field select {
+    width: 100%;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    padding: 13px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--charcoal);
+    outline: none;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+  .field input:focus,
+  .field textarea:focus,
+  .field select:focus { border-color: var(--charcoal); }
+  .field textarea { resize: none; height: 80px; }
+
+  .submit-btn {
+    width: 100%;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+    padding: 17px 20px;
+    background: var(--charcoal);
+    color: var(--cream);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    margin-top: 4px;
+  }
+  .submit-btn:hover { background: var(--accent); }
+  .submit-btn:active { transform: scale(0.98); }
+  .form-note {
+    text-align: center;
+    font-size: 12px;
+    color: #a3a3a3;
+    margin-top: 10px;
+  }
+
+  /* ── SUCCESS ── */
+  .form-success {
+    display: none;
+    text-align: center;
+    padding: 32px 20px;
+    background: #fff;
+    border-radius: 14px;
+    border: 2px solid var(--charcoal);
+  }
+  .form-success .tick {
+    font-size: 40px;
+    margin-bottom: 12px;
+  }
+  .form-success h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .form-success p { font-size: 15px; color: var(--gray); }
+
+  /* ── OR DIVIDER ── */
+  .or-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 24px 0;
+    color: #bbb;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .or-row::before, .or-row::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── CALL CTA ── */
+  .call-btn {
+    display: block;
+    text-align: center;
+    border: 2px solid var(--charcoal);
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--charcoal);
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+  .call-btn:hover { background: var(--charcoal); color: var(--cream); }
+  .call-btn:active { transform: scale(0.98); }
+
+  /* ── FOOTER ── */
+  footer {
+    margin-top: 48px;
+    text-align: center;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+  footer .footer-brand {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+  }
+  footer .footer-brand em { color: var(--accent); font-style: normal; }
+  footer p {
+    margin-top: 10px;
+    font-size: 12px;
+    color: #a3a3a3;
+    line-height: 1.6;
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="mark">Studio <em>Velox</em></div>
+  <div class="tag">👋 You found our sign at Treetops</div>
+
+  <h1>Your website,<br><span class="hl">sorted this week</span> —<br>on us.</h1>
+
+  <p class="lede">A free 1-page website for your Gold Coast business — built by a real local person, live within 24 hours. No design skills, no jargon, no catch.</p>
+
+  <div class="divider"></div>
+
+  <!-- PROOF POINTS -->
+  <div class="proof">
+    <div class="proof-item">
+      <div class="proof-icon">⚡</div>
+      <div class="proof-text">
+        <h3>Live within 24 hours</h3>
+        <p>Send your details today, get a real working website back — fast.</p>
+      </div>
+    </div>
+    <div class="proof-item">
+      <div class="proof-icon">🎯</div>
+      <div class="proof-text">
+        <h3>Built for you, not by you</h3>
+        <p>No templates to wrestle with. It's handled, start to finish.</p>
+      </div>
+    </div>
+    <div class="proof-item">
+      <div class="proof-icon">📍</div>
+      <div class="proof-text">
+        <h3>Local to the Gold Coast</h3>
+        <p>Real person, real support — not an overseas call centre.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRICING -->
+  <div class="price-box">
+    <h2>Simple, honest pricing</h2>
+    <div class="price-row">
+      <span class="label">Free 1-page starter site</span>
+      <span class="price"><span class="acc">Free</span></span>
+    </div>
+    <div class="price-row">
+      <span class="label">Ongoing hosting & care</span>
+      <span class="price">$147/mo</span>
+    </div>
+    <div class="price-row">
+      <span class="label">Want a full custom site instead?</span>
+      <span class="price">From $997</span>
+    </div>
+  </div>
+
+  <!-- TESTIMONIAL -->
+  <div class="quote">
+    "Phil basically took the entire process off my hands. He's been incredibly patient and cares about building something that truly aligns with your brand and your vision."
+    <span>— Taylor Valentino, The Breath Therapy · thebreaththerapy.com.au</span>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- FORM -->
+  <div class="form-section">
+    <h2>Get your free website</h2>
+    <p>Fill in your details below and Phil will be in touch within 24 hours.</p>
+
+    <div id="form-wrap">
+      <div class="field">
+        <input type="text" id="f-name" placeholder="Your name" />
+      </div>
+      <div class="field">
+        <input type="text" id="f-biz" placeholder="Business name" />
+      </div>
+      <div class="field">
+        <input type="email" id="f-email" placeholder="Email address" />
+      </div>
+      <div class="field">
+        <input type="tel" id="f-phone" placeholder="Phone number (optional)" />
+      </div>
+      <div class="field">
+        <select id="f-type">
+          <option value="" disabled selected>What type of business?</option>
+          <option>Cafe / Restaurant / Food</option>
+          <option>Retail / Shop</option>
+          <option>Health / Beauty / Wellness</option>
+          <option>Tradie / Services</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <textarea id="f-note" placeholder="Anything else you'd like to tell us? (optional)"></textarea>
+      </div>
+      <button class="submit-btn" onclick="submitForm()">Get my free website →</button>
+      <p class="form-note">No commitment. No credit card. Just a free website.</p>
+    </div>
+
+    <div class="form-success" id="form-success">
+      <div class="tick">✅</div>
+      <h3>You're on the list!</h3>
+      <p>Phil will be in touch within 24 hours to get your website started. Keep an eye on your inbox.</p>
+    </div>
+  </div>
+
+  <!-- OR CALL -->
+  <div class="or-row">or</div>
+  <a class="call-btn" href="tel:0422777865">📞 Call Phil — 0422 777 865</a>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-brand">Studio <em>Velox</em> · <a href="https://studiovelox.com">studiovelox.com</a></div>
+    <p>Free 1-page starter website for Gold Coast small businesses. Ongoing hosting & care from $147/month — cancel anytime. Full custom website builds also available from $997 + $147/month.</p>
+  </footer>
+
+</div>
+
+<script>
+// Track source from QR code
+const src = new URLSearchParams(window.location.search).get('src') || 'treetops';
+
+async function submitForm() {
+  const name  = document.getElementById('f-name').value.trim();
+  const biz   = document.getElementById('f-biz').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  const type  = document.getElementById('f-type').value;
+  const note  = document.getElementById('f-note').value.trim();
+
+  if (!name || !biz || !email) {
+    alert('Please fill in your name, business name and email.');
+    return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    alert('Please enter a valid email address.');
+    return;
+  }
+
+  try {
+    await fetch('https://formspree.io/f/maqzdven', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        name,
+        business: biz,
+        email,
+        phone: phone || 'Not provided',
+        businessType: type || 'Not specified',
+        notes: note || '',
+        source: src,
+        _subject: `Free Website Enquiry — ${biz} (via ${src})`
+      })
+    });
+  } catch(e) {
+    console.log('Submission error:', e);
+  }
+
+  document.getElementById('form-wrap').style.display = 'none';
+  document.getElementById('form-success').style.display = 'block';
+}
+
+// Enter key submits
+['f-name','f-biz','f-email','f-phone'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => {
+    if (e.key === 'Enter') submitForm();
+  });
+});
+</script>
+</body>
+</html>
