@@ -182,6 +182,45 @@ nav .nav-links a:hover { color: var(--gold); }
 }
 .qa p { font-size: 15px; color: var(--gray); max-width: 70ch; }
 
+/* ── ENQUIRE ── */
+.enquire { background: var(--white); padding: 64px 0; border-top: 1px solid var(--border); }
+.enquire form { max-width: 620px; margin-top: 32px; }
+.field { margin-bottom: 18px; }
+.field label {
+  display: block; font-family: var(--font-acc); font-size: 13px;
+  font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.field input, .field select, .field textarea {
+  width: 100%; padding: 13px 15px;
+  border: 1px solid var(--border); background: var(--offwhite);
+  font-family: var(--font-body); font-size: 16px; color: var(--navy);
+  border-radius: 0;
+}
+.field textarea { min-height: 130px; resize: vertical; }
+.field input:focus, .field select:focus, .field textarea:focus {
+  outline: none; border-color: var(--gold); background: var(--white);
+}
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.enquire button {
+  font-family: var(--font-acc); font-size: 15px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  background: var(--navy); color: var(--white);
+  border: none; padding: 15px 34px; cursor: pointer;
+  transition: background 0.2s;
+}
+.enquire button:hover { background: var(--navy2); }
+.enquire button:disabled { opacity: 0.6; cursor: default; }
+.form-status {
+  display: none; margin-top: 18px; padding: 14px 16px;
+  font-size: 15px; line-height: 1.6;
+}
+.form-status.is-visible { display: block; }
+.form-status.is-success { background: #f1f5ee; border-left: 3px solid #5d7a4f; }
+.form-status.is-error   { background: #fdf2ec; border-left: 3px solid var(--gold); }
+.form-status a { color: var(--navy); }
+
 /* ── FOOTER ── */
 footer {
   background: var(--navy); padding: 36px 32px;
@@ -244,7 +283,7 @@ footer .fine { margin-top: 10px; font-size: 12px; opacity: 0.6; letter-spacing: 
         <span>hosting, maintenance and small changes</span>
       </div>
       <p>A single scrolling page with everything on it — who you are, what you offer, and how to book you. Right for most sole traders and new businesses.</p>
-      <a class="button" href="#" data-stripe="one-page">Start a one-page site</a>
+      <a class="button" href="#enquire" data-plan="One-page site">Enquire about this</a>
     </div>
 
     <div class="plan">
@@ -256,7 +295,7 @@ footer .fine { margin-top: 10px; font-size: 12px; opacity: 0.6; letter-spacing: 
         <span>hosting, maintenance and small changes</span>
       </div>
       <p>Multiple pages, custom sections, forms that actually reach you, and whatever else the business needs. Right when one page can't carry the whole story.</p>
-      <a class="button" href="#" data-stripe="full-site">Start a full website</a>
+      <a class="button" href="#enquire" data-plan="Full website">Enquire about this</a>
     </div>
 
   </div>
@@ -339,6 +378,57 @@ footer .fine { margin-top: 10px; font-size: 12px; opacity: 0.6; letter-spacing: 
   </div>
 </section>
 
+<section class="enquire" id="enquire">
+  <div class="container">
+    <h2 class="sec-title">Start a conversation</h2>
+    <p class="sec-sub">Tell me a bit about the business and I'll come back to you with what I'd build and what it'd cost. No obligation, and nothing to pay to find out.</p>
+
+    <form id="enquiryForm" onsubmit="handleEnquiry(event)">
+      <div class="field-row">
+        <div class="field">
+          <label for="ef-name">Your name</label>
+          <input type="text" id="ef-name" name="firstName" required>
+        </div>
+        <div class="field">
+          <label for="ef-business">Business name</label>
+          <input type="text" id="ef-business" name="business">
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="ef-email">Email</label>
+          <input type="email" id="ef-email" name="email" required>
+        </div>
+        <div class="field">
+          <label for="ef-phone">Phone</label>
+          <input type="tel" id="ef-phone" name="phone">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="ef-plan">What you're after</label>
+        <select id="ef-plan" name="session">
+          <option value="Not sure yet">Not sure yet — help me work it out</option>
+          <option value="One-page site">One-page site — free build, $147/month</option>
+          <option value="Full website">Full website — $997, then $147/month</option>
+          <option value="Bigger job">Something bigger — ads, shop, AI</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="ef-message">What do you need?</label>
+        <textarea id="ef-message" name="message" placeholder="What the business does, whether you have a site already, and anything you'd want it to do."></textarea>
+      </div>
+
+      <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+      <button type="submit">Send enquiry</button>
+      <p class="form-status" id="enquiryStatus" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+</section>
+
 <footer>
   <p class="brand">STUD<span>IO</span> <span>VE</span>LOX<span>.</span></p>
   <p style="margin-top:8px">
@@ -349,6 +439,62 @@ footer .fine { margin-top: 10px; font-size: 12px; opacity: 0.6; letter-spacing: 
   </p>
   <p class="fine">All prices in AUD.</p>
 </footer>
+
+<script>
+  // Plan buttons preselect the matching option before jumping to the form.
+  document.querySelectorAll('[data-plan]').forEach(function (link) {
+    link.addEventListener('click', function () {
+      var select = document.getElementById('ef-plan');
+      if (select) select.value = link.getAttribute('data-plan');
+    });
+  });
+
+  async function handleEnquiry(e) {
+    e.preventDefault();
+    var form = e.target;
+    var btn = form.querySelector('button[type="submit"]');
+    var status = document.getElementById('enquiryStatus');
+    var original = btn.textContent;
+
+    status.className = 'form-status';
+    status.innerHTML = '';
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+
+    var data = Object.fromEntries(new FormData(form).entries());
+
+    try {
+      var res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      var result = await res.json().catch(function () { return {}; });
+
+      if (res.ok && result.ok) {
+        form.reset();
+        status.className = 'form-status is-visible is-success';
+        status.textContent = 'Enquiry sent. I\'ll get back to you within one business day.';
+        btn.textContent = '✓ Sent';
+        setTimeout(function () {
+          btn.disabled = false;
+          btn.textContent = original;
+        }, 4000);
+        return;
+      }
+      throw new Error(result.error || 'Send failed');
+
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = original;
+      status.className = 'form-status is-visible is-error';
+      status.innerHTML =
+        'That didn\'t send. Email me directly at ' +
+        '<a href="mailto:phil@studiovelox.com">phil@studiovelox.com</a> ' +
+        'or call <a href="tel:+61422777865">0422 777 865</a>.';
+    }
+  }
+</script>
 
 </body>
 </html>
