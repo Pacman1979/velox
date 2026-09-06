@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Studio Velox — Treetops A4 Sign</title>
+<style>
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 210mm;
+    height: 297mm;
+  }
+  body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background: #FAF7F4;
+    color: #1A1A1A;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 14mm 14mm 10mm;
+  }
+  .brand {
+    font-size: 15pt;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: #1A1A1A;
+    text-transform: uppercase;
+    margin-bottom: 14mm;
+  }
+  .brand span { color: #E8491D; }
+
+  .headline {
+    font-size: 44pt;
+    font-weight: 900;
+    line-height: 1.05;
+    text-align: center;
+    color: #1A1A1A;
+  }
+  .headline .accent { color: #E8491D; }
+  .asterisk-note {
+    font-size: 9pt;
+    color: #6b6b6b;
+    text-align: center;
+    margin-top: 3mm;
+  }
+
+  .subline {
+    font-size: 17pt;
+    font-weight: 600;
+    text-align: center;
+    color: #1A1A1A;
+    margin-top: 8mm;
+  }
+  .subline .accent { color: #E8491D; font-weight: 800; }
+
+  .qr-block {
+    margin-top: 14mm;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .qr-frame {
+    background: #ffffff;
+    border: 3px solid #1A1A1A;
+    border-radius: 6mm;
+    padding: 8mm;
+  }
+  .qr-frame img {
+    width: 55mm;
+    height: 55mm;
+    display: block;
+  }
+  .qr-caption {
+    margin-top: 5mm;
+    font-size: 13pt;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .features {
+    margin-top: 14mm;
+    display: flex;
+    gap: 10mm;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .feature {
+    font-size: 11pt;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 2mm;
+  }
+  .feature .tick {
+    color: #E8491D;
+    font-weight: 900;
+  }
+
+  .footer {
+    margin-top: auto;
+    text-align: center;
+    padding-top: 10mm;
+  }
+  .footer .url {
+    font-size: 12pt;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .footer .disclaimer {
+    font-size: 8pt;
+    color: #8a8a8a;
+    margin-top: 2mm;
+    max-width: 140mm;
+  }
+</style>
+</head>
+<body>
+
+  <div class="brand">Studio <span>Velox</span></div>
+
+  <div class="headline">
+    FREE<span class="accent">*</span> 1-Page<br>Websites
+  </div>
+  <div class="asterisk-note">*for Gold Coast small businesses</div>
+
+  <div class="subline">Then just <span class="accent">$147/mo</span> — cancel anytime</div>
+
+  <div class="qr-block">
+    <div class="qr-frame">
+      <img src="https://quickchart.io/qr?text=https%3A%2F%2Fstudiovelox.com%2F%3Fsrc%3Dtreetops&size=300&margin=1&dark=1a1a1a&light=ffffff" alt="QR code — scan for a free website">
+    </div>
+    <div class="qr-caption">Scan to get started</div>
+  </div>
+
+  <div class="features">
+    <div class="feature"><span class="tick">&#10003;</span> Live within 24 hours</div>
+    <div class="feature"><span class="tick">&#10003;</span> No design skills needed</div>
+    <div class="feature"><span class="tick">&#10003;</span> Local &amp; personal</div>
+  </div>
+
+  <div class="footer">
+    <div class="url">studiovelox.com</div>
+    <div class="disclaimer">Free 1-page starter website. Ongoing hosting &amp; care from $147/month. Full custom website builds also available from $997.</div>
+  </div>
+
+</body>
+</html>

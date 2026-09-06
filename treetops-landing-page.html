@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Studio Velox — Free Website for Your Business</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --charcoal: #1A1A1A;
+    --cream: #FAF7F4;
+    --accent: #E8491D;
+    --accent-light: #FBE3D8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--cream);
+    color: var(--charcoal);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 460px;
+    margin: 0 auto;
+    padding: 40px 24px 60px;
+  }
+
+  .mark {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+  }
+  .mark em { color: var(--accent); font-style: normal; }
+
+  .tag {
+    margin-top: 28px;
+    display: inline-block;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 100px;
+  }
+
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 900;
+    font-size: 40px;
+    line-height: 1.08;
+    margin-top: 18px;
+    letter-spacing: -0.5px;
+  }
+  h1 .hl { color: var(--accent); }
+
+  .lede {
+    margin-top: 16px;
+    font-size: 17px;
+    color: #4a4a4a;
+    max-width: 38ch;
+  }
+
+  .cta {
+    margin-top: 28px;
+    display: block;
+    text-align: center;
+    background: var(--charcoal);
+    color: var(--cream);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+    text-decoration: none;
+    padding: 18px 20px;
+    border-radius: 10px;
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  .cta:active { transform: scale(0.98); }
+  .cta:hover { background: var(--accent); }
+
+  .cta-note {
+    text-align: center;
+    font-size: 13px;
+    color: #8a8a8a;
+    margin-top: 10px;
+  }
+
+  .divider {
+    height: 1px;
+    background: #E4DDD5;
+    margin: 40px 0;
+  }
+
+  .proof {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .proof-item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .proof-icon {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: var(--accent-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  .proof-text h3 {
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .proof-text p {
+    font-size: 14px;
+    color: #6b6b6b;
+    margin-top: 2px;
+  }
+
+  .price-box {
+    margin-top: 40px;
+    border: 2px solid var(--charcoal);
+    border-radius: 14px;
+    padding: 24px;
+  }
+  .price-box h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #E4DDD5;
+  }
+  .price-row:first-of-type { border-top: none; padding-top: 10px; margin-top: 10px; }
+  .price-row .label { font-size: 14px; font-weight: 600; }
+  .price-row .price { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 17px; }
+  .price-row .price .accent { color: var(--accent); }
+
+  .quote {
+    margin-top: 40px;
+    font-size: 15px;
+    color: #4a4a4a;
+    font-style: italic;
+    border-left: 3px solid var(--accent);
+    padding-left: 16px;
+  }
+  .quote span { display: block; margin-top: 8px; font-style: normal; font-weight: 600; font-size: 13px; color: var(--charcoal); }
+
+  footer {
+    margin-top: 48px;
+    text-align: center;
+  }
+  footer .cta-small {
+    display: inline-block;
+    color: var(--accent);
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 15px;
+  }
+  footer p {
+    margin-top: 14px;
+    font-size: 12px;
+    color: #a3a3a3;
+    max-width: 40ch;
+    margin-left: auto;
+    margin-right: auto;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="mark">Studio <em>Velox</em></div>
+  <div class="tag">You found the sign at Treetops 👋</div>
+
+  <h1>Your website,<br><span class="hl">sorted this week</span> —<br>on us.</h1>
+
+  <p class="lede">A free 1-page website for your business, built by a real person, live within 24 hours. No design skills, no jargon, no catch.</p>
+
+  <a class="cta" href="mailto:hello@studiovelox.com?subject=Free%20Website%20-%20Treetops&body=Hi%20Phil%2C%20I%27d%20like%20my%20free%20website%20-%20my%20business%20is...">Get my free website →</a>
+  <p class="cta-note">Takes 2 minutes. No commitment.</p>
+
+  <div class="divider"></div>
+
+  <div class="proof">
+    <div class="proof-item">
+      <div class="proof-icon">⚡</div>
+      <div class="proof-text">
+        <h3>Live within 24 hours</h3>
+        <p>Send your details, get a real working website back — fast.</p>
+      </div>
+    </div>
+    <div class="proof-item">
+      <div class="proof-icon">🎯</div>
+      <div class="proof-text">
+        <h3>Built for you, not by you</h3>
+        <p>No templates to wrestle with. It's handled, start to finish.</p>
+      </div>
+    </div>
+    <div class="proof-item">
+      <div class="proof-icon">📍</div>
+      <div class="proof-text">
+        <h3>Local to the Gold Coast</h3>
+        <p>Real person, real support — not an overseas call centre.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="price-box">
+    <h2>Simple, honest pricing</h2>
+    <div class="price-row">
+      <span class="label">1-page starter site</span>
+      <span class="price"><span class="accent">Free</span></span>
+    </div>
+    <div class="price-row">
+      <span class="label">Ongoing hosting &amp; care</span>
+      <span class="price">$147/mo</span>
+    </div>
+    <div class="price-row">
+      <span class="label">Want a full custom site instead?</span>
+      <span class="price">From $997</span>
+    </div>
+  </div>
+
+  <div class="quote">
+    "I didn't have to think about it — it just got done."
+    <span>— a Gold Coast small business owner</span>
+  </div>
+
+  <footer>
+    <a class="cta-small" href="mailto:hello@studiovelox.com?subject=Free%20Website%20-%20Treetops">Get started →</a>
+    <p>Free 1-page starter website. Ongoing hosting &amp; care from $147/month, cancel anytime. Full custom builds from $997.</p>
+  </footer>
+
+</div>
+</body>
+</html>
