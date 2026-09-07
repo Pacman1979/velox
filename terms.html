@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terms of Service — Studio Velox</title>
+<meta name="description" content="Terms of service for Studio Velox website builds and care plans.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Lato:wght@300;400;700&family=Oswald:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy:     #0a1628;
+  --navy2:    #122040;
+  --gold:     #e8a020;
+  --gold2:    #f5b732;
+  --white:    #ffffff;
+  --offwhite: #f8f6f1;
+  --gray:     #6b7280;
+  --border:   #e2e8f0;
+  --navy-text:#b0bfd4;
+  --navy-dim: #5a7090;
+  --font-head: 'Playfair Display', Georgia, serif;
+  --font-body: 'Lato', sans-serif;
+  --font-acc:  'Oswald', sans-serif;
+}
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: var(--font-body);
+  background: var(--offwhite);
+  color: var(--navy);
+  font-size: 16px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--navy); }
+a:hover { color: var(--gold); }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+/* NAV */
+nav {
+  background: var(--navy);
+  padding: 16px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+}
+.logo {
+  font-family: var(--font-acc); font-size: 22px; font-weight: 600;
+  color: var(--white); letter-spacing: 0.04em; text-decoration: none;
+}
+.logo span { color: var(--gold); }
+nav .nav-links a {
+  font-family: var(--font-acc); font-size: 14px; letter-spacing: 0.06em;
+  color: var(--navy-text); text-decoration: none; margin-left: 26px;
+}
+nav .nav-links a:hover { color: var(--gold); }
+
+/* HERO */
+.hero { background: var(--navy); padding: 56px 32px 48px; }
+.hero .container { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+.hero-eyebrow {
+  font-family: var(--font-acc); font-size: 12px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 14px;
+}
+.hero h1 {
+  font-family: var(--font-head);
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 900; line-height: 1.1;
+  color: var(--white); margin-bottom: 16px;
+}
+.hero p {
+  font-size: 16px; color: var(--navy-text); line-height: 1.7; max-width: 60ch;
+}
+.updated {
+  margin-top: 20px;
+  font-size: 13px; color: var(--navy-dim);
+  font-family: var(--font-acc); letter-spacing: 0.06em;
+}
+
+/* CONTENT */
+.content {
+  max-width: 760px; margin: 0 auto;
+  padding: 56px 24px 80px;
+}
+
+/* TABLE OF CONTENTS */
+.toc {
+  background: var(--white);
+  border: 1px solid var(--border);
+  padding: 24px 28px;
+  margin-bottom: 48px;
+}
+.toc h2 {
+  font-family: var(--font-acc); font-size: 12px; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--gray); margin-bottom: 14px;
+}
+.toc ol {
+  list-style: decimal; padding-left: 20px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px 32px;
+}
+.toc li { font-size: 14px; }
+.toc a { color: var(--navy); text-decoration: none; }
+.toc a:hover { color: var(--gold); }
+
+/* SECTIONS */
+.term-section {
+  margin-bottom: 48px;
+  padding-bottom: 48px;
+  border-bottom: 1px solid var(--border);
+}
+.term-section:last-child { border-bottom: none; margin-bottom: 0; }
+.term-section h2 {
+  font-family: var(--font-head);
+  font-size: clamp(22px, 3vw, 30px);
+  font-weight: 800; color: var(--navy);
+  margin-bottom: 6px;
+  scroll-margin-top: 80px;
+}
+.term-section .section-num {
+  font-family: var(--font-acc); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--gold); display: block; margin-bottom: 8px;
+}
+.term-section p {
+  font-size: 15px; color: #3a3a3a; line-height: 1.75;
+  margin-top: 14px;
+}
+.term-section p:first-of-type { margin-top: 16px; }
+.term-section ul {
+  margin-top: 14px; padding-left: 0; list-style: none;
+}
+.term-section ul li {
+  font-size: 15px; color: #3a3a3a; line-height: 1.65;
+  padding: 8px 0 8px 24px; position: relative;
+  border-bottom: 1px solid var(--border);
+}
+.term-section ul li:last-child { border-bottom: none; }
+.term-section ul li::before {
+  content: '—'; position: absolute; left: 0; top: 8px;
+  color: var(--gold); font-weight: 700;
+}
+.callout {
+  background: var(--white);
+  border-left: 3px solid var(--gold);
+  padding: 16px 20px;
+  margin-top: 20px;
+  font-size: 15px; color: #3a3a3a; line-height: 1.7;
+}
+.callout strong { color: var(--navy); }
+
+/* FOOTER */
+footer {
+  background: var(--navy); padding: 36px 32px;
+  text-align: center; font-family: var(--font-acc);
+  font-size: 14px; color: var(--navy-dim); letter-spacing: 0.06em;
+}
+footer a { color: var(--navy-text); text-decoration: none; }
+footer a:hover { color: var(--gold); }
+footer .brand { color: var(--white); }
+footer .brand span { color: var(--gold); }
+footer .fine { margin-top: 10px; font-size: 12px; opacity: 0.6; letter-spacing: 0.02em; }
+
+@media (max-width: 700px) {
+  nav { padding: 14px 20px; }
+  nav .nav-links a { margin-left: 16px; font-size: 13px; }
+  .hero { padding: 40px 20px 36px; }
+  .toc ol { grid-template-columns: 1fr; }
+  .content { padding: 40px 20px 60px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="/">STUD<span>IO</span> <span>VE</span>LOX<span>.</span></a>
+  <div class="nav-links">
+    <a href="/pricing">Pricing</a>
+    <a href="/#enquire">Contact</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">Studio Velox</div>
+    <h1>Terms of Service</h1>
+    <p>Plain English where possible. Where it has to be precise, it's precise. These terms cover website builds, the monthly and annual care plan, and everything in between.</p>
+    <div class="updated">Last updated: September 2026</div>
+  </div>
+</section>
+
+<div class="content">
+
+  <!-- TABLE OF CONTENTS -->
+  <div class="toc">
+    <h2>On this page</h2>
+    <ol>
+      <li><a href="#parties">Who these terms apply to</a></li>
+      <li><a href="#builds">Website builds</a></li>
+      <li><a href="#care">The care plan</a></li>
+      <li><a href="#billing">Billing and payment</a></li>
+      <li><a href="#trial">Free trial</a></li>
+      <li><a href="#annual">Annual plans and refunds</a></li>
+      <li><a href="#ownership">Ownership of your site</a></li>
+      <li><a href="#handover">Leaving and handover</a></li>
+      <li><a href="#liability">Liability</a></li>
+      <li><a href="#contact">Questions</a></li>
+    </ol>
+  </div>
+
+  <!-- 1. PARTIES -->
+  <div class="term-section" id="parties">
+    <span class="section-num">Section 1</span>
+    <h2>Who these terms apply to</h2>
+    <p>These terms are between <strong>Studio Velox</strong> (the trading name of Open Mind Developments Pty Ltd, ABN 37 145 201 261, Gold Coast, Queensland) and any individual or business ("you" or "the client") who engages Studio Velox for a website build, care plan, or other services.</p>
+    <p>By paying a deposit, signing off on a build, or starting a free trial, you agree to these terms.</p>
+    <div class="callout"><strong>Note on GST:</strong> Studio Velox is not currently registered for GST. Our turnover is under the $75,000 threshold. Prices shown are the full amount — no GST is added on top.</div>
+  </div>
+
+  <!-- 2. BUILDS -->
+  <div class="term-section" id="builds">
+    <span class="section-num">Section 2</span>
+    <h2>Website builds</h2>
+    <p><strong>One-page site</strong> — the build is free when paired with an active care plan. If the care plan is cancelled within the first 3 months, a build fee of $294 becomes payable. This covers the cost of the work done.</p>
+    <p><strong>Full website ($997)</strong> — a one-off fee covering the scope agreed before work starts. The $997 build includes:</p>
+    <ul>
+      <li>Up to 6 pages</li>
+      <li>Custom design in your brand colours and fonts</li>
+      <li>Copy editing — you supply the words, we shape them</li>
+      <li>Contact form wired to your inbox</li>
+      <li>Mobile responsive layout</li>
+      <li>Basic on-page SEO — titles, meta descriptions, heading structure</li>
+      <li>Google Business Profile connection</li>
+      <li>Up to 3 rounds of revisions during the build</li>
+      <li>Launch on your domain with SSL</li>
+    </ul>
+    <p>Anything outside this scope — copywriting from scratch, photography, e-commerce, booking systems, additional pages, logo design — is quoted separately at $60/hr or as a fixed price, agreed in writing before work begins.</p>
+    <p><strong>Payment:</strong> a 50% deposit is required before work starts. The remaining 50% is due before the site goes live.</p>
+    <p><strong>Revisions:</strong> up to 3 rounds of revisions are included. Further rounds are charged at $60/hr.</p>
+    <p><strong>Timeline:</strong> Studio Velox will complete builds within a reasonable timeframe, typically 7–14 days from receiving all required content from you. Delays caused by late content from the client are not Studio Velox's responsibility.</p>
+  </div>
+
+  <!-- 3. CARE PLAN -->
+  <div class="term-section" id="care">
+    <span class="section-num">Section 3</span>
+    <h2>The care plan</h2>
+    <p>The $147/month (or $1,470/year) care plan covers:</p>
+    <ul>
+      <li>Hosting, domain connection and SSL certificate</li>
+      <li>Small changes — prices, dates, photos, hours, wording</li>
+      <li>Fixing anything that breaks</li>
+      <li>Backups and uptime monitoring</li>
+      <li>Business email forwarding to your normal inbox</li>
+      <li>Software and security updates</li>
+    </ul>
+    <p>The care plan does not include new pages or sections, redesigns, advertising, SEO campaigns, AI tools, copywriting, photography, or third-party costs such as domain registration fees or booking platform subscriptions.</p>
+    <p>A "small change" is anything that takes well under an hour. If a request is larger than that, you'll be told the cost before any work is done — never after.</p>
+  </div>
+
+  <!-- 4. BILLING -->
+  <div class="term-section" id="billing">
+    <span class="section-num">Section 4</span>
+    <h2>Billing and payment</h2>
+    <p>Monthly care plans are billed automatically via Stripe on the same date each month. Annual plans are billed once per year. You can update your payment details at any time through the link in your Stripe billing emails.</p>
+    <p>If a payment fails, Stripe will retry automatically and send you a notification. If payment remains outstanding after reasonable attempts, Studio Velox reserves the right to suspend the site until the account is settled.</p>
+    <p>Bigger jobs ($60/hr or fixed-price) are invoiced separately. Payment terms are 7 days from invoice date.</p>
+    <p>Studio Velox is not registered for GST. Invoices will not include a GST component.</p>
+  </div>
+
+  <!-- 5. TRIAL -->
+  <div class="term-section" id="trial">
+    <span class="section-num">Section 5</span>
+    <h2>Free trial</h2>
+    <p>All care plans — monthly and annual, one-page and full website — include a 14-day free trial. Nothing is charged until day 15. You will receive a reminder before the trial ends.</p>
+    <p>You can cancel during the trial at no cost. If you cancel during the trial, the website build will not proceed (or will be paused if already underway).</p>
+  </div>
+
+  <!-- 6. ANNUAL -->
+  <div class="term-section" id="annual">
+    <span class="section-num">Section 6</span>
+    <h2>Annual plans and refunds</h2>
+    <p>Annual plans are billed upfront at $1,470 — 12 months for the price of 10, saving $294 against the monthly rate.</p>
+    <div class="callout"><strong>Refund policy:</strong> Annual plans are non-refundable. If you choose to cancel before the 12 months are up, the remaining months will not be refunded. Your site will stay live until the end of the paid period, and you will keep the site files — they are yours.</div>
+    <p>If Studio Velox is unable to continue providing the service for any reason, a pro-rata refund of the unused portion will be issued.</p>
+  </div>
+
+  <!-- 7. OWNERSHIP -->
+  <div class="term-section" id="ownership">
+    <span class="section-num">Section 7</span>
+    <h2>Ownership of your site</h2>
+    <p>The website belongs to you. The domain is registered in your name. The site files are yours. Studio Velox does not claim any ownership over your content, your design, or your domain.</p>
+    <p>Content you supply — text, photos, logos, videos — remains your property at all times.</p>
+    <p>Code and design created by Studio Velox for your site becomes your property once the build is paid for in full.</p>
+  </div>
+
+  <!-- 8. HANDOVER -->
+  <div class="term-section" id="handover">
+    <span class="section-num">Section 8</span>
+    <h2>Leaving and handover</h2>
+    <p>You can cancel the care plan at any time. Monthly plans: cancellation takes effect at the end of the current billing period. Annual plans: cancellation takes effect at the end of the paid year — no refund for unused months.</p>
+    <p>If you leave, Studio Velox will:</p>
+    <ul>
+      <li>Transfer the GitHub repository to your own account (or provide the files as a download)</li>
+      <li>Assist with pointing your domain to a new host</li>
+      <li>Provide a clean handover within 14 days of your cancellation request</li>
+    </ul>
+    <p>If your site uses Cloudflare Email Routing through the Studio Velox account, you will need to set up your own Cloudflare account and reconfigure email routing. Studio Velox will provide clear written instructions to make this straightforward.</p>
+    <div class="callout"><strong>The short version:</strong> if you leave, you take your site with you. There are no lock-ins, no held hostage domains, and no gotchas.</div>
+  </div>
+
+  <!-- 9. LIABILITY -->
+  <div class="term-section" id="liability">
+    <span class="section-num">Section 9</span>
+    <h2>Liability</h2>
+    <p>Studio Velox takes reasonable care to keep your site running, secure and up to date. However, no hosting service can guarantee 100% uptime, and Studio Velox cannot be held liable for losses arising from downtime, third-party service failures (including Cloudflare, Stripe, or domain registrars), or events outside our reasonable control.</p>
+    <p>Studio Velox's total liability in any circumstances is limited to the fees paid by you in the 3 months preceding the event giving rise to the claim.</p>
+    <p>These terms are governed by the laws of Queensland, Australia.</p>
+  </div>
+
+  <!-- 10. CONTACT -->
+  <div class="term-section" id="contact">
+    <span class="section-num">Section 10</span>
+    <h2>Questions</h2>
+    <p>If anything here is unclear, just ask. Studio Velox is a one-person business and all queries come directly to Phil.</p>
+    <ul>
+      <li>Email: <a href="mailto:phil@studiovelox.com">phil@studiovelox.com</a></li>
+      <li>Phone: <a href="tel:+61422777865">0422 777 865</a></li>
+      <li>Post: Unit 2, 63 Montezuma Drive, Burleigh Waters QLD 4220</li>
+    </ul>
+    <p>These terms may be updated from time to time. The current version is always at <a href="https://studiovelox.com/terms">studiovelox.com/terms</a>. Continued use of the service after an update constitutes acceptance of the revised terms.</p>
+  </div>
+
+</div>
+
+<footer>
+  <p class="brand">STUD<span>IO</span> <span>VE</span>LOX<span>.</span></p>
+  <p style="margin-top:8px">
+    <a href="mailto:phil@studiovelox.com">phil@studiovelox.com</a>
+    &nbsp;·&nbsp;
+    <a href="tel:+61422777865">0422 777 865</a>
+    &nbsp;·&nbsp; Gold Coast, Queensland
+  </p>
+  <p class="fine">Open Mind Developments Pty Ltd &nbsp;·&nbsp; ABN 37 145 201 261 &nbsp;·&nbsp; Not registered for GST</p>
+</footer>
+
+</body>
+</html>
