@@ -119,6 +119,25 @@ nav .nav-links a:hover { color: var(--gold); }
   transition: background 0.2s;
 }
 .button:hover { background: var(--gold2); }
+/* ── ANNUAL BANNER ── */
+.annual-banner {
+  margin-top: 20px;
+  border: 1px solid rgba(232,160,32,0.35);
+  background: rgba(232,160,32,0.07);
+  padding: 14px 18px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.annual-banner-text { font-size: 14px; color: var(--navy-text); line-height: 1.5; }
+.annual-banner-text strong { color: var(--gold); font-size: 15px; display: block; margin-bottom: 2px; }
+.annual-banner-text span { font-size: 13px; color: var(--navy-dim); }
+.annual-link {
+  font-family: var(--font-acc); font-size: 12px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--gold); text-decoration: none; white-space: nowrap;
+  border-bottom: 1px solid rgba(232,160,32,0.4); padding-bottom: 1px;
+  flex-shrink: 0;
+}
+.annual-link:hover { color: var(--gold2); border-bottom-color: var(--gold2); }
 
 /* ── SECTION HEADINGS ── */
 .sec-title {
@@ -285,6 +304,13 @@ footer .fine { margin-top: 10px; font-size: 12px; opacity: 0.6; letter-spacing: 
       </div>
       <p>A single scrolling page with everything on it — who you are, what you offer, and how to book you. Right for most sole traders and new businesses.</p>
       <a class="button" href="#enquire" data-plan="One-page site">Enquire about this</a>
+      <div class="annual-banner">
+        <div class="annual-banner-text">
+          <strong>Pay annually — save $294</strong>
+          <span>12 months for the price of 10 &nbsp;·&nbsp; $1,470/year</span>
+        </div>
+        <a class="annual-link" href="#enquire" data-plan="One-page site — annual ($1,470/year)">Annual →</a>
+      </div>
     </div>
 
     <div class="plan">
@@ -297,6 +323,13 @@ footer .fine { margin-top: 10px; font-size: 12px; opacity: 0.6; letter-spacing: 
       </div>
       <p>Multiple pages, custom sections, forms that actually reach you, and whatever else the business needs. Right when one page can't carry the whole story.</p>
       <a class="button" href="#enquire" data-plan="Full website">Enquire about this</a>
+      <div class="annual-banner">
+        <div class="annual-banner-text">
+          <strong>Pay annually — save $294</strong>
+          <span>12 months for the price of 10 &nbsp;·&nbsp; $1,470/year</span>
+        </div>
+        <a class="annual-link" href="#enquire" data-plan="Full website — annual ($1,470/year)">Annual →</a>
+      </div>
     </div>
 
   </div>
@@ -350,6 +383,14 @@ footer .fine { margin-top: 10px; font-size: 12px; opacity: 0.6; letter-spacing: 
   <div class="container">
     <h2 class="sec-title" style="margin-bottom:32px">Plain answers</h2>
 
+    <div class="qa">
+      <h3>Is there an annual option?</h3>
+      <p>Yes. Pay for 12 months and you only pay for 10 — $1,470 instead of $1,764, saving $294. The same free build (one-page) or $997 build (full website) applies either way. Annual plans are non-refundable, but if you cancel you keep the site.</p>
+    </div>
+    <div class="qa">
+      <h3>Is there a free trial?</h3>
+      <p>Yes — all plans include a 14-day free trial. Nothing is charged until day 15. You'll get a reminder before the trial ends.</p>
+    </div>
     <div class="qa">
       <h3>Is the one-page site really free?</h3>
       <p>The build is. I'd rather look after a site properly for years than charge a big fee once and disappear. The monthly plan is how that works, so the free build only makes sense alongside it.</p>
@@ -412,7 +453,9 @@ footer .fine { margin-top: 10px; font-size: 12px; opacity: 0.6; letter-spacing: 
         <select id="ef-plan" name="session">
           <option value="Not sure yet">Not sure yet — help me work it out</option>
           <option value="One-page site">One-page site — free build, $147/month</option>
+          <option value="One-page site — annual ($1,470/year)">One-page site — annual, $1,470/year (save $294)</option>
           <option value="Full website">Full website — $997, then $147/month</option>
+          <option value="Full website — annual ($1,470/year)">Full website — $997 build, then $1,470/year (save $294)</option>
           <option value="Bigger job">Something bigger — ads, shop, AI</option>
         </select>
       </div>

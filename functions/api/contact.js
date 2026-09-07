@@ -20,7 +20,7 @@
  */
 
 const DEFAULT_FROM = 'website@thebreaththerapy.com.au';
-const FROM_NAME = 'The Breath Therapy Website';
+const DEFAULT_FROM_NAME = 'Website Enquiry';
 const FALLBACK_TO = 'taylor@thebreaththerapy.com.au';
 
 function json(data, status = 200) {
@@ -91,6 +91,7 @@ export async function onRequest(context) {
   // ---- 2. Build the notification ----
   const toAddress   = env.CONTACT_TO   || FALLBACK_TO;
   const fromAddress = env.FROM_ADDRESS || DEFAULT_FROM;
+  const fromName    = env.FROM_NAME    || DEFAULT_FROM_NAME;
   const subject = `New website enquiry from ${fullName}`;
 
   const text =
@@ -128,7 +129,7 @@ export async function onRequest(context) {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            from: `${FROM_NAME} <${fromAddress}>`,
+            from: `${fromName} <${fromAddress}>`,
             to: toAddress,
             reply_to: email,   // REST uses reply_to; the Workers binding uses replyTo
             subject,
@@ -151,7 +152,7 @@ export async function onRequest(context) {
     } else if (env.EMAIL && typeof env.EMAIL.send === 'function') {
       // Workers binding, if this ever moves off Pages.
       await env.EMAIL.send({
-        from: `${FROM_NAME} <${fromAddress}>`,
+        from: `${fromName} <${fromAddress}>`,
         to: toAddress,
         replyTo: email,
         subject, text, html,
@@ -167,7 +168,7 @@ export async function onRequest(context) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: `${FROM_NAME} <${fromAddress}>`,
+          from: `${fromName} <${fromAddress}>`,
           to: [toAddress],
           reply_to: email,
           subject, text, html,
