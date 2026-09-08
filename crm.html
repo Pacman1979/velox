@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Studio Velox — Lead CRM</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Lato:wght@300;400;700&family=Oswald:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0a1628;--navy2:#122040;--gold:#e8a020;--gold2:#f5b732;
+  --white:#ffffff;--offwhite:#f8f6f1;--gray:#6b7280;--border:#e2e8f0;
+  --red:#c0392b;--green:#1b6b3a;--orange:#e05a2b;--warm:#d97706;
+  --font-head:'Playfair Display',Georgia,serif;
+  --font-body:'Lato',sans-serif;
+  --font-acc:'Oswald',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--offwhite);color:var(--navy);min-height:100vh}
+
+/* PIN */
+#pin-screen{position:fixed;inset:0;background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000}
+#pin-screen::before{content:'CRM';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:var(--font-head);font-size:clamp(80px,18vw,200px);font-weight:900;color:rgba(255,255,255,0.025);pointer-events:none}
+.pin-logo{font-family:var(--font-acc);font-size:22px;font-weight:600;color:var(--white);letter-spacing:0.04em;margin-bottom:48px;position:relative}
+.pin-logo span{color:var(--gold)}
+.pin-title{font-family:var(--font-head);font-size:clamp(22px,4vw,34px);font-weight:900;color:var(--white);margin-bottom:8px;text-align:center;position:relative}
+.pin-sub{font-size:14px;color:#5a7090;margin-bottom:40px;text-align:center;position:relative}
+.pin-dots{display:flex;gap:16px;margin-bottom:32px;position:relative}
+.pin-dot{width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.2);transition:all 0.15s}
+.pin-dot.filled{background:var(--gold);border-color:var(--gold)}
+.pin-dot.error{background:var(--red);border-color:var(--red)}
+.pin-keypad{display:grid;grid-template-columns:repeat(3,72px);gap:12px;position:relative}
+.pin-key{width:72px;height:72px;border:1.5px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);color:var(--white);font-family:var(--font-acc);font-size:22px;font-weight:500;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center}
+.pin-key:hover{background:rgba(232,160,32,0.15);border-color:var(--gold)}
+.pin-key.del{font-size:18px;color:#5a7090}
+.pin-error{font-family:var(--font-acc);font-size:13px;letter-spacing:0.1em;color:var(--red);text-transform:uppercase;margin-top:20px;min-height:20px;text-align:center;position:relative}
+
+/* APP */
+#app{display:none}
+
+/* NAV */
+nav{background:var(--navy);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,0.3);flex-wrap:wrap;gap:10px}
+.logo{font-family:var(--font-acc);font-size:20px;font-weight:600;color:var(--white);letter-spacing:0.04em}
+.logo span{color:var(--gold)}
+.nav-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.private-badge{font-family:var(--font-acc);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;background:rgba(232,160,32,0.12);color:var(--gold);border:1px solid rgba(232,160,32,0.25);padding:4px 12px}
+.nav-btn{font-family:var(--font-acc);font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;padding:6px 14px;cursor:pointer;border:1px solid;transition:all 0.2s}
+.lock-btn{background:rgba(192,57,43,0.15);color:#e88;border-color:rgba(192,57,43,0.3)}
+.lock-btn:hover{background:rgba(192,57,43,0.3)}
+
+/* PAGE HEADER */
+.page-header{background:var(--navy);padding:36px 24px 32px;position:relative;overflow:hidden}
+.page-header::before{content:'LEADS';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:var(--font-head);font-size:clamp(60px,12vw,140px);font-weight:900;color:rgba(255,255,255,0.025);white-space:nowrap;pointer-events:none}
+.page-header h1{font-family:var(--font-head);font-size:clamp(24px,4vw,36px);font-weight:900;color:var(--white);margin-bottom:6px;position:relative}
+.page-header h1 em{font-style:normal;color:var(--gold)}
+.page-header p{font-size:14px;color:#b0bfd4;position:relative}
+
+/* SEARCH PANEL */
+.search-panel{background:var(--white);border-bottom:1px solid var(--border);padding:20px 24px}
+.search-inner{max-width:1100px;margin:0 auto;display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.search-group{display:flex;flex-direction:column;gap:4px;flex:1;min-width:160px}
+.search-group label{font-family:var(--font-acc);font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--gray)}
+.search-input,.search-select{font-family:var(--font-body);font-size:14px;padding:9px 12px;border:1.5px solid var(--border);background:var(--offwhite);color:var(--navy);outline:none;transition:border-color 0.15s;-webkit-appearance:none}
+.search-input:focus,.search-select:focus{border-color:var(--gold)}
+.search-btn{font-family:var(--font-acc);font-size:13px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:10px 24px;border:none;cursor:pointer;transition:all 0.2s;white-space:nowrap}
+.search-btn.run{background:var(--gold);color:var(--navy)}
+.search-btn.run:hover{background:var(--gold2)}
+.search-btn.run:disabled{opacity:0.6;cursor:wait}
+
+/* STATS BAR */
+.stats-bar{background:rgba(232,160,32,0.06);border-bottom:1px solid rgba(232,160,32,0.15);padding:12px 24px}
+.stats-inner{max-width:1100px;margin:0 auto;display:flex;gap:24px;flex-wrap:wrap;align-items:center}
+.stat{text-align:center}
+.stat-n{font-family:var(--font-head);font-size:22px;font-weight:900;color:var(--gold);line-height:1}
+.stat-l{font-family:var(--font-acc);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#5a7090;margin-top:2px}
+.filter-btns{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+.filter-btn{font-family:var(--font-acc);font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:5px 12px;border:1px solid var(--border);background:transparent;color:var(--gray);cursor:pointer;transition:all 0.15s}
+.filter-btn.active,.filter-btn:hover{border-color:var(--gold);color:var(--gold)}
+.filter-btn.active{background:rgba(232,160,32,0.1)}
+
+/* LEADS TABLE */
+.leads-wrap{max-width:1100px;margin:0 auto;padding:24px}
+.leads-table{width:100%;border-collapse:collapse;background:var(--white);border:1px solid var(--border)}
+.leads-table th{font-family:var(--font-acc);font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--gray);padding:10px 12px;background:var(--offwhite);border-bottom:2px solid var(--border);text-align:left;white-space:nowrap}
+.leads-table td{font-size:13px;padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--navy)}
+.leads-table tr:hover td{background:rgba(232,160,32,0.03)}
+.leads-table tr.hidden-row{display:none}
+
+/* SCORE BADGES */
+.score{font-family:var(--font-acc);font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:2px;white-space:nowrap}
+.score-hot{background:rgba(192,57,43,0.12);color:var(--red);border:1px solid rgba(192,57,43,0.25)}
+.score-warm{background:rgba(217,119,6,0.12);color:var(--warm);border:1px solid rgba(217,119,6,0.25)}
+.score-cool{background:rgba(107,114,128,0.1);color:var(--gray);border:1px solid var(--border)}
+
+/* STATUS SELECT */
+.status-sel{font-family:var(--font-acc);font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:4px 8px;border:1px solid var(--border);background:var(--offwhite);color:var(--navy);cursor:pointer;-webkit-appearance:none;width:100%}
+.notes-inp{font-family:var(--font-body);font-size:12px;padding:4px 8px;border:1px solid var(--border);background:var(--white);color:var(--navy);width:100%;resize:none;height:52px}
+.notes-inp:focus,.status-sel:focus{outline:none;border-color:var(--gold)}
+.save-btn{font-family:var(--font-acc);font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:3px 8px;border:none;background:var(--green);color:var(--white);cursor:pointer;margin-top:4px;width:100%}
+.save-btn:hover{opacity:0.85}
+.del-btn{font-family:var(--font-acc);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;padding:3px 8px;border:1px solid rgba(192,57,43,0.3);background:transparent;color:var(--red);cursor:pointer;margin-top:2px;width:100%}
+.del-btn:hover{background:var(--red);color:var(--white)}
+
+/* PHONE / URL */
+.lead-phone a{color:var(--navy);text-decoration:none}
+.lead-phone a:hover{color:var(--gold)}
+.lead-url a{color:var(--gold);font-size:11px;text-decoration:none;word-break:break-all}
+.lead-url a:hover{text-decoration:underline}
+.no-web{font-size:11px;color:var(--red);font-style:italic}
+
+/* EMPTY / LOADING */
+.empty{text-align:center;padding:60px 24px;font-family:var(--font-acc);font-size:13px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray)}
+.loading-row td{text-align:center;padding:40px;font-family:var(--font-acc);font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray)}
+
+/* SEARCH STATUS */
+.search-status{font-family:var(--font-acc);font-size:11px;letter-spacing:0.08em;color:var(--gray);padding:8px 24px;background:var(--white);border-bottom:1px solid var(--border)}
+.search-status.success{color:var(--green)}
+.search-status.error{color:var(--red)}
+
+/* FOOTER */
+footer{background:var(--navy);padding:20px 24px;text-align:center;font-family:var(--font-acc);font-size:12px;color:#4a6080;letter-spacing:0.06em;margin-top:40px}
+footer span{color:var(--gold)}
+
+@media(max-width:700px){
+  .search-inner{flex-direction:column}
+  .search-btn{width:100%}
+  .filter-btns{margin-left:0}
+  .leads-table{font-size:12px}
+  .leads-table th,.leads-table td{padding:8px}
+}
+</style>
+</head>
+<body>
+
+<!-- PIN -->
+<div id="pin-screen">
+  <div class="pin-logo">STUD<span>IO</span> <span>VE</span>LOX<span>.</span></div>
+  <h2 class="pin-title">Lead CRM</h2>
+  <p class="pin-sub">Private — Enter your PIN</p>
+  <div class="pin-dots">
+    <div class="pin-dot" id="d0"></div><div class="pin-dot" id="d1"></div>
+    <div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div>
+  </div>
+  <div class="pin-keypad">
+    <button class="pin-key" onclick="pp('1')">1</button><button class="pin-key" onclick="pp('2')">2</button><button class="pin-key" onclick="pp('3')">3</button>
+    <button class="pin-key" onclick="pp('4')">4</button><button class="pin-key" onclick="pp('5')">5</button><button class="pin-key" onclick="pp('6')">6</button>
+    <button class="pin-key" onclick="pp('7')">7</button><button class="pin-key" onclick="pp('8')">8</button><button class="pin-key" onclick="pp('9')">9</button>
+    <button class="pin-key"></button><button class="pin-key" onclick="pp('0')">0</button><button class="pin-key del" onclick="pd()">⌫</button>
+  </div>
+  <div class="pin-error" id="pin-error"></div>
+</div>
+
+<!-- APP -->
+<div id="app">
+<nav>
+  <div class="logo">STUD<span>IO</span> <span>VE</span>LOX<span>.</span></div>
+  <div class="nav-right">
+    <div class="private-badge">🔒 Lead CRM</div>
+    <button class="nav-btn lock-btn" onclick="lock()">Lock</button>
+  </div>
+</nav>
+
+<div class="page-header">
+  <h1>Lead <em>CRM</em></h1>
+  <p>Search Google Places for Gold Coast businesses, score them automatically, manage outreach.</p>
+</div>
+
+<!-- SEARCH -->
+<div class="search-panel">
+  <div class="search-inner">
+    <div class="search-group">
+      <label>Category</label>
+      <select class="search-select" id="s-cat">
+        <option value="cafe">Cafe / Coffee</option>
+        <option value="restaurant">Restaurant</option>
+        <option value="hair salon">Hair Salon</option>
+        <option value="beauty salon">Beauty Salon</option>
+        <option value="gym">Gym / Fitness</option>
+        <option value="plumber">Plumber</option>
+        <option value="electrician">Electrician</option>
+        <option value="painter">Painter</option>
+        <option value="builder">Builder</option>
+        <option value="mechanic">Mechanic</option>
+        <option value="accountant">Accountant</option>
+        <option value="physiotherapist">Physio / Allied Health</option>
+        <option value="real estate agent">Real Estate</option>
+        <option value="florist">Florist</option>
+        <option value="bakery">Bakery</option>
+        <option value="pet grooming">Pet Grooming</option>
+        <option value="cleaning service">Cleaning Service</option>
+        <option value="landscaper">Landscaper</option>
+        <option value="custom">Custom...</option>
+      </select>
+    </div>
+    <div class="search-group" id="custom-group" style="display:none">
+      <label>Custom category</label>
+      <input class="search-input" id="s-custom" placeholder="e.g. yoga studio" />
+    </div>
+    <div class="search-group">
+      <label>Suburb</label>
+      <select class="search-select" id="s-suburb">
+        <option>Burleigh Heads, QLD</option>
+        <option>Burleigh Waters, QLD</option>
+        <option>Palm Beach, QLD</option>
+        <option>Currumbin, QLD</option>
+        <option>Coolangatta, QLD</option>
+        <option>Tugun, QLD</option>
+        <option>Bilinga, QLD</option>
+        <option>Robina, QLD</option>
+        <option>Mudgeeraba, QLD</option>
+        <option>Varsity Lakes, QLD</option>
+        <option>Miami, QLD</option>
+        <option>Mermaid Beach, QLD</option>
+        <option>Broadbeach, QLD</option>
+        <option>Surfers Paradise, QLD</option>
+        <option>Southport, QLD</option>
+        <option>Labrador, QLD</option>
+        <option>Nerang, QLD</option>
+        <option>Helensvale, QLD</option>
+        <option>Coomera, QLD</option>
+        <option>Pimpama, QLD</option>
+        <option>Ormeau, QLD</option>
+        <option>Tweed Heads, NSW</option>
+        <option>Cabarita Beach, NSW</option>
+      </select>
+    </div>
+    <button class="search-btn run" id="run-btn" onclick="runSearch()">🔍 Search & Import</button>
+  </div>
+</div>
+
+<div class="search-status" id="search-status" style="display:none"></div>
+
+<!-- STATS + FILTERS -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat"><div class="stat-n" id="st-total">0</div><div class="stat-l">Total</div></div>
+    <div class="stat"><div class="stat-n" id="st-hot" style="color:#c0392b">0</div><div class="stat-l">Hot 🔥</div></div>
+    <div class="stat"><div class="stat-n" id="st-warm" style="color:#d97706">0</div><div class="stat-l">Warm</div></div>
+    <div class="stat"><div class="stat-n" id="st-new">0</div><div class="stat-l">New</div></div>
+    <div class="stat"><div class="stat-n" id="st-contacted">0</div><div class="stat-l">Contacted</div></div>
+    <div class="filter-btns">
+      <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('hot',this)">🔥 Hot</button>
+      <button class="filter-btn" onclick="setFilter('warm',this)">Warm</button>
+      <button class="filter-btn" onclick="setFilter('new',this)">New</button>
+      <button class="filter-btn" onclick="setFilter('contacted',this)">Contacted</button>
+      <button class="filter-btn" onclick="setFilter('converted',this)">Converted ✓</button>
+      <button class="filter-btn" onclick="setFilter('skip',this)">Skip</button>
+    </div>
+  </div>
+</div>
+
+<!-- TABLE -->
+<div class="leads-wrap">
+  <table class="leads-table" id="leads-table">
+    <thead>
+      <tr>
+        <th>Score</th>
+        <th>Business</th>
+        <th>Category</th>
+        <th>Suburb</th>
+        <th>Phone</th>
+        <th>Website</th>
+        <th>Status / Notes</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="leads-body">
+      <tr class="loading-row"><td colspan="8">Enter a search above to find leads</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<footer><p>STUD<span>IO</span> <span>VE</span>LOX<span>.</span> &nbsp;·&nbsp; Lead CRM &nbsp;·&nbsp; Private</p></footer>
+</div>
+
+<script>
+// ── PIN ──────────────────────────────────────────────────────────
+let pin='',allLeads=[],activeFilter='all';
+function pp(d){if(!d||pin.length>=4)return;pin+=d;dots();if(pin.length===4)checkPin();}
+function pd(){pin=pin.slice(0,-1);dots();document.getElementById('pin-error').textContent='';document.querySelectorAll('.pin-dot').forEach(x=>x.classList.remove('error'));}
+function dots(){for(let i=0;i<4;i++)document.getElementById('d'+i).classList.toggle('filled',i<pin.length);}
+async function checkPin(){
+  try{
+    const r=await fetch('/api/checkpin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin})});
+    const{ok}=await r.json();
+    if(ok){
+      document.getElementById('pin-screen').style.display='none';
+      document.getElementById('app').style.display='block';
+      sessionStorage.setItem('sv_crm','1');
+      loadLeads();
+    }else pinErr();
+  }catch(e){pinErr();}
+}
+function pinErr(){
+  document.querySelectorAll('.pin-dot').forEach(x=>{x.classList.remove('filled');x.classList.add('error');});
+  document.getElementById('pin-error').textContent='Incorrect PIN — try again';
+  setTimeout(()=>{document.querySelectorAll('.pin-dot').forEach(x=>x.classList.remove('error'));document.getElementById('pin-error').textContent='';pin='';},1200);
+}
+function lock(){sessionStorage.removeItem('sv_crm');document.getElementById('app').style.display='none';document.getElementById('pin-screen').style.display='flex';pin='';dots();}
+if(sessionStorage.getItem('sv_crm')==='1'){document.getElementById('pin-screen').style.display='none';document.getElementById('app').style.display='block';}
+document.addEventListener('keydown',e=>{if(document.getElementById('pin-screen').style.display==='none')return;if(e.key>='0'&&e.key<='9')pp(e.key);if(e.key==='Backspace')pd();});
+
+// Custom category toggle
+document.getElementById('s-cat').addEventListener('change',function(){
+  document.getElementById('custom-group').style.display=this.value==='custom'?'flex':'none';
+});
+
+// ── SEARCH ───────────────────────────────────────────────────────
+async function runSearch(){
+  const catSel=document.getElementById('s-cat').value;
+  const category=catSel==='custom'?document.getElementById('s-custom').value.trim():catSel;
+  const suburb=document.getElementById('s-suburb').value;
+  if(!category){alert('Please enter a category.');return;}
+
+  const btn=document.getElementById('run-btn');
+  const status=document.getElementById('search-status');
+  btn.disabled=true;btn.textContent='Searching...';
+  status.style.display='block';status.className='search-status';
+  status.textContent=`Searching for "${category}" in ${suburb}...`;
+
+  try{
+    const r=await fetch('/api/crm',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({category,suburb})
+    });
+    const d=await r.json();
+    if(d.ok){
+      status.className='search-status success';
+      status.textContent=`✓ Found ${d.total} businesses — ${d.inserted} new added, ${d.skipped} already in CRM.`;
+      await loadLeads();
+    }else{
+      status.className='search-status error';
+      status.textContent=`Error: ${d.error||'Search failed'}`;
+    }
+  }catch(e){
+    status.className='search-status error';
+    status.textContent='Search failed — check your API key and try again.';
+  }
+  btn.disabled=false;btn.textContent='🔍 Search & Import';
+}
+
+// ── LOAD LEADS ────────────────────────────────────────────────────
+async function loadLeads(){
+  try{
+    const r=await fetch('/api/leads');
+    allLeads=await r.json();
+    renderLeads();
+  }catch(e){console.error('Load error:',e);}
+}
+
+// ── FILTER ────────────────────────────────────────────────────────
+function setFilter(f,btn){
+  activeFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderLeads();
+}
+
+// ── RENDER ────────────────────────────────────────────────────────
+function scoreClass(s){return s==='hot'?'score-hot':s==='warm'?'score-warm':'score-cool';}
+function scoreLabel(s){return s==='hot'?'🔥 Hot':s==='warm'?'Warm':'Cool';}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function renderLeads(){
+  const filtered=activeFilter==='all'?allLeads:
+    activeFilter==='hot'?allLeads.filter(l=>l.score==='hot'):
+    activeFilter==='warm'?allLeads.filter(l=>l.score==='warm'):
+    allLeads.filter(l=>l.status===activeFilter);
+
+  // Stats
+  document.getElementById('st-total').textContent=allLeads.length;
+  document.getElementById('st-hot').textContent=allLeads.filter(l=>l.score==='hot').length;
+  document.getElementById('st-warm').textContent=allLeads.filter(l=>l.score==='warm').length;
+  document.getElementById('st-new').textContent=allLeads.filter(l=>l.status==='new').length;
+  document.getElementById('st-contacted').textContent=allLeads.filter(l=>l.status==='contacted').length;
+
+  const tbody=document.getElementById('leads-body');
+  if(!filtered.length){
+    tbody.innerHTML='<tr class="loading-row"><td colspan="8">No leads match this filter</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML=filtered.map(l=>`
+    <tr id="row-${l.id}">
+      <td><span class="score ${scoreClass(l.score)}" title="${esc(l.score_reason)}">${scoreLabel(l.score)}</span></td>
+      <td><strong>${esc(l.name)}</strong><br><span style="font-size:11px;color:var(--gray)">${esc(l.address)}</span></td>
+      <td style="font-size:12px;color:var(--gray)">${esc(l.category)}</td>
+      <td style="font-size:12px;color:var(--gray)">${esc(l.suburb)}</td>
+      <td class="lead-phone">${l.phone?`<a href="tel:${l.phone.replace(/\s/g,'')}">${esc(l.phone)}</a>`:'<span style="color:#ccc;font-size:11px">—</span>'}</td>
+      <td class="lead-url">${l.website?`<a href="${esc(l.website)}" target="_blank" rel="noopener">${esc(l.website.replace(/^https?:\/\/(www\.)?/,'').split('/')[0])}</a>`:'<span class="no-web">No website</span>'}</td>
+      <td style="min-width:140px">
+        <select class="status-sel" id="status-${l.id}" onchange="markChanged(${l.id})">
+          <option value="new" ${l.status==='new'?'selected':''}>New</option>
+          <option value="contacted" ${l.status==='contacted'?'selected':''}>Contacted</option>
+          <option value="follow_up" ${l.status==='follow_up'?'selected':''}>Follow up</option>
+          <option value="converted" ${l.status==='converted'?'selected':''}>Converted ✓</option>
+          <option value="skip" ${l.status==='skip'?'selected':''}>Skip</option>
+        </select>
+        <textarea class="notes-inp" id="notes-${l.id}" placeholder="Notes...">${esc(l.notes||'')}</textarea>
+        <button class="save-btn" id="save-${l.id}" onclick="saveLead(${l.id})" style="display:none">Save</button>
+      </td>
+      <td><button class="del-btn" onclick="deleteLead(${l.id})">Delete</button></td>
+    </tr>`).join('');
+}
+
+function markChanged(id){document.getElementById('save-'+id).style.display='block';}
+document.addEventListener('input',e=>{if(e.target.classList.contains('notes-inp')){const id=e.target.id.replace('notes-','');document.getElementById('save-'+id).style.display='block';}});
+
+// ── SAVE / DELETE ─────────────────────────────────────────────────
+async function saveLead(id){
+  const status=document.getElementById('status-'+id).value;
+  const notes=document.getElementById('notes-'+id).value;
+  try{
+    await fetch('/api/leads',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status,notes})});
+    document.getElementById('save-'+id).style.display='none';
+    // Update local state
+    const lead=allLeads.find(l=>l.id===id);
+    if(lead){lead.status=status;lead.notes=notes;}
+    renderLeads();
+  }catch(e){console.error('Save error:',e);}
+}
+
+async function deleteLead(id){
+  if(!confirm('Remove this lead from the CRM?'))return;
+  try{
+    await fetch('/api/leads',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
+    allLeads=allLeads.filter(l=>l.id!==id);
+    renderLeads();
+  }catch(e){console.error('Delete error:',e);}
+}
+
+// Init
+if(sessionStorage.getItem('sv_crm')==='1')loadLeads();
+</script>
+</body>
+</html>
