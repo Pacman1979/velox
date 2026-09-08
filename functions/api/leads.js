@@ -3,7 +3,7 @@ export async function onRequest(context) {
 
   const headers = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, PATCH, DELETE, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Content-Type': 'application/json',
   };
@@ -21,20 +21,46 @@ export async function onRequest(context) {
     let query  = 'SELECT * FROM leads WHERE 1=1';
     const vals = [];
 
-    if (score)  { query += ' AND score = ?';           vals.push(score); }
-    if (status) { query += ' AND status = ?';           vals.push(status); }
-    if (suburb) { query += ' AND suburb LIKE ?';        vals.push(`%${suburb}%`); }
-    if (search) { query += ' AND (name LIKE ? OR address LIKE ?)'; vals.push(`%${search}%`, `%${search}%`); }
+    if (score)  { query += ' AND score = ?';                          vals.push(score); }
+    if (status) { query += ' AND status = ?';                         vals.push(status); }
+    if (suburb) { query += ' AND suburb LIKE ?';                      vals.push(`%${suburb}%`); }
+    if (search) { query += ' AND (name LIKE ? OR address LIKE ?)';    vals.push(`%${search}%`, `%${search}%`); }
 
-    query += ' ORDER BY CASE score WHEN \'hot\' THEN 1 WHEN \'warm\' THEN 2 ELSE 3 END, date_found DESC';
+    query += " ORDER BY CASE score WHEN 'hot' THEN 1 WHEN 'warm' THEN 2 ELSE 3 END, date_found DESC";
 
-    const stmt   = env.VELOX_DB.prepare(query);
-    const result = await stmt.bind(...vals).all();
-
+    const result = await env.VELOX_DB.prepare(query).bind(...vals).all();
     return new Response(JSON.stringify(result.results || []), { headers });
   }
 
-  // PATCH — update a lead's status or notes
+  // POST — manually add a single lead
+  if (request.method === 'POST') {
+    const body = await request.json();
+    const { name, category, suburb, address, phone, website, referral_source, notes } = body;
+    if (!name) return new Response(JSON.stringify({ error: 'name required' }), { status: 400, headers });
+
+    const has_website = website ? 1 : 0;
+    let score = 'cool', score_reason = 'Has a website';
+    if (!website) { score = 'hot'; score_reason = 'No website found'; }
+    else if (website.includes('facebook.com') || website.includes('instagram.com')) {
+      score = 'warm'; score_reason = 'Social media only — no real website';
+    }
+
+    // Check duplicate
+    const existing = await env.VELOX_DB.prepare(
+      'SELECT id FROM leads WHERE name = ? AND suburb = ?'
+    ).bind(name, suburb || '').first();
+
+    if (existing) return new Response(JSON.stringify({ error: 'Lead already exists', duplicate: true }), { status: 409, headers });
+
+    await env.VELOX_DB.prepare(
+      `INSERT INTO leads (name, category, suburb, address, phone, website, has_website, score, score_reason, referral_source, notes)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).bind(name, category||'', suburb||'', address||'', phone||'', website||'', has_website, score, score_reason, referral_source||'manual', notes||'').run();
+
+    return new Response(JSON.stringify({ ok: true }), { headers });
+  }
+
+  // PATCH — update status/notes
   if (request.method === 'PATCH') {
     const body = await request.json();
     const { id, status, notes } = body;
@@ -47,7 +73,6 @@ export async function onRequest(context) {
     } else if (notes !== undefined) {
       await env.VELOX_DB.prepare('UPDATE leads SET notes = ? WHERE id = ?').bind(notes, id).run();
     }
-
     return new Response(JSON.stringify({ ok: true }), { headers });
   }
 
