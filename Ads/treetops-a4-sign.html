@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Studio Velox — Treetops A4 Sign</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,900;1,900&family=Oswald:wght@600;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  @page { size: A4 portrait; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 210mm;
+    height: 297mm;
+  }
+  body {
+    font-family: 'Lato', Arial, sans-serif;
+    background: #0a1628;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 12mm 14mm 10mm;
+    position: relative;
+    overflow: hidden;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Ghost watermark */
+  body::before {
+    content: 'VELOX';
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%) rotate(-20deg);
+    font-family: 'Playfair Display', serif;
+    font-size: 110mm; font-weight: 900;
+    color: rgba(232,160,32,0.04);
+    letter-spacing: -4mm;
+    pointer-events: none; white-space: nowrap;
+  }
+
+  /* TOP GOLD BAR — bleeds to edges */
+  .top-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 7mm;
+    background: linear-gradient(90deg, #e8a020, #f5b732, #e8a020);
+  }
+
+  /* BOTTOM GOLD BAR — bleeds to edges */
+  .bottom-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: #e8a020;
+    padding: 3mm 14mm;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .bottom-url {
+    font-family: 'Oswald', sans-serif;
+    font-size: 11pt; font-weight: 700;
+    color: #0a1628; letter-spacing: 1px;
+    white-space: nowrap;
+  }
+  .bottom-fine {
+    font-size: 6pt; color: rgba(10,22,40,0.6);
+    text-align: right; max-width: 105mm; line-height: 1.45;
+  }
+
+  /* Push content below top bar */
+  .spacer-top { height: 10mm; flex-shrink: 0; }
+
+  /* BRAND */
+  .brand {
+    font-family: 'Oswald', sans-serif;
+    font-size: 13pt; font-weight: 700;
+    letter-spacing: 3px; color: rgba(255,255,255,0.6);
+    text-transform: uppercase; margin-bottom: 5mm;
+  }
+  .brand .io, .brand .ve { color: #e8a020; }
+
+  /* FREE */
+  .free-block { text-align: center; margin-bottom: 3mm; }
+  .free-word {
+    font-family: 'Playfair Display', serif;
+    font-size: 80pt; font-weight: 900;
+    line-height: 0.88; color: #e8a020;
+    display: block; letter-spacing: -2px;
+  }
+  .free-sub {
+    font-family: 'Oswald', sans-serif;
+    font-size: 14pt; font-weight: 600;
+    letter-spacing: 5px; color: #ffffff;
+    text-transform: uppercase;
+    display: block; margin-top: 2mm;
+  }
+
+  /* DIVIDER */
+  .divider {
+    width: 100%; height: 1px;
+    background: linear-gradient(90deg, transparent, #e8a020, transparent);
+    margin: 4mm 0; flex-shrink: 0;
+  }
+
+  /* CATCH */
+  .catch-block {
+    width: 100%;
+    background: rgba(232,160,32,0.1);
+    border: 1.5px solid rgba(232,160,32,0.5);
+    padding: 4mm 5mm; margin-bottom: 4mm;
+  }
+  .catch-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 10pt; font-weight: 700;
+    color: #e8a020; letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: 2mm;
+  }
+  .catch-text { font-size: 9pt; color: rgba(255,255,255,0.9); line-height: 1.6; }
+  .catch-text strong { color: #ffffff; }
+  .catch-text .hl { color: #e8a020; font-weight: 700; }
+
+  /* INCLUDES */
+  .includes-label {
+    font-family: 'Oswald', sans-serif;
+    font-size: 8pt; font-weight: 700;
+    letter-spacing: 2px; color: rgba(255,255,255,0.4);
+    text-transform: uppercase; margin-bottom: 2.5mm;
+    align-self: flex-start;
+  }
+  .includes-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 2mm 5mm; width: 100%; margin-bottom: 4mm;
+  }
+  .inc-item {
+    font-size: 9pt; color: rgba(255,255,255,0.88);
+    display: flex; align-items: flex-start; gap: 2mm; line-height: 1.35;
+  }
+  .inc-item .tick { color: #e8a020; font-weight: 700; flex-shrink: 0; }
+
+  /* PRICE */
+  .price-block {
+    text-align: center; width: 100%; margin-bottom: 4mm;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1); padding: 3mm;
+  }
+  .price-label {
+    font-family: 'Oswald', sans-serif;
+    font-size: 8pt; font-weight: 600;
+    letter-spacing: 3px; color: rgba(255,255,255,0.4);
+    text-transform: uppercase; display: block; margin-bottom: 1mm;
+  }
+  .price-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 44pt; font-weight: 900;
+    color: #ffffff; line-height: 1;
+  }
+  .price-mo { font-size: 18pt; color: rgba(255,255,255,0.5); }
+  .price-trial {
+    font-family: 'Oswald', sans-serif;
+    font-size: 9pt; font-weight: 600;
+    color: #e8a020; letter-spacing: 1.5px;
+    text-transform: uppercase; display: block; margin-top: 1.5mm;
+  }
+
+  /* QR ROW */
+  .qr-row {
+    display: flex; align-items: center; gap: 5mm;
+    width: 100%; margin-bottom: 3mm;
+  }
+  .qr-frame { background: #ffffff; padding: 2.5mm; flex-shrink: 0; }
+  .qr-frame img { width: 36mm; height: 36mm; display: block; }
+  .qr-text { flex: 1; }
+  .qr-cta {
+    font-family: 'Playfair Display', serif;
+    font-size: 15pt; font-weight: 900;
+    color: #ffffff; line-height: 1.2; margin-bottom: 2mm;
+  }
+  .qr-cta em { font-style: italic; color: #e8a020; }
+  .qr-sub { font-size: 8pt; color: rgba(255,255,255,0.6); line-height: 1.5; }
+  .qr-url {
+    font-family: 'Oswald', sans-serif;
+    font-size: 9pt; font-weight: 600;
+    color: #e8a020; letter-spacing: 1px;
+    margin-top: 1.5mm; display: block;
+  }
+</style>
+</head>
+<body>
+
+  <!-- BARS BLEED EDGE TO EDGE -->
+  <div class="top-bar"></div>
+  <div class="bottom-bar">
+    <div class="bottom-url">studiovelox.com</div>
+    <div class="bottom-fine">*Website build included in $147/month plan. Domain name (~$20–30/yr) registered in your name, not included. First 14 days free — nothing charged until you love it. Full custom websites from $997. Phil Campbell · 0422 777 865</div>
+  </div>
+
+  <div class="spacer-top"></div>
+
+  <div class="brand">STUD<span class="io">IO</span> <span class="ve">VE</span>LOX.</div>
+
+  <div class="free-block">
+    <span class="free-word">FREE*</span>
+    <span class="free-sub">Website for your business</span>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="catch-block">
+    <div class="catch-title">😏 "Nothing is ever really free..."</div>
+    <div class="catch-text">
+      You're right. Here's the honest version: <strong>the website build itself is included</strong> in your $147/month — design, copy, setup, the lot. That part normally costs <span class="hl">$997</span>. Think of it like a lease: the fit-out's on us, you just pay the running costs. You'll also need a domain name (e.g. yourbusiness.com.au — about $20–30/year, registered in your name). <strong>Your website. Your domain. Yours to keep.</strong>
+    </div>
+  </div>
+
+  <div class="includes-label">Your $147/month includes everything below</div>
+  <div class="includes-grid">
+    <div class="inc-item"><span class="tick">✓</span><span>Website designed &amp; built for you</span></div>
+    <div class="inc-item"><span class="tick">✓</span><span>Hosting &amp; SSL security certificate</span></div>
+    <div class="inc-item"><span class="tick">✓</span><span>Live within 24 hours</span></div>
+    <div class="inc-item"><span class="tick">✓</span><span>Small updates — just message Phil</span></div>
+    <div class="inc-item"><span class="tick">✓</span><span>Mobile-friendly design</span></div>
+    <div class="inc-item"><span class="tick">✓</span><span>Business email to your inbox</span></div>
+    <div class="inc-item"><span class="tick">✓</span><span>Contact form wired up &amp; working</span></div>
+    <div class="inc-item"><span class="tick">✓</span><span>Local Gold Coast support — not a call centre</span></div>
+  </div>
+
+  <div class="price-block">
+    <span class="price-label">All of the above, every month</span>
+    <span class="price-num">$147<span class="price-mo">/mo</span></span>
+    <span class="price-trial">★ First 14 days free — nothing charged until you love it</span>
+  </div>
+
+  <div class="qr-row">
+    <div class="qr-frame">
+      <img src="https://quickchart.io/qr?text=https%3A%2F%2Fstudiovelox.com%2Ftreetops%3Fsrc%3Dtreetops&size=400&margin=1&dark=0a1628&light=ffffff" alt="QR code">
+    </div>
+    <div class="qr-text">
+      <div class="qr-cta">Scan to get your<br><em>free website concept</em></div>
+      <div class="qr-sub">Takes 60 seconds. Phil will be in touch within 24 hours with a free concept for your business — no payment details needed to get started.</div>
+      <span class="qr-url">studiovelox.com/treetops</span>
+    </div>
+  </div>
+
+</body>
+</html>
