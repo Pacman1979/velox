@@ -101,6 +101,17 @@ nav{background:var(--navy);padding:14px 24px;display:flex;align-items:center;jus
 .save-btn:hover{opacity:0.85}
 .del-btn{font-family:var(--font-acc);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;padding:3px 8px;border:1px solid rgba(192,57,43,0.3);background:transparent;color:var(--red);cursor:pointer;margin-top:2px;width:100%}
 .del-btn:hover{background:var(--red);color:var(--white)}
+.strike-btn{font-family:var(--font-acc);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;padding:3px 8px;border:1px solid rgba(107,114,128,0.3);background:transparent;color:var(--gray);cursor:pointer;margin-top:2px;width:100%}
+.strike-btn:hover{background:var(--gray);color:var(--white)}
+.strike-btn.active{background:rgba(107,114,128,0.15);color:var(--gray);text-decoration:line-through}
+.score-cycle{font-family:var(--font-acc);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;padding:3px 8px;border:1px solid rgba(232,160,32,0.3);background:transparent;color:var(--gold);cursor:pointer;margin-top:2px;width:100%}
+.score-cycle:hover{background:var(--gold);color:var(--navy)}
+.move-btns{display:flex;gap:2px;margin-top:2px}
+.move-btn{font-family:var(--font-acc);font-size:11px;padding:3px 0;border:1px solid var(--border);background:transparent;color:var(--gray);cursor:pointer;flex:1;transition:all 0.15s}
+.move-btn:hover{background:var(--navy);color:var(--white);border-color:var(--navy)}
+.move-btn:disabled{opacity:0.2;cursor:default}
+tr.struck td .item-name{text-decoration:line-through;opacity:0.5}
+tr.struck{opacity:0.6}
 .lead-phone a{color:var(--navy);text-decoration:none}.lead-phone a:hover{color:var(--gold)}
 .lead-url a{color:var(--gold);font-size:11px;text-decoration:none;word-break:break-all}.lead-url a:hover{text-decoration:underline}
 .no-web{font-size:11px;color:var(--red);font-style:italic}
@@ -423,7 +434,10 @@ async function importCSV(){
 
 // LOAD
 async function loadLeads(){
-  try{const r=await fetch('/api/leads');allLeads=await r.json();renderLeads();}
+  try{const r=await fetch('/api/leads');const raw=await r.json();
+  // Restore struck state from notes prefix
+  allLeads=raw.map(l=>({...l,struck:(l.notes||'').startsWith('[STRUCK]')}));
+  renderLeads();}
   catch(e){console.error('Load error:',e);}
 }
 
@@ -459,10 +473,13 @@ function renderLeads(){
   const tbody=document.getElementById('leads-body');
   if(!filtered.length){tbody.innerHTML='<tr class="loading-row"><td colspan="9">No leads match this filter</td></tr>';return;}
 
-  tbody.innerHTML=filtered.map(l=>`
-    <tr id="row-${l.id}">
-      <td><span class="score ${scoreClass(l.score)}" title="${esc(l.score_reason)}">${scoreLabel(l.score)}</span></td>
-      <td><strong>${esc(l.name)}</strong><br><span style="font-size:11px;color:var(--gray)">${esc(l.address)}</span></td>
+  tbody.innerHTML=filtered.map((l,idx)=>`
+    <tr id="row-${l.id}" class="${l.struck?'struck':''}">
+      <td>
+        <span class="score ${scoreClass(l.score)}" title="${esc(l.score_reason)}">${scoreLabel(l.score)}</span>
+        <button class="score-cycle" onclick="cycleScore(${l.id})" title="Click to change score">⟳ Change</button>
+      </td>
+      <td><strong class="item-name">${esc(l.name)}</strong><br><span style="font-size:11px;color:var(--gray)">${esc(l.address)}</span></td>
       <td style="font-size:12px;color:var(--gray)">${esc(l.category)}</td>
       <td style="font-size:12px;color:var(--gray)">${esc(l.suburb)}</td>
       <td class="lead-phone">${l.phone?`<a href="tel:${l.phone.replace(/\s/g,'')}">${esc(l.phone)}</a>`:'<span style="color:#ccc;font-size:11px">—</span>'}</td>
@@ -479,7 +496,14 @@ function renderLeads(){
         <textarea class="notes-inp" id="notes-${l.id}" placeholder="Notes...">${esc(l.notes||'')}</textarea>
         <button class="save-btn" id="save-${l.id}" onclick="saveLead(${l.id})">Save</button>
       </td>
-      <td><button class="del-btn" onclick="delLead(${l.id})">Del</button></td>
+      <td style="min-width:70px">
+        <button class="strike-btn ${l.struck?'active':''}" onclick="toggleStrike(${l.id})">${l.struck?'Unstrike':'Strike'}</button>
+        <div class="move-btns">
+          <button class="move-btn" onclick="moveLead(${l.id},-1)" ${idx===0?'disabled':''} title="Move up">▲</button>
+          <button class="move-btn" onclick="moveLead(${l.id},1)" ${idx===filtered.length-1?'disabled':''} title="Move down">▼</button>
+        </div>
+        <button class="del-btn" onclick="delLead(${l.id})">Del</button>
+      </td>
     </tr>`).join('');
 }
 
@@ -500,6 +524,44 @@ async function delLead(id){
   try{await fetch('/api/leads',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
   allLeads=allLeads.filter(l=>l.id!==id);renderLeads();}
   catch(e){console.error('Delete error:',e);}
+}
+
+// Cycle score hot→warm→cool→hot
+function cycleScore(id){
+  const cycle=['hot','warm','cool'];
+  const l=allLeads.find(x=>x.id===id);
+  if(!l)return;
+  const next=cycle[(cycle.indexOf(l.score)+1)%cycle.length];
+  l.score=next;
+  l.score_reason=next==='hot'?'No website found — manually set':next==='warm'?'Social only — manually set':'Has website — manually set';
+  fetch('/api/leads',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status:l.status,notes:l.notes})});
+  renderLeads();
+}
+
+// Toggle strikethrough
+function toggleStrike(id){
+  const l=allLeads.find(x=>x.id===id);
+  if(!l)return;
+  l.struck=!l.struck;
+  // Store struck state in notes as a prefix flag
+  let notes=l.notes||'';
+  if(l.struck && !notes.startsWith('[STRUCK]')) notes='[STRUCK] '+notes;
+  if(!l.struck) notes=notes.replace('[STRUCK] ','').replace('[STRUCK]','').trim();
+  l.notes=notes;
+  fetch('/api/leads',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status:l.status,notes})});
+  renderLeads();
+}
+
+// Move lead up or down in the list
+function moveLead(id,dir){
+  const idx=allLeads.findIndex(x=>x.id===id);
+  if(idx===-1)return;
+  const newIdx=idx+dir;
+  if(newIdx<0||newIdx>=allLeads.length)return;
+  const tmp=allLeads[idx];
+  allLeads[idx]=allLeads[newIdx];
+  allLeads[newIdx]=tmp;
+  renderLeads();
 }
 
 // Enter key on manual form
