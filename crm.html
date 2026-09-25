@@ -473,10 +473,29 @@ function refLabel(r){
 }
 
 function renderLeads(){
-  const filtered=activeFilter==='all'?allLeads:
+  const base=activeFilter==='all'?allLeads:
     activeFilter==='hot'?allLeads.filter(l=>l.score==='hot'):
     activeFilter==='warm'?allLeads.filter(l=>l.score==='warm'):
     allLeads.filter(l=>l.status===activeFilter);
+
+  // Sort: 1) follow-up date (overdue/soonest first, no date last)
+  //       2) score (hot → warm → cool)
+  //       3) alphabetical by name
+  const filtered=[...base].sort((a,b)=>{
+    // Follow-up date — overdue and soonest first, no date last
+    const aDate=a.follow_up_date||null;
+    const bDate=b.follow_up_date||null;
+    if(aDate&&!bDate)return -1;
+    if(!aDate&&bDate)return 1;
+    if(aDate&&bDate&&aDate!==bDate)return aDate<bDate?-1:1;
+    // Score
+    const scoreOrder={hot:1,warm:2,cool:3};
+    const aSc=scoreOrder[a.score]||3;
+    const bSc=scoreOrder[b.score]||3;
+    if(aSc!==bSc)return aSc-bSc;
+    // Alphabetical
+    return (a.name||'').localeCompare(b.name||'');
+  });
 
   renderDueBanner();
   document.getElementById('st-total').textContent=allLeads.length;
@@ -596,12 +615,19 @@ function dueDaysClass(dateStr){
 
 // ── DUE TODAY BANNER ────────────────────────────────────────────
 function renderDueBanner(){
-  const today=new Date().toISOString().split('T')[0];
-  const overdue=allLeads.filter(l=>l.follow_up_date&&l.follow_up_date<=today&&l.status!=='converted'&&l.status!=='skip');
+  // Use local date to avoid timezone issues
+  const now=new Date();
+  const today=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+  const overdue=allLeads.filter(l=>{
+    if(!l.follow_up_date)return false;
+    if(l.status==='converted'||l.status==='skip')return false;
+    return l.follow_up_date<=today;
+  });
   const banner=document.getElementById('due-banner');
-  if(!overdue.length){banner.className='due-banner';return;}
+  if(!banner)return;
+  if(!overdue.length){banner.className='due-banner';banner.innerHTML='';return;}
   banner.className='due-banner visible';
-  banner.innerHTML='🔔 FOLLOW UP TODAY: '+overdue.map(l=>`<span class="due-item"><a onclick="scrollToLead(${l.id})">${esc(l.name)}</a> ${dueLabel(l.follow_up_date)}</span>`).join('');
+  banner.innerHTML='🔔 &nbsp;FOLLOW UPS DUE: &nbsp;'+overdue.map(l=>`<span class="due-item"><a onclick="scrollToLead(${l.id})">${esc(l.name)}</a> — ${dueLabel(l.follow_up_date)}</span>`).join('&nbsp;&nbsp;|&nbsp;&nbsp;');
 }
 function scrollToLead(id){
   const row=document.getElementById('row-'+id);
