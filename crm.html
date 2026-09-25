@@ -110,6 +110,18 @@ nav{background:var(--navy);padding:14px 24px;display:flex;align-items:center;jus
 .move-btn{font-family:var(--font-acc);font-size:11px;padding:3px 0;border:1px solid var(--border);background:transparent;color:var(--gray);cursor:pointer;flex:1;transition:all 0.15s}
 .move-btn:hover{background:var(--navy);color:var(--white);border-color:var(--navy)}
 .move-btn:disabled{opacity:0.2;cursor:default}
+.due-banner{background:#c0392b;color:#fff;padding:12px 24px;font-family:var(--font-acc);font-size:12px;letter-spacing:0.1em;text-transform:uppercase;display:none}
+.due-banner.visible{display:block}
+.due-banner a{color:#fff;text-decoration:underline;cursor:pointer}
+.due-item{display:inline-block;margin-right:16px}
+.days-indicator{display:inline-block;font-size:10px;font-family:var(--font-acc);font-weight:700;letter-spacing:0.08em;padding:2px 7px;border-radius:2px;margin-top:3px}
+.days-green{background:rgba(27,107,58,0.15);color:#1b6b3a;border:1px solid rgba(27,107,58,0.3)}
+.days-orange{background:rgba(224,90,43,0.15);color:#e05a2b;border:1px solid rgba(224,90,43,0.3)}
+.days-red{background:rgba(192,57,43,0.15);color:#c0392b;border:1px solid rgba(192,57,43,0.3)}
+.contact-method-sel{font-family:var(--font-acc);font-size:9px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:3px 6px;border:1px solid var(--border);background:var(--offwhite);color:var(--navy);cursor:pointer;-webkit-appearance:none;width:100%;margin-top:3px}
+.date-inp{font-family:var(--font-body);font-size:11px;padding:3px 6px;border:1px solid var(--border);background:var(--white);color:var(--navy);width:100%;margin-top:3px}
+.date-inp:focus{outline:none;border-color:var(--gold)}
+.date-label{font-family:var(--font-acc);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray);display:block;margin-top:4px}
 tr.struck td .item-name{text-decoration:line-through;opacity:0.5}
 tr.struck{opacity:0.6}
 .lead-phone a{color:var(--navy);text-decoration:none}.lead-phone a:hover{color:var(--gold)}
@@ -150,6 +162,9 @@ footer span{color:var(--gold)}
   <h1>Lead <em>CRM</em></h1>
   <p>Search Google Places · Add leads manually · Import from spreadsheet · Track outreach</p>
 </div>
+
+<!-- DUE TODAY BANNER -->
+<div class="due-banner" id="due-banner"></div>
 
 <!-- TABS -->
 <div class="tab-bar">
@@ -313,7 +328,7 @@ Next Door Burleigh&#9;cafe&#9;Burleigh Heads, QLD&#9;Shop 1/24 Junction Rd&#9;&#
     <thead>
       <tr>
         <th>Score</th><th>Business</th><th>Category</th><th>Suburb</th>
-        <th>Phone</th><th>Website</th><th>Source</th><th>Status / Notes</th><th></th>
+        <th>Phone</th><th>Website</th><th>Source</th><th>Status / Notes</th><th>Outreach</th><th></th>
       </tr>
     </thead>
     <tbody id="leads-body">
@@ -463,6 +478,7 @@ function renderLeads(){
     activeFilter==='warm'?allLeads.filter(l=>l.score==='warm'):
     allLeads.filter(l=>l.status===activeFilter);
 
+  renderDueBanner();
   document.getElementById('st-total').textContent=allLeads.length;
   document.getElementById('st-hot').textContent=allLeads.filter(l=>l.score==='hot').length;
   document.getElementById('st-warm').textContent=allLeads.filter(l=>l.score==='warm').length;
@@ -496,6 +512,22 @@ function renderLeads(){
         <textarea class="notes-inp" id="notes-${l.id}" placeholder="Notes...">${esc(l.notes||'')}</textarea>
         <button class="save-btn" id="save-${l.id}" onclick="saveLead(${l.id})">Save</button>
       </td>
+      <td style="min-width:140px">
+        <span class="date-label">Method</span>
+        <select class="contact-method-sel" id="method-${l.id}" onchange="markChanged(${l.id})">
+          <option value="call" ${(l.contact_method||'call')==='call'?'selected':''}>📞 Call</option>
+          <option value="email" ${l.contact_method==='email'?'selected':''}>✉️ Email</option>
+          <option value="walk_in" ${l.contact_method==='walk_in'?'selected':''}>🚶 Walk-in</option>
+          <option value="facebook" ${l.contact_method==='facebook'?'selected':''}>💬 Facebook</option>
+          <option value="sms" ${l.contact_method==='sms'?'selected':''}>📱 SMS</option>
+        </select>
+        <span class="date-label">Last contacted</span>
+        <input type="date" class="date-inp" id="contacted-${l.id}" value="${l.date_contacted||''}" onchange="markChanged(${l.id})">
+        ${l.date_contacted?`<span class="${daysClass(l.date_contacted)}">${daysAgo(l.date_contacted)}</span>`:''}
+        <span class="date-label">Follow-up date</span>
+        <input type="date" class="date-inp" id="followup-${l.id}" value="${l.follow_up_date||''}" onchange="markChanged(${l.id})">
+        ${l.follow_up_date?`<span class="${dueDaysClass(l.follow_up_date)}">${dueLabel(l.follow_up_date)}</span>`:''}
+      </td>
       <td style="min-width:70px">
         <button class="strike-btn ${l.struck?'active':''}" onclick="toggleStrike(${l.id})">${l.struck?'Unstrike':'Strike'}</button>
         <div class="move-btns">
@@ -513,9 +545,14 @@ document.addEventListener('input',e=>{if(e.target.classList.contains('notes-inp'
 async function saveLead(id){
   const status=document.getElementById('status-'+id).value;
   const notes=document.getElementById('notes-'+id).value;
-  try{await fetch('/api/leads',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status,notes})});
+  const contact_method=document.getElementById('method-'+id)?.value||'call';
+  const date_contacted=document.getElementById('contacted-'+id)?.value||'';
+  const follow_up_date=document.getElementById('followup-'+id)?.value||'';
+  try{await fetch('/api/leads',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status,notes,contact_method,date_contacted,follow_up_date})});
   document.getElementById('save-'+id).style.display='none';
-  const l=allLeads.find(x=>x.id===id);if(l){l.status=status;l.notes=notes;}renderLeads();}
+  const l=allLeads.find(x=>x.id===id);
+  if(l){l.status=status;l.notes=notes;l.contact_method=contact_method;l.date_contacted=date_contacted;l.follow_up_date=follow_up_date;}
+  renderLeads();}
   catch(e){console.error('Save error:',e);}
 }
 
@@ -524,6 +561,51 @@ async function delLead(id){
   try{await fetch('/api/leads',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
   allLeads=allLeads.filter(l=>l.id!==id);renderLeads();}
   catch(e){console.error('Delete error:',e);}
+}
+
+// ── DATE HELPERS ────────────────────────────────────────────────
+function daysAgo(dateStr){
+  if(!dateStr)return '';
+  const diff=Math.floor((Date.now()-new Date(dateStr))/(1000*60*60*24));
+  if(diff===0)return 'Today';
+  if(diff===1)return '1 day ago';
+  return diff+' days ago';
+}
+function daysClass(dateStr){
+  if(!dateStr)return '';
+  const diff=Math.floor((Date.now()-new Date(dateStr))/(1000*60*60*24));
+  if(diff<=3)return 'days-indicator days-green';
+  if(diff<=7)return 'days-indicator days-orange';
+  return 'days-indicator days-red';
+}
+function dueLabel(dateStr){
+  if(!dateStr)return '';
+  const diff=Math.floor((new Date(dateStr)-Date.now())/(1000*60*60*24));
+  if(diff<0)return Math.abs(diff)+' day'+(Math.abs(diff)===1?'':'s')+' overdue!';
+  if(diff===0)return 'Due today!';
+  if(diff===1)return 'Due tomorrow';
+  return 'Due in '+diff+' days';
+}
+function dueDaysClass(dateStr){
+  if(!dateStr)return '';
+  const diff=Math.floor((new Date(dateStr)-Date.now())/(1000*60*60*24));
+  if(diff<0)return 'days-indicator days-red';
+  if(diff<=1)return 'days-indicator days-orange';
+  return 'days-indicator days-green';
+}
+
+// ── DUE TODAY BANNER ────────────────────────────────────────────
+function renderDueBanner(){
+  const today=new Date().toISOString().split('T')[0];
+  const overdue=allLeads.filter(l=>l.follow_up_date&&l.follow_up_date<=today&&l.status!=='converted'&&l.status!=='skip');
+  const banner=document.getElementById('due-banner');
+  if(!overdue.length){banner.className='due-banner';return;}
+  banner.className='due-banner visible';
+  banner.innerHTML='🔔 FOLLOW UP TODAY: '+overdue.map(l=>`<span class="due-item"><a onclick="scrollToLead(${l.id})">${esc(l.name)}</a> ${dueLabel(l.follow_up_date)}</span>`).join('');
+}
+function scrollToLead(id){
+  const row=document.getElementById('row-'+id);
+  if(row)row.scrollIntoView({behavior:'smooth',block:'center'});
 }
 
 // Cycle score hot→warm→cool→hot
