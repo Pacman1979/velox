@@ -66,7 +66,7 @@ const SOCIAL_HOSTS = [
   'fb.com',
   'instagram.com',
   'linktr.ee',
-  'linktree',
+  'linktree.ee',
   'tiktok.com',
   'twitter.com',
   'x.com',
@@ -196,6 +196,9 @@ async function verifyLead(lead) {
   const tokens = nameTokens(lead.name);
 
   // If Google gave us a website, that is the first thing to check.
+  const notes = [];
+  let listedSiteDead = false;
+
   const known = (lead.website || '').trim();
   if (known) {
     if (isSocial(known)) {
@@ -216,11 +219,17 @@ async function verifyLead(lead) {
         verify_note: verdict.note,
       };
     }
+    if (!probe.reached) {
+      listedSiteDead = true;
+      notes.push(`listed site ${hostOf(known)}: no response`);
+    } else if (probe.status >= 400) {
+      listedSiteDead = true;
+      notes.push(`listed site ${hostOf(known)}: HTTP ${probe.status}`);
+    }
   }
 
-  // Otherwise guess domains from the business name.
+  // Now guess domains from the business name.
   const candidates = candidateDomains(lead.name).slice(0, MAX_CANDIDATES);
-  const notes = [];
 
   for (const { domain, exact } of candidates) {
     const probe = await probeUrl(`https://${domain}`);
@@ -241,6 +250,10 @@ async function verifyLead(lead) {
     // the code above will not accuse it. But if a near-miss domain is serving
     // casino or pharma content it is worth your eyes, so say so without
     // claiming it as fact.
+    if (probe.status >= 400) {
+      notes.push(`${domain}: HTTP ${probe.status}`);
+      continue;
+    }
     const text = probe.text || '';
     const hijack = HIJACK_SIGNATURES.filter((s) => text.includes(s));
     if (hijack.length >= 2) {
@@ -250,11 +263,13 @@ async function verifyLead(lead) {
     }
   }
 
+  // Every candidate exhausted. If Google listed a site and it was dead, that
+  // is a lapsed website, not an absent one — a different conversation.
   return {
-    website_status: 'none',
-    real_website: null,
+    website_status: listedSiteDead ? 'expired' : 'none',
+    real_website: listedSiteDead ? known : null,
     verify_note: notes.length
-      ? `Tried ${candidates.length} domains. ${notes.join('; ')}`
+      ? `Checked ${candidates.length + (known ? 1 : 0)}. ${notes.join('; ')}`
       : `Tried ${candidates.map((c) => c.domain).join(', ')} — nothing found`,
   };
 }
@@ -276,11 +291,10 @@ function classify(probe, tokens, exact) {
   }
 
   // A 4xx/5xx means the domain resolves but serves nothing.
-  if (probe.status >= 400) {
-    return exact
-      ? { status: 'none', note: `Domain resolves but returns HTTP ${probe.status}` }
-      : null;
-  }
+  // An HTTP error is NOT a verdict. A dead .com.au tells us nothing about
+  // whether they own a working .com — which is exactly how Lakeview's real
+  // site got missed. Record it and let the caller keep looking.
+  if (probe.status >= 400) return null;
 
   const text = probe.text || '';
   if (!text) return null;
@@ -288,6 +302,17 @@ function classify(probe, tokens, exact) {
   const hijack = HIJACK_SIGNATURES.filter((s) => text.includes(s));
   const matched = tokens.filter((t) => text.includes(t));
   const matchRatio = tokens.length ? matched.length / tokens.length : 0;
+
+  // Parked FIRST, before the name match. A holding page almost always prints
+  // the domain name on it, so checking "is their name on the page" first
+  // misreads every parking page as a working site.
+  const parked = PARKED_SIGNATURES.find((s) => text.includes(s));
+  if (parked && text.length < 60000 && (exact || matchRatio >= 0.5)) {
+    return {
+      status: 'parked',
+      note: `Holding page — found "${parked}". Domain is owned but nothing is built.`,
+    };
+  }
 
   // A positive name match is safe to trust from any domain.
   if (matchRatio >= 0.5) {
@@ -305,14 +330,6 @@ function classify(probe, tokens, exact) {
     return {
       status: 'expired',
       note: `Domain now serves unrelated content (matched: ${hijack.slice(0, 3).join(', ')}). Open it yourself before you mention it to them.`,
-    };
-  }
-
-  const parked = PARKED_SIGNATURES.find((s) => text.includes(s));
-  if (parked && text.length < 60000) {
-    return {
-      status: 'parked',
-      note: `Holding page — found "${parked}". Domain is owned but nothing is built.`,
     };
   }
 
@@ -413,7 +430,9 @@ function nameTokens(name) {
 
 function isSocial(url) {
   const h = hostOf(url);
-  return SOCIAL_HOSTS.some((s) => h.includes(s));
+  // Match whole hostnames only. A substring test would flag velox.com.au as
+  // social, because "velox.com.au" contains "x.com".
+  return SOCIAL_HOSTS.some((s) => h === s || h.endsWith('.' + s));
 }
 
 function hostOf(url) {
