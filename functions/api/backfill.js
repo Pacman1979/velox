@@ -26,7 +26,21 @@ import { scoreLead } from './scoring.js';
 
 const MAX_LEADS = 20;   // 20 outbound calls, well under the 50 subrequest cap
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost(context) {
+  try {
+    return await handle(context);
+  } catch (err) {
+    // Without this, any thrown error surfaces as Cloudflare "error code: 1101"
+    // with no detail at all. Better to hand back something you can read.
+    return json({
+      error: String(err?.message || err),
+      hint: 'A "no such column" error means that column never made it into D1. '
+          + 'Run PRAGMA table_info(leads); in the D1 console to see what you have.',
+    }, 500);
+  }
+}
+
+async function handle({ request, env }) {
   const db = env.VELOX_DB;
   if (!db) return json({ error: 'VELOX_DB binding missing' }, 500);
   if (!env.GOOGLE_PLACES_API_KEY) return json({ error: 'GOOGLE_PLACES_API_KEY missing' }, 500);
