@@ -56,10 +56,10 @@ export async function onRequest(context) {
     return new Response(JSON.stringify({ ok: true }), { headers });
   }
 
-  // PATCH — update status, notes, contact info and new date fields
+  // PATCH — update status, notes, contact info, date fields and score
   if (request.method === 'PATCH') {
     const body = await request.json();
-    const { id, status, notes, contact_method, date_contacted, follow_up_date } = body;
+    const { id, status, notes, contact_method, date_contacted, follow_up_date, score, score_reason } = body;
     if (!id) return new Response(JSON.stringify({ error: 'id required' }), { status: 400, headers });
 
     await env.VELOX_DB.prepare(
@@ -68,7 +68,9 @@ export async function onRequest(context) {
         notes = COALESCE(?, notes),
         contact_method = COALESCE(?, contact_method),
         date_contacted = COALESCE(?, date_contacted),
-        follow_up_date = COALESCE(?, follow_up_date)
+        follow_up_date = COALESCE(?, follow_up_date),
+        score = COALESCE(?, score),
+        score_reason = COALESCE(?, score_reason)
        WHERE id = ?`
     ).bind(
       status ?? null,
@@ -76,6 +78,8 @@ export async function onRequest(context) {
       contact_method ?? null,
       date_contacted ?? null,
       follow_up_date ?? null,
+      score ?? null,
+      score_reason ?? null,
       id
     ).run();
 

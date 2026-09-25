@@ -642,7 +642,7 @@ function cycleScore(id){
   const next=cycle[(cycle.indexOf(l.score)+1)%cycle.length];
   l.score=next;
   l.score_reason=next==='hot'?'No website found — manually set':next==='warm'?'Social only — manually set':'Has website — manually set';
-  fetch('/api/leads',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status:l.status,notes:l.notes})});
+  fetch('/api/leads',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,score:next,score_reason:l.score_reason,status:l.status,notes:l.notes})});
   renderLeads();
 }
 
