@@ -20,7 +20,11 @@
 import { scoreLead } from './scoring.js';
 
 const MAX_LEADS = 10;
-const MAX_CANDIDATES = 4;
+const MAX_CANDIDATES = 8;
+// Cloudflare's free plan allows 50 outbound fetches per invocation. Each lead
+// costs (1 if Google listed a site) + up to MAX_CANDIDATES. This budget is
+// shared across the whole batch so a big run can never blow the cap mid-way.
+const SUBREQUEST_BUDGET = 44;
 const FETCH_TIMEOUT_MS = 6000;
 const MAX_BODY_CHARS = 150000;
 
@@ -59,6 +63,19 @@ const HIJACK_SIGNATURES = [
   'escort',
   'crypto trading bot',
   'forex signals',
+];
+
+// Third-party pages the business does not own. Google's website field points
+// at these surprisingly often — NAVAH was filed as "live" against an
+// ozfoodhunter listing, Scott's against foodiemate.
+const AGGREGATOR_HOSTS = [
+  'ubereats.com', 'doordash.com', 'menulog.com.au', 'deliveroo.com.au',
+  'ozfoodhunter.com.au', 'foodiemate.com.au', 'hungryhungry.com',
+  'tripadvisor.com', 'tripadvisor.com.au', 'zomato.com', 'yelp.com',
+  'yelp.com.au', 'opentable.com', 'opentable.com.au', 'thefork.com.au',
+  'restaurantguru.com', 'beanhunter.com', 'happycow.net',
+  'yellowpages.com.au', 'truelocal.com.au', 'localsearch.com.au',
+  'hotfrog.com.au', 'dimmi.com.au', 'quandoo.com.au', 'now-book-it.com',
 ];
 
 const SOCIAL_HOSTS = [
@@ -111,7 +128,9 @@ export async function onRequestPost({ request, env }) {
     const res = await db
       .prepare(
         `SELECT * FROM leads
-          WHERE website_status = 'unchecked' OR website_status IS NULL
+          WHERE website_status IS NULL
+             OR website_status = 'unchecked'
+             OR (website_status IN ('social_only', 'aggregator') AND verify_note IS NULL)
           ORDER BY id ASC
           LIMIT ?`
       )
@@ -124,9 +143,10 @@ export async function onRequestPost({ request, env }) {
     return json({ checked: 0, results: [], message: 'Nothing left to verify' });
   }
 
+  const budget = makeBudget(SUBREQUEST_BUDGET);
   const results = [];
   for (const lead of leads) {
-    const finding = await verifyLead(lead);
+    const finding = await verifyLead(lead, budget);
     const merged = { ...lead, ...finding };
     const scored = Number(lead.score_locked) === 1
       ? { lead_score: lead.lead_score, tier: lead.tier, score_reason: lead.score_reason }
@@ -183,7 +203,7 @@ export async function onRequestGet({ request, env }) {
     .first();
   if (!lead) return json({ error: 'Lead not found' }, 404);
 
-  const finding = await verifyLead(lead);
+  const finding = await verifyLead(lead, makeBudget(SUBREQUEST_BUDGET));
   const scored = scoreLead({ ...lead, ...finding });
   return json({ dry_run: true, lead: lead.name, ...finding, ...scored });
 }
@@ -192,46 +212,60 @@ export async function onRequestGet({ request, env }) {
 // Verification
 // ---------------------------------------------------------------------------
 
-async function verifyLead(lead) {
+async function verifyLead(lead, budget) {
   const tokens = nameTokens(lead.name);
-
-  // If Google gave us a website, that is the first thing to check.
   const notes = [];
   let listedSiteDead = false;
+  let fallback = null;   // social or aggregator page, used only if nothing better turns up
 
   const known = (lead.website || '').trim();
   if (known) {
+    // A social or delivery-platform link is NOT an answer — it just means
+    // Google has no real website for them. Remember it and keep looking,
+    // otherwise leads like Street Corner never get their domains checked.
     if (isSocial(known)) {
-      return {
+      fallback = {
         website_status: 'social_only',
         real_website: known,
-        verify_note: 'Google listing points at a social profile, not a website',
+        verify_note: `Google lists ${hostOf(known)}, not a website`,
       };
-    }
-    const probe = await probeUrl(known);
-    // Google gave us this address for this business, so a mismatch is
-    // meaningful — that is exactly how Canteen's pokies site surfaced.
-    const verdict = classify(probe, tokens, true);
-    if (verdict) {
-      return {
-        website_status: verdict.status,
-        real_website: probe.finalUrl || known,
-        verify_note: verdict.note,
+    } else if (isAggregator(known)) {
+      fallback = {
+        website_status: 'aggregator',
+        real_website: known,
+        verify_note: `Google lists ${hostOf(known)} — a third-party page they do not own`,
       };
-    }
-    if (!probe.reached) {
-      listedSiteDead = true;
-      notes.push(`listed site ${hostOf(known)}: no response`);
-    } else if (probe.status >= 400) {
-      listedSiteDead = true;
-      notes.push(`listed site ${hostOf(known)}: HTTP ${probe.status}`);
+    } else if (budget.spend()) {
+      const probe = await probeUrl(known);
+      const verdict = classify(probe, tokens, true);
+      if (verdict) {
+        return {
+          website_status: verdict.status,
+          real_website: probe.finalUrl || known,
+          verify_note: verdict.note,
+        };
+      }
+      if (!probe.reached) {
+        listedSiteDead = true;
+        notes.push(`listed site ${hostOf(known)}: no response`);
+      } else if (probe.status >= 400) {
+        listedSiteDead = true;
+        notes.push(`listed site ${hostOf(known)}: HTTP ${probe.status}`);
+      }
     }
   }
 
-  // Now guess domains from the business name.
   const candidates = candidateDomains(lead.name).slice(0, MAX_CANDIDATES);
+  let tried = 0;
+  let ranOut = false;
 
   for (const { domain, exact } of candidates) {
+    if (!budget.spend()) {
+      ranOut = true;
+      break;
+    }
+    tried++;
+
     const probe = await probeUrl(`https://${domain}`);
     if (!probe.reached) {
       notes.push(`${domain}: no response`);
@@ -246,32 +280,52 @@ async function verifyLead(lead) {
       };
     }
 
-    // Canteen's real domain was canteencoffee.com.au — a shortened guess, so
-    // the code above will not accuse it. But if a near-miss domain is serving
-    // casino or pharma content it is worth your eyes, so say so without
-    // claiming it as fact.
     if (probe.status >= 400) {
-      notes.push(`${domain}: HTTP ${probe.status}`);
+      notes.push(`${domain}: not registered`);
       continue;
     }
+    // A near-miss domain serving casino or pharma content is worth your eyes,
+    // but a guess is never allowed to state it as fact.
     const text = probe.text || '';
-    const hijack = HIJACK_SIGNATURES.filter((s) => text.includes(s));
-    if (hijack.length >= 2) {
-      notes.push(`${domain}: LOOK AT THIS — serving unrelated content (${hijack.slice(0, 3).join(', ')})`);
-    } else {
-      notes.push(`${domain}: reached, not theirs`);
-    }
+    const hijack = HIJACK_SIGNATURES.filter((h) => text.includes(h));
+    notes.push(hijack.length >= 2
+      ? `${domain}: LOOK AT THIS — serving unrelated content (${hijack.slice(0, 3).join(', ')})`
+      : `${domain}: reached, not theirs`);
   }
 
-  // Every candidate exhausted. If Google listed a site and it was dead, that
-  // is a lapsed website, not an absent one — a different conversation.
+  // Ran out of fetches before finishing. Leave it unchecked so the next run
+  // picks it up again, rather than writing a "none" we never actually proved.
+  if (ranOut && !fallback) {
+    return {
+      website_status: 'unchecked',
+      real_website: null,
+      verify_note: `Only got through ${tried} of ${candidates.length} domains before the fetch budget ran out. Run again.`,
+    };
+  }
+
+  // Nothing better found. A social or aggregator page beats calling it "none".
+  if (fallback) {
+    return {
+      ...fallback,
+      verify_note: `${fallback.verify_note}. Checked ${tried} domains, none theirs.`,
+    };
+  }
+
+  // If Google listed a site and it was dead, that is a lapsed website, not an
+  // absent one — a different conversation on the doorstep.
   return {
     website_status: listedSiteDead ? 'expired' : 'none',
     real_website: listedSiteDead ? known : null,
     verify_note: notes.length
-      ? `Checked ${candidates.length + (known ? 1 : 0)}. ${notes.join('; ')}`
+      ? `Checked ${tried + (known ? 1 : 0)}. ${notes.join('; ')}`
       : `Tried ${candidates.map((c) => c.domain).join(', ')} — nothing found`,
   };
+}
+
+/** Shared fetch allowance so one batch can never exceed Cloudflare's cap. */
+function makeBudget(max) {
+  let used = 0;
+  return { spend: () => (used < max ? (used++, true) : false), used: () => used };
 }
 
 /**
@@ -289,6 +343,12 @@ function classify(probe, tokens, exact) {
   if (probe.finalUrl && isSocial(probe.finalUrl)) {
     return { status: 'social_only', note: `Redirects to ${hostOf(probe.finalUrl)}` };
   }
+  if (probe.finalUrl && isAggregator(probe.finalUrl)) {
+    return {
+      status: 'aggregator',
+      note: `Lands on ${hostOf(probe.finalUrl)} — a listing page, not their own site`,
+    };
+  }
 
   // A 4xx/5xx means the domain resolves but serves nothing.
   // An HTTP error is NOT a verdict. A dead .com.au tells us nothing about
@@ -301,21 +361,21 @@ function classify(probe, tokens, exact) {
 
   const hijack = HIJACK_SIGNATURES.filter((s) => text.includes(s));
   const matched = tokens.filter((t) => text.includes(t));
-  const matchRatio = tokens.length ? matched.length / tokens.length : 0;
+  const confident = nameMatches(matched, tokens, exact);
 
   // Parked FIRST, before the name match. A holding page almost always prints
   // the domain name on it, so checking "is their name on the page" first
   // misreads every parking page as a working site.
   const parked = PARKED_SIGNATURES.find((s) => text.includes(s));
-  if (parked && text.length < 60000 && (exact || matchRatio >= 0.5)) {
+  if (parked && text.length < 60000 && (exact || confident)) {
     return {
       status: 'parked',
       note: `Holding page — found "${parked}". Domain is owned but nothing is built.`,
     };
   }
 
-  // A positive name match is safe to trust from any domain.
-  if (matchRatio >= 0.5) {
+  // A confident name match is safe to trust from any domain.
+  if (confident) {
     return {
       status: 'live',
       note: `Working site, business name found on the page (${matched.length}/${tokens.length} terms).`,
@@ -333,14 +393,40 @@ function classify(probe, tokens, exact) {
     };
   }
 
-  if (text.length > 2000) {
+  // Nothing of their name anywhere on a substantial page = not their site.
+  if (matched.length === 0 && text.length > 2000) {
     return {
       status: 'expired',
-      note: 'Domain serves a real page but their name is nowhere on it. Worth eyeballing before you act on it.',
+      note: 'Domain serves a real page with no trace of their name. Open it before you act on it.',
+    };
+  }
+
+  // Some of the name matched, but not enough to be sure. Say so rather than
+  // either claiming it as theirs or accusing them of a dead domain.
+  if (matched.length >= 1 && text.length > 2000) {
+    return {
+      status: 'live',
+      note: `Probably theirs, but only ${matched.length}/${tokens.length} name terms matched — worth an eyeball.`,
     };
   }
 
   return null;
+}
+
+/**
+ * Is this page confidently theirs?
+ *
+ * Half the words used to be enough, which let rootsand.com claim "Roots And
+ * Culture Cafe" on the word "roots" alone, and garyngary.com claim
+ * "Gary & Maddie" on "gary".
+ */
+function nameMatches(matched, tokens, exact) {
+  if (!tokens.length) return false;
+  const ratio = matched.length / tokens.length;
+  // A single common word ("Loaf", "Tarte") proves nothing by itself unless
+  // the domain is already their full name.
+  if (tokens.length === 1) return exact && ratio === 1;
+  return matched.length >= 2 && ratio >= 0.6;
 }
 
 async function probeUrl(rawUrl) {
@@ -407,14 +493,22 @@ export function candidateDomains(name) {
   // "Hidden Perk" would produce hidden.com, which belongs to somebody else
   // entirely — and a stranger's website would look like an expired domain.
 
+  // Suffixes in order of how likely an Australian small business is to hold
+  // one. .au direct opened in 2022 and is the loose one — auDA requires only
+  // an Australian presence, no ABN and no connection to your trading name —
+  // so a recently rebranded shop may well be sitting on one.
+  const EXACT_TLDS = ['com.au', 'com', 'au', 'net.au'];
+  const GUESS_TLDS = ['com.au', 'com', 'au'];
+
   const out = [];
   for (const slug of slugs) {
     if (slug.length < 4 || slug.length > 40) continue;
     // exact = the guess uses the whole business name, so a mismatch is
     // meaningful. Truncated guesses can only ever confirm, never accuse.
     const exact = slug === full;
-    out.push({ domain: `${slug}.com.au`, exact });
-    out.push({ domain: `${slug}.com`, exact });
+    for (const tld of exact ? EXACT_TLDS : GUESS_TLDS) {
+      out.push({ domain: `${slug}.${tld}`, exact });
+    }
   }
   return out;
 }
@@ -433,6 +527,11 @@ function isSocial(url) {
   // Match whole hostnames only. A substring test would flag velox.com.au as
   // social, because "velox.com.au" contains "x.com".
   return SOCIAL_HOSTS.some((s) => h === s || h.endsWith('.' + s));
+}
+
+function isAggregator(url) {
+  const h = hostOf(url);
+  return AGGREGATOR_HOSTS.some((a) => h === a || h.endsWith('.' + a));
 }
 
 function hostOf(url) {

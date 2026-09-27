@@ -29,6 +29,9 @@ export const WEBSITE_POINTS = {
   parked: 45,
   // Genuinely nothing anywhere.
   none: 40,
+  // Google points at Uber Eats or a directory. Same gap as having nothing,
+  // and the pitch writes itself: they are renting their web presence.
+  aggregator: 38,
   // Facebook or Instagram only. They have content, no home for it.
   social_only: 25,
   // Not looked at yet — mid weight so it neither hides nor jumps the queue.
@@ -41,6 +44,7 @@ export const WEBSITE_LABELS = {
   expired: 'Domain expired',
   parked: 'Domain parked',
   none: 'No website',
+  aggregator: 'Listing page only',
   social_only: 'Social only',
   unchecked: 'Not checked',
   live: 'Has website',
