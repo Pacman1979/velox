@@ -18,6 +18,7 @@
  */
 
 import { scoreLead } from './scoring.js';
+import { requireKey } from './auth.js';
 
 const MAX_LEADS = 10;
 const MAX_CANDIDATES = 8;
@@ -117,6 +118,9 @@ const STOPWORDS = new Set([
 // ---------------------------------------------------------------------------
 
 export async function onRequestPost({ request, env }) {
+  const denied = requireKey(request, env);
+  if (denied) return denied;
+
   let body = {};
   try {
     body = await request.json();
@@ -207,6 +211,9 @@ export async function onRequestPost({ request, env }) {
 
 /** Dry run — see what it would find without touching the database. */
 export async function onRequestGet({ request, env }) {
+  const denied = requireKey(request, env);
+  if (denied) return denied;
+
   const url = new URL(request.url);
   const id = Number(url.searchParams.get('id'));
   if (!Number.isFinite(id)) return json({ error: 'Pass ?id=' }, 400);

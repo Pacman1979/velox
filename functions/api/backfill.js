@@ -23,6 +23,7 @@
  */
 
 import { scoreLead } from './scoring.js';
+import { requireKey } from './auth.js';
 
 const MAX_LEADS = 20;   // 20 outbound calls, well under the 50 subrequest cap
 
@@ -41,6 +42,9 @@ export async function onRequestPost(context) {
 }
 
 async function handle({ request, env }) {
+  const denied = requireKey(request, env);
+  if (denied) return denied;
+
   const db = env.VELOX_DB;
   if (!db) return json({ error: 'VELOX_DB binding missing' }, 500);
   if (!env.GOOGLE_PLACES_API_KEY) return json({ error: 'GOOGLE_PLACES_API_KEY missing' }, 500);
