@@ -33,11 +33,6 @@ const PARKED_SIGNATURES = [
   'under construction',
   'coming soon',
   'website coming soon',
-  'this domain is parked',
-  'domain is parked',
-  'buy this domain',
-  'this domain is for sale',
-  'domain for sale',
   'future home of',
   'parking-page',
   'sedoparking',
@@ -46,6 +41,25 @@ const PARKED_SIGNATURES = [
   'if you are the site owner',
   'your new website is on its way',
   'placeholder page',
+];
+
+// A domain investor is sitting on it waiting for an offer. Critically this
+// means the domain is NOT the business's — so it must never be reported as
+// "parked", which implies they own it and simply never built anything.
+// loaf.com.au prints "loaf.com.au may be for sale" in its header, which used
+// to match the single word "Loaf" and get filed as a working website.
+const FOR_SALE_SIGNATURES = [
+  'may be for sale',
+  'is for sale',
+  'domain for sale',
+  'buy this domain',
+  'purchase this domain',
+  'this domain is parked',
+  'domain is parked',
+  'make an offer',
+  'domain broker',
+  'inquire about this domain',
+  'the domain name you are looking for',
 ];
 
 // Someone else now owns the domain and is doing something unrelated.
@@ -362,6 +376,10 @@ function classify(probe, tokens, exact) {
   const hijack = HIJACK_SIGNATURES.filter((s) => text.includes(s));
   const matched = tokens.filter((t) => text.includes(t));
   const confident = nameMatches(matched, tokens, exact);
+
+  // A for-sale page belongs to a domain investor. Not theirs, not parked by
+  // them, not a website. Report nothing and let the caller keep looking.
+  if (FOR_SALE_SIGNATURES.some((f) => text.includes(f))) return null;
 
   // Parked FIRST, before the name match. A holding page almost always prints
   // the domain name on it, so checking "is their name on the page" first
