@@ -1,0 +1,31 @@
+name = "velox-cron"
+main = "worker.js"
+compatibility_date = "2026-09-25"
+
+# ---------------------------------------------------------------------------
+# The schedule
+# ---------------------------------------------------------------------------
+# Cron Triggers run on UTC. Queensland is UTC+10 all year and never touches
+# daylight saving, so the conversion is a flat ten hours and never drifts —
+# one of the few genuine advantages of living here.
+#
+#   Sunday 5:00am AEST  =  Saturday 19:00 UTC  =  "0 19 * * 6"
+#                                                      ^ 6 = Saturday
+#
+# Other options, already converted:
+#   Sunday 6:00am AEST  →  "0 20 * * 6"
+#   Sunday 9:00pm AEST  →  "0 11 * * 0"
+#   Every day 5:00am    →  "0 19 * * *"
+[triggers]
+crons = ["0 19 * * 6"]
+
+# ---------------------------------------------------------------------------
+# Settings
+# ---------------------------------------------------------------------------
+# VELOX_API_KEY is a secret, not a var. Set it with:
+#   npx wrangler secret put VELOX_API_KEY
+# It must match the VELOX_API_KEY on the velox Pages project — one key now
+# covers /api/verify, /api/backfill and /api/cron-search.
+
+[vars]
+SEARCHES_PER_RUN = "5"

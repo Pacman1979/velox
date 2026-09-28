@@ -27,6 +27,9 @@ export const WEBSITE_POINTS = {
   expired: 50,
   // They bought a domain, started, never finished. Intent already proven.
   parked: 45,
+  // Domain bought, page put up, nothing on it. Same proven intent as parked,
+  // and there is already something to point at on the doorstep.
+  thin: 42,
   // Genuinely nothing anywhere.
   none: 40,
   // Google points at Uber Eats or a directory. Same gap as having nothing,
@@ -43,6 +46,7 @@ export const WEBSITE_POINTS = {
 export const WEBSITE_LABELS = {
   expired: 'Domain expired',
   parked: 'Domain parked',
+  thin: 'Stub site',
   none: 'No website',
   aggregator: 'Listing page only',
   social_only: 'Social only',

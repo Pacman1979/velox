@@ -29,6 +29,17 @@ const SUBREQUEST_BUDGET = 44;
 const FETCH_TIMEOUT_MS = 6000;
 const MAX_BODY_CHARS = 150000;
 
+// A page that loads but has almost nothing on it. Borrowed from your Python
+// script, which calls this THIN. It is a better lead than a working site:
+// they have already bought the domain and put something up, it just never
+// got finished.
+const THIN_TEXT_CHARS = 400;
+// ...but only when the raw HTML is small too. A Square or Wix site renders
+// its content with JavaScript, so the visible text in the HTML we fetch is
+// tiny while the payload is huge. Next Door Burleigh is exactly that, and it
+// is a real working shop — this ceiling keeps it out of the thin bucket.
+const THIN_HTML_CEILING = 30000;
+
 // Pages that exist but have nothing on them.
 const PARKED_SIGNATURES = [
   'under construction',
@@ -401,6 +412,13 @@ function classify(probe, tokens, exact) {
 
   // A confident name match is safe to trust from any domain.
   if (confident) {
+    const visible = visibleTextLength(text);
+    if (visible < THIN_TEXT_CHARS && text.length < THIN_HTML_CEILING) {
+      return {
+        status: 'thin',
+        note: `Their site, but only about ${visible} characters of real content — a stub that never got finished.`,
+      };
+    }
     return {
       status: 'live',
       note: `Working site, business name found on the page (${matched.length}/${tokens.length} terms).`,
@@ -552,6 +570,19 @@ function isSocial(url) {
   // Match whole hostnames only. A substring test would flag velox.com.au as
   // social, because "velox.com.au" contains "x.com".
   return SOCIAL_HOSTS.some((s) => h === s || h.endsWith('.' + s));
+}
+
+/** Roughly how much text a human would actually see on the page. */
+function visibleTextLength(html) {
+  return html
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<noscript\b[^>]*>[\s\S]*?<\/noscript>/gi, ' ')
+    .replace(/<!--[\s\S]*?-->/g, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&[a-z#0-9]+;/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim().length;
 }
 
 function isAggregator(url) {
