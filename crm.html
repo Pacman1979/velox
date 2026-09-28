@@ -90,9 +90,18 @@ nav{background:var(--navy);padding:14px 24px;display:flex;align-items:center;jus
 .leads-table td{font-size:13px;padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--navy)}
 .leads-table tr:hover td{background:rgba(232,160,32,0.02)}
 .score{font-family:var(--font-acc);font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:3px 8px;white-space:nowrap}
-.score-hot{background:rgba(192,57,43,0.12);color:var(--red);border:1px solid rgba(192,57,43,0.25)}
-.score-warm{background:rgba(217,119,6,0.12);color:var(--warm);border:1px solid rgba(217,119,6,0.25)}
-.score-cool{background:rgba(107,114,128,0.1);color:var(--gray);border:1px solid var(--border)}
+.score-prime{background:var(--navy);color:var(--gold2);border:1px solid var(--navy)}
+.score-strong{background:rgba(232,160,32,0.15);color:#8a5d05;border:1px solid rgba(232,160,32,0.4)}
+.score-maybe{background:rgba(107,114,128,0.1);color:var(--gray);border:1px solid var(--border)}
+.score-skip{background:transparent;color:#a5a099;border:1px dashed var(--border)}
+.score-unrated{background:transparent;color:#a5a099;border:1px dashed var(--border)}
+.score-n{font-family:var(--font-head);font-weight:900;font-size:13px;margin-right:4px}
+.locked-flag{font-size:8px;opacity:0.7;display:block;letter-spacing:0.06em}
+.wstat{display:block;font-size:10px;font-family:var(--font-acc);letter-spacing:0.06em;text-transform:uppercase;margin-top:3px;color:var(--gray)}
+.wstat-parked,.wstat-expired{color:#a8420d;font-weight:700}
+.wstat-none{color:var(--red);font-weight:700}
+.wstat-aggregator{color:#a8420d}
+.wstat-unchecked{color:#a5a099;font-style:italic}
 .ref-badge{font-family:var(--font-acc);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;padding:2px 6px;background:rgba(123,94,167,0.1);color:var(--purple);border:1px solid rgba(123,94,167,0.2)}
 .status-sel{font-family:var(--font-acc);font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:4px 6px;border:1px solid var(--border);background:var(--offwhite);color:var(--navy);cursor:pointer;-webkit-appearance:none;width:100%}
 .notes-inp{font-family:var(--font-body);font-size:12px;padding:4px 6px;border:1px solid var(--border);background:var(--white);color:var(--navy);width:100%;resize:none;height:48px}
@@ -305,15 +314,17 @@ Next Door Burleigh&#9;cafe&#9;Burleigh Heads, QLD&#9;Shop 1/24 Junction Rd&#9;&#
 <div class="stats-bar">
   <div class="stats-inner">
     <div class="stat"><div class="stat-n" id="st-total">0</div><div class="stat-l">Total</div></div>
-    <div class="stat"><div class="stat-n" id="st-hot" style="color:#c0392b">0</div><div class="stat-l">🔥 Hot</div></div>
-    <div class="stat"><div class="stat-n" id="st-warm" style="color:#d97706">0</div><div class="stat-l">Warm</div></div>
+    <div class="stat"><div class="stat-n" id="st-hot" style="color:#0a1628">0</div><div class="stat-l">Prime</div></div>
+    <div class="stat"><div class="stat-n" id="st-warm" style="color:#d97706">0</div><div class="stat-l">Strong</div></div>
     <div class="stat"><div class="stat-n" id="st-new">0</div><div class="stat-l">New</div></div>
     <div class="stat"><div class="stat-n" id="st-contacted">0</div><div class="stat-l">Contacted</div></div>
     <div class="stat"><div class="stat-n" id="st-converted" style="color:#1b6b3a">0</div><div class="stat-l">Converted</div></div>
     <div class="filter-btns">
       <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
-      <button class="filter-btn" onclick="setFilter('hot',this)">🔥 Hot</button>
-      <button class="filter-btn" onclick="setFilter('warm',this)">Warm</button>
+      <button class="filter-btn" onclick="setFilter('prime',this)">Prime</button>
+      <button class="filter-btn" onclick="setFilter('strong',this)">Strong</button>
+      <button class="filter-btn" onclick="setFilter('maybe',this)">Maybe</button>
+      <button class="filter-btn" onclick="setFilter('unchecked',this)">Unchecked</button>
       <button class="filter-btn" onclick="setFilter('new',this)">New</button>
       <button class="filter-btn" onclick="setFilter('contacted',this)">Contacted</button>
       <button class="filter-btn" onclick="setFilter('converted',this)">Converted ✓</button>
@@ -327,8 +338,8 @@ Next Door Burleigh&#9;cafe&#9;Burleigh Heads, QLD&#9;Shop 1/24 Junction Rd&#9;&#
   <table class="leads-table" id="leads-table">
     <thead>
       <tr>
-        <th>Score</th><th>Business</th><th>Category</th><th>Suburb</th>
-        <th>Phone</th><th>Website</th><th>Source</th><th>Status / Notes</th><th>Outreach</th><th></th>
+        <th>Score</th><th>Business</th><th>Contact</th><th>Suburb</th>
+        <th>Phone</th><th>Web presence</th><th>Source</th><th>Status / Notes</th><th>Outreach</th><th></th>
       </tr>
     </thead>
     <tbody id="leads-body">
@@ -465,17 +476,33 @@ function setFilter(f,btn){
 
 // RENDER
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function scoreClass(s){return s==='hot'?'score-hot':s==='warm'?'score-warm':'score-cool';}
-function scoreLabel(s){return s==='hot'?'🔥 Hot':s==='warm'?'Warm':'Cool';}
+const TIER_LABEL={prime:'Prime',strong:'Strong',maybe:'Maybe',skip:'Skip',unrated:'Unrated'};
+const WS_LABEL={unchecked:'Not checked',none:'No website',parked:'Domain parked',
+  expired:'Domain expired',social_only:'Social only',aggregator:'Listing page only',
+  thin:'Stub site',live:'Has website'};
+function scoreClass(t){return 'score-'+(t||'unrated');}
+function scoreLabel(l){
+  const t=l.tier||'unrated';
+  const n=(l.lead_score===null||l.lead_score===undefined)?'–':l.lead_score;
+  return '<span class="score-n">'+n+'</span>'+(TIER_LABEL[t]||t);
+}
+function wsLine(l){
+  const ws=l.website_status||'unchecked';
+  const url=l.real_website||l.website;
+  const label=WS_LABEL[ws]||ws;
+  const link=url?`<a href="${esc(url)}" target="_blank" rel="noopener">${esc(String(url).replace(/^https?:\/\/(www\.)?/,'').split('/')[0])}</a>`:'';
+  return (link?link+'<br>':'')+`<span class="wstat wstat-${esc(ws)}">${esc(label)}</span>`;
+}
 function refLabel(r){
   const map={'google_places':'Google Places','manual':'Manual','csv_import':'CSV','mary_va':'Mary (VA)','treetops_sign':'Treetops Sign','facebook_ad':'FB Ad','google_ad':'Google Ad','referral_ellie':'Ellie','referral_evan':'Evan','referral_taylor':'Taylor','referral_jeremy':'Jeremy & Jenny','referral_michael':'Michael','cold_call':'Cold call','walk_in':'Walk-in','other':'Other'};
   return map[r]||r||'—';
 }
 
 function renderLeads(){
+  const TIERS=['prime','strong','maybe','skip'];
   const base=activeFilter==='all'?allLeads:
-    activeFilter==='hot'?allLeads.filter(l=>l.score==='hot'):
-    activeFilter==='warm'?allLeads.filter(l=>l.score==='warm'):
+    TIERS.includes(activeFilter)?allLeads.filter(l=>l.tier===activeFilter):
+    activeFilter==='unchecked'?allLeads.filter(l=>(l.website_status||'unchecked')==='unchecked'):
     allLeads.filter(l=>l.status===activeFilter);
 
   // Sort: 1) follow-up date (overdue/soonest first, no date last)
@@ -488,19 +515,17 @@ function renderLeads(){
     if(aDate&&!bDate)return -1;
     if(!aDate&&bDate)return 1;
     if(aDate&&bDate&&aDate!==bDate)return aDate<bDate?-1:1;
-    // Score
-    const scoreOrder={hot:1,warm:2,cool:3};
-    const aSc=scoreOrder[a.score]||3;
-    const bSc=scoreOrder[b.score]||3;
-    if(aSc!==bSc)return aSc-bSc;
+    // Score — highest first
+    const aSc=a.lead_score??0, bSc=b.lead_score??0;
+    if(aSc!==bSc)return bSc-aSc;
     // Alphabetical
     return (a.name||'').localeCompare(b.name||'');
   });
 
   renderDueBanner();
   document.getElementById('st-total').textContent=allLeads.length;
-  document.getElementById('st-hot').textContent=allLeads.filter(l=>l.score==='hot').length;
-  document.getElementById('st-warm').textContent=allLeads.filter(l=>l.score==='warm').length;
+  document.getElementById('st-hot').textContent=allLeads.filter(l=>l.tier==='prime').length;
+  document.getElementById('st-warm').textContent=allLeads.filter(l=>l.tier==='strong').length;
   document.getElementById('st-new').textContent=allLeads.filter(l=>l.status==='new').length;
   document.getElementById('st-contacted').textContent=allLeads.filter(l=>l.status==='contacted').length;
   document.getElementById('st-converted').textContent=allLeads.filter(l=>l.status==='converted').length;
@@ -511,14 +536,21 @@ function renderLeads(){
   tbody.innerHTML=filtered.map((l,idx)=>`
     <tr id="row-${l.id}" class="${l.struck?'struck':''}">
       <td>
-        <span class="score ${scoreClass(l.score)}" title="${esc(l.score_reason)}">${scoreLabel(l.score)}</span>
-        <button class="score-cycle" onclick="cycleScore(${l.id})" title="Click to change score">⟳ Change</button>
+        <span class="score ${scoreClass(l.tier)}" title="${esc(l.score_reason)}">${scoreLabel(l)}</span>
+        ${l.score_locked?'<span class="locked-flag">set by you</span>':''}
+        ${(l.rating||l.review_count)?`<span class="wstat">${esc(l.rating||'?')}★ · ${esc(l.review_count||'?')}</span>`:''}
+        <button class="score-cycle" onclick="cycleTier(${l.id})" title="Set the priority by hand">⟳ Change</button>
+        <button class="score-cycle" onclick="verifyLead(${l.id},this)" title="Re-check their website now">⟳ Check web</button>
       </td>
       <td><strong class="item-name">${esc(l.name)}</strong><br><span style="font-size:11px;color:var(--gray)">${esc(l.address)}</span></td>
-      <td style="font-size:12px;color:var(--gray)">${esc(l.category)}</td>
+      <td style="font-size:12px;color:var(--gray)">
+        ${l.contact_name?`<strong>${esc(l.contact_name)}</strong><br>`:''}
+        ${l.email?`<a href="mailto:${esc(l.email)}" style="color:var(--gold)">${esc(l.email)}</a><br>`:''}
+        ${esc(l.category)}
+      </td>
       <td style="font-size:12px;color:var(--gray)">${esc(l.suburb)}</td>
       <td class="lead-phone">${l.phone?`<a href="tel:${l.phone.replace(/\s/g,'')}">${esc(l.phone)}</a>`:'<span style="color:#ccc;font-size:11px">—</span>'}</td>
-      <td class="lead-url">${l.website?`<a href="${esc(l.website)}" target="_blank" rel="noopener">${esc(l.website.replace(/^https?:\/\/(www\.)?/,'').split('/')[0])}</a>`:'<span class="no-web">No website</span>'}</td>
+      <td class="lead-url">${wsLine(l)}</td>
       <td><span class="ref-badge">${esc(refLabel(l.referral_source))}</span></td>
       <td style="min-width:130px">
         <select class="status-sel" id="status-${l.id}" onchange="markChanged(${l.id})">
@@ -634,16 +666,32 @@ function scrollToLead(id){
   if(row)row.scrollIntoView({behavior:'smooth',block:'center'});
 }
 
-// Cycle score hot→warm→cool→hot
-function cycleScore(id){
-  const cycle=['hot','warm','cool'];
+// Cycle the priority by hand: prime → strong → maybe → skip → auto
+function cycleTier(id){
+  const cycle=['prime','strong','maybe','skip',''];
   const l=allLeads.find(x=>x.id===id);
   if(!l)return;
-  const next=cycle[(cycle.indexOf(l.score)+1)%cycle.length];
-  l.score=next;
-  l.score_reason=next==='hot'?'No website found — manually set':next==='warm'?'Social only — manually set':'Has website — manually set';
-  fetch('/api/leads',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,score:next,score_reason:l.score_reason,status:l.status,notes:l.notes})});
+  const cur=l.score_locked?(l.tier||''):'';
+  const next=cycle[(cycle.indexOf(cur)+1)%cycle.length];
+  l.tier=next||l.tier;
+  l.score_locked=next?1:0;
+  fetch('/api/leads',{method:'PATCH',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(next?{id,tier:next}:{id,score_locked:0})})
+    .then(r=>r.json()).then(d=>{if(d&&d.tier){l.tier=d.tier;l.lead_score=d.lead_score;}renderLeads();});
   renderLeads();
+}
+
+// Re-check one lead's web presence. Needs the API key, which lives on the
+// server — /api/verify-one passes it through so it never reaches the browser.
+async function verifyLead(id,btn){
+  if(btn){btn.disabled=true;btn.textContent='Checking...';}
+  try{
+    const r=await fetch('/api/verify-one',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
+    const d=await r.json();
+    if(d.error)throw new Error(d.error);
+    await loadLeads();
+  }catch(e){alert('Check failed: '+e.message);}
+  if(btn){btn.disabled=false;btn.textContent='⟳ Check web';}
 }
 
 // Toggle strikethrough
