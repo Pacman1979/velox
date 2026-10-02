@@ -138,6 +138,9 @@ button:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
    ───────────────────────────────────────────── */
 .scene{position:relative;background:#4d82a8;overflow:hidden}
 .scene svg{position:absolute;inset:0;width:100%;height:100%}
+/* real photo sits over the illustration; if the file is missing it removes itself
+   and the illustration shows instead */
+.scene .photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
 .scene-caption{
   position:absolute;left:0;right:0;bottom:0;
   padding:clamp(18px,3vh,30px) clamp(20px,2.4vw,34px);
@@ -332,6 +335,8 @@ button:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
       <path d="M646 540c4-26 0-42-4-54M664 540c-2-24-9-38-15-48"/>
     </g>
   </svg>
+
+  <img class="photo" src="images/lakeview-hero.jpg" alt="The gazebo over the lake at Lakeview Espresso, Burleigh Waters" onerror="this.remove()">
 
   <p class="scene-caption">Feed the ducks. Take the gazebo. Nobody's waiting for your table.</p>
 </aside>
