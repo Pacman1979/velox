@@ -88,7 +88,7 @@ export async function onRequest(context) {
       const body = await request.json();
       const { id, status, notes, contact_method, date_contacted, follow_up_date,
               name, category, suburb, address, phone, website, email, contact_name,
-              website_status, real_website, tier, score_locked } = body;
+              website_status, real_website, verify_note, tier, score_locked } = body;
       if (!id) return new Response(JSON.stringify({ error: 'id required' }), { status: 400, headers });
 
       // Picking a tier by hand locks it; clearing it unlocks.
@@ -111,6 +111,7 @@ export async function onRequest(context) {
           contact_name   = COALESCE(?, contact_name),
           website_status = COALESCE(?, website_status),
           real_website   = COALESCE(?, real_website),
+          verify_note    = COALESCE(?, verify_note),
           tier           = COALESCE(?, tier),
           score_locked   = COALESCE(?, score_locked)
          WHERE id = ?`
@@ -119,7 +120,7 @@ export async function onRequest(context) {
         date_contacted ?? null, follow_up_date ?? null,
         name ?? null, category ?? null, suburb ?? null, address ?? null,
         phone ?? null, website ?? null, email ?? null, contact_name ?? null,
-        website_status ?? null, real_website ?? null,
+        website_status ?? null, real_website ?? null, verify_note ?? null,
         tier ?? null, lock,
         id
       ).run();

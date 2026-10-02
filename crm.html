@@ -158,6 +158,30 @@ footer span{color:var(--gold)}
 /* long emails and URLs must wrap, or one lead stretches the whole table */
 .leads-table td:nth-child(3) a{overflow-wrap:anywhere;word-break:break-word;display:inline-block;max-width:100%}
 .leads-table td{overflow-wrap:anywhere}
+/* EDIT MODAL — change a lead's details without opening the D1 console */
+.edit-btn{font-family:var(--font-acc);font-size:10.5px;letter-spacing:0.08em;text-transform:uppercase;padding:5px 9px;border:1px solid var(--border);background:transparent;color:var(--gray);cursor:pointer;margin-top:7px;width:100%}
+.edit-btn:hover{border-color:var(--gold);color:var(--gold)}
+.edit-btn.empty{border-color:rgba(232,160,32,0.45);color:var(--gold)}
+.modal-back{position:fixed;inset:0;background:rgba(10,22,40,0.72);display:none;align-items:flex-start;justify-content:center;z-index:900;padding:40px 20px;overflow-y:auto}
+.modal-back.open{display:flex}
+.modal{background:var(--white);width:100%;max-width:700px;border-top:4px solid var(--gold);box-shadow:0 24px 60px rgba(0,0,0,0.35)}
+.modal-head{padding:22px 26px 16px;border-bottom:1px solid var(--border)}
+.modal-head h3{font-family:var(--font-head);font-size:24px;font-weight:900;line-height:1.2}
+.modal-head p{font-size:13px;color:var(--gray);margin-top:5px}
+.modal-body{padding:22px 26px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.modal-body .full{grid-column:1/-1}
+.m-grp{display:flex;flex-direction:column;gap:5px}
+.m-grp label{font-family:var(--font-acc);font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--gray)}
+.m-grp input,.m-grp select{font-family:var(--font-body);font-size:15px;padding:10px 12px;border:1.5px solid var(--border);background:var(--offwhite);color:var(--navy);outline:none;width:100%;-webkit-appearance:none}
+.m-grp input:focus,.m-grp select:focus{border-color:var(--gold)}
+.m-note{font-size:12.5px;color:var(--gray);line-height:1.55;grid-column:1/-1;background:var(--offwhite);border-left:3px solid var(--border);padding:11px 13px}
+.m-note b{color:var(--navy)}
+.modal-foot{padding:16px 26px 22px;display:flex;gap:10px;align-items:center;justify-content:flex-end;border-top:1px solid var(--border);flex-wrap:wrap}
+.m-btn{font-family:var(--font-acc);font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:11px 22px;border:1px solid transparent;cursor:pointer}
+.m-cancel{background:transparent;color:var(--gray);border-color:var(--border)}.m-cancel:hover{border-color:var(--navy);color:var(--navy)}
+.m-save{background:var(--green);color:var(--white)}.m-save:hover{opacity:0.88}.m-save:disabled{opacity:0.5;cursor:wait}
+.m-msg{font-size:13px;color:var(--red);margin-right:auto;line-height:1.4}
+@media(max-width:640px){.modal-body{grid-template-columns:1fr}.modal-back{padding:12px}}
 @media(max-width:700px){.search-row,.form-grid,.form-grid-2{flex-direction:column;grid-template-columns:1fr}.action-btn{width:100%}.filter-btns{margin-left:0}}
 </style>
 </head>
@@ -370,6 +394,57 @@ Next Door Burleigh&#9;cafe&#9;Burleigh Heads, QLD&#9;Shop 1/24 Junction Rd&#9;&#
 <footer><p>STUD<span>IO</span> <span>VE</span>LOX<span>.</span> &nbsp;·&nbsp; Lead CRM &nbsp;·&nbsp; Private</p></footer>
 </div>
 
+<!-- EDIT LEAD -------------------------------------------------------------
+     The owner's name and email are the two fields that turn a Google Places
+     row into a person you can actually write to, and until now there was no
+     way to record them short of the D1 console. -->
+<div class="modal-back" id="edit-back" onclick="if(event.target===this)closeEdit()">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="edit-title">
+    <div class="modal-head">
+      <h3 id="edit-title">Edit lead</h3>
+      <p id="edit-sub">&nbsp;</p>
+    </div>
+    <div class="modal-body">
+      <div class="m-grp full"><label for="e-contact">Owner / contact name</label>
+        <input id="e-contact" type="text" placeholder="e.g. Corey &amp; Kumi" autocomplete="off"></div>
+      <div class="m-grp full"><label for="e-email">Email</label>
+        <input id="e-email" type="email" placeholder="manager@example.com.au" autocomplete="off"></div>
+      <div class="m-grp"><label for="e-phone">Phone</label>
+        <input id="e-phone" type="tel" autocomplete="off"></div>
+      <div class="m-grp"><label for="e-category">Category</label>
+        <input id="e-category" type="text" placeholder="cafe, bakery, plumber..." autocomplete="off"></div>
+      <div class="m-grp"><label for="e-name">Business name</label>
+        <input id="e-name" type="text" autocomplete="off"></div>
+      <div class="m-grp"><label for="e-suburb">Suburb</label>
+        <input id="e-suburb" type="text" autocomplete="off"></div>
+      <div class="m-grp full"><label for="e-address">Address</label>
+        <input id="e-address" type="text" autocomplete="off"></div>
+      <div class="m-grp"><label for="e-ws">Web presence</label>
+        <select id="e-ws">
+          <option value="unchecked">Not checked</option>
+          <option value="none">No website</option>
+          <option value="parked">Domain parked</option>
+          <option value="expired">Domain expired</option>
+          <option value="social_only">Social only</option>
+          <option value="aggregator">Listing page only</option>
+          <option value="thin">Stub site</option>
+          <option value="live">Has website</option>
+        </select></div>
+      <div class="m-grp"><label for="e-real">Website URL</label>
+        <input id="e-real" type="text" placeholder="https://..." autocomplete="off"></div>
+      <div class="m-note" id="e-verified">&nbsp;</div>
+      <div class="m-note">Saving re-runs the score, so a new email or phone counts straight away.
+        Setting <b>Web presence</b> by hand marks it as checked by you &mdash; the Sunday sweep
+        will leave it alone, though pressing <b>Check web</b> on the row still overrides it.</div>
+    </div>
+    <div class="modal-foot">
+      <span class="m-msg" id="e-msg"></span>
+      <button class="m-btn m-cancel" onclick="closeEdit()">Cancel</button>
+      <button class="m-btn m-save" id="e-save" onclick="saveEdit()">Save changes</button>
+    </div>
+  </div>
+</div>
+
 <script>
 let pin='',allLeads=[],activeFilter='all';
 
@@ -562,10 +637,11 @@ function renderLeads(){
         <button class="score-cycle" onclick="verifyLead(${l.id},this)" title="Re-check their website now">⟳ Check web</button>
       </td>
       <td><strong class="item-name">${esc(l.name)}</strong><br><span style="font-size:11px;color:var(--gray)">${esc(l.address)}</span></td>
-      <td style="font-size:12px;color:var(--gray)">
-        ${l.contact_name?`<strong>${esc(l.contact_name)}</strong><br>`:''}
+      <td style="font-size:13.5px;color:var(--gray)">
+        ${l.contact_name?`<strong style="color:var(--navy);font-size:14.5px">${esc(l.contact_name)}</strong><br>`:''}
         ${l.email?`<a href="mailto:${esc(l.email)}" style="color:var(--gold)">${esc(l.email)}</a><br>`:''}
         ${esc(l.category)}
+        <button class="edit-btn ${(l.contact_name||l.email)?'':'empty'}" onclick="openEdit(${l.id})" title="Edit this lead's details">${(l.contact_name||l.email)?'\u270E Edit':'+ Add contact'}</button>
       </td>
       <td style="font-size:12px;color:var(--gray)">${esc(l.suburb)}</td>
       <td class="lead-phone">${l.phone?`<a href="tel:${l.phone.replace(/\s/g,'')}">${esc(l.phone)}</a>`:'<span style="color:#ccc;font-size:11px">—</span>'}</td>
@@ -739,8 +815,93 @@ function moveLead(id,dir){
   renderLeads();
 }
 
+// ── EDIT LEAD ───────────────────────────────────────────────────
+// PATCH /api/leads treats null as "leave alone" and '' as "clear it", so every
+// text field is sent as a string. That is what lets a wrong email be deleted.
+let editingId=null;
+const E=id=>document.getElementById(id);
+
+function openEdit(id){
+  const l=allLeads.find(x=>x.id===id);
+  if(!l)return;
+  editingId=id;
+  E('edit-title').textContent=l.name||'Edit lead';
+  E('edit-sub').textContent=[l.suburb,l.category].filter(Boolean).join(' · ')||' ';
+  E('e-contact').value=l.contact_name||'';
+  E('e-email').value=l.email||'';
+  E('e-phone').value=l.phone||'';
+  E('e-category').value=l.category||'';
+  E('e-name').value=l.name||'';
+  E('e-suburb').value=l.suburb||'';
+  E('e-address').value=l.address||'';
+  E('e-ws').value=l.website_status||'unchecked';
+  E('e-real').value=l.real_website||l.website||'';
+  E('e-verified').innerHTML=l.verified_at
+    ? 'Website last checked automatically on <b>'+esc(String(l.verified_at).slice(0,10))+'</b>'
+      +(l.verify_note?' &mdash; '+esc(l.verify_note):'')
+    : 'This lead’s website has never been checked automatically.';
+  E('e-msg').textContent='';
+  E('e-save').disabled=false;
+  E('edit-back').classList.add('open');
+  setTimeout(()=>E('e-contact').focus(),50);
+}
+
+function closeEdit(){E('edit-back').classList.remove('open');editingId=null;}
+
+async function saveEdit(){
+  if(!editingId)return;
+  const id=editingId;
+  const l=allLeads.find(x=>x.id===id);
+  const name=E('e-name').value.trim();
+  if(!name){E('e-msg').textContent='A business name is required.';return;}
+
+  const body={
+    id,
+    name,
+    contact_name:E('e-contact').value.trim(),
+    email:E('e-email').value.trim(),
+    phone:E('e-phone').value.trim(),
+    category:E('e-category').value.trim(),
+    suburb:E('e-suburb').value.trim(),
+    address:E('e-address').value.trim(),
+    website_status:E('e-ws').value,
+    real_website:E('e-real').value.trim(),
+  };
+  // A status Phil set himself needs a note, or the Sunday sweep picks the row
+  // back up as unfinished business and overwrites him.
+  if(l&&body.website_status!==(l.website_status||'unchecked')&&body.website_status!=='unchecked'){
+    body.verify_note='Set by you on '+new Date().toISOString().slice(0,10);
+  }
+
+  E('e-save').disabled=true;
+  E('e-msg').textContent='';
+  try{
+    const r=await fetch('/api/leads',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok||d.error)throw new Error(d.error||('Save failed ('+r.status+')'));
+    if(l){
+      Object.assign(l,body);
+      if(d.lead_score!==undefined)l.lead_score=d.lead_score;
+      if(d.tier)l.tier=d.tier;
+      if(d.score_reason)l.score_reason=d.score_reason;
+    }
+    closeEdit();
+    renderLeads();
+  }catch(err){
+    E('e-msg').textContent=String(err.message||err);
+    E('e-save').disabled=false;
+  }
+}
+
+document.addEventListener('keydown',e=>{
+  if(!E('edit-back').classList.contains('open'))return;
+  if(e.key==='Escape')closeEdit();
+  if(e.key==='Enter'&&e.target.tagName==='INPUT'){e.preventDefault();saveEdit();}
+});
+
 // Enter key on manual form
 document.addEventListener('keydown',e=>{
+  if(document.getElementById('edit-back').classList.contains('open'))return;
   if(e.key==='Enter'&&document.getElementById('tab-manual').classList.contains('active')&&e.target.tagName!=='TEXTAREA'){addManual();}
 });
 
