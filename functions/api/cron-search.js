@@ -2,17 +2,16 @@
  * POST /api/cron-search
  *
  * Called by the velox-cron Worker on a schedule, or by you with a curl.
- * Requires the X-Cron-Key header to match the CRON_KEY secret.
+ * Requires the X-Velox-Key header.
  *
- * What it does:
- *   1. Takes the N least recently run rows from search_queue
- *   2. Runs one Google Places text search per row
- *   3. Inserts anything it hasn't seen before into leads
- *   4. Scores each new lead
- *   5. Writes the yield back to the queue so you learn what works
+ * What it does, per queued category × suburb:
+ *   1. One Google Places text search (one billed call, up to 20 businesses)
+ *   2. Matches each result against the leads you already have
+ *   3. Inserts anything new, scored
+ *   4. HEALS existing rows that are missing place_id or coordinates
+ *   5. Writes the yield back to search_queue so you learn what works
  *
- * Deliberately does NOT fetch Place Details for every result — see the note
- * above placesTextSearch() for why that matters to your bill.
+ * Deliberately does NOT fetch Place Details per result — see placesTextSearch().
  */
 
 import { scoreLead } from './scoring.js';
@@ -30,21 +29,40 @@ export async function onRequestPost({ request, env }) {
 
   let body = {};
   try { body = await request.json(); } catch { /* defaults are fine */ }
-  const want = clamp(Number(body.searches) || 5, 1, MAX_SEARCHES);
 
-  // Least recently run first. NULL last_run (never run) sorts first.
-  const queue = await db
-    .prepare(
-      `SELECT * FROM search_queue
-        WHERE active = 1
-        ORDER BY (last_run IS NOT NULL), last_run ASC
-        LIMIT ?`
-    )
-    .bind(want)
-    .all();
+  let rows;
 
-  const rows = queue.results || [];
-  if (!rows.length) return json({ searches: 0, message: 'Queue is empty or all paused' });
+  if (body.category && body.suburb) {
+    // Ad-hoc mode: search one combination right now instead of taking the next
+    // from the queue. This exists so the CRM's "Search & Import" button can
+    // call THIS endpoint rather than keeping a second copy of the import logic
+    // in crm.js — two importers drift apart, and the one in crm.js is already
+    // dropping place_id and coordinates.
+    rows = [{
+      id: null,
+      category: String(body.category),
+      // The CRM dropdown sends "Burleigh Heads, QLD"; the database was
+      // normalised to "Burleigh Heads". Storing both spellings is what let one
+      // cafe in twice, so strip the state here for every caller.
+      suburb: String(body.suburb).replace(/,?\s*(QLD|NSW|VIC|SA|WA|TAS|NT|ACT)\s*$/i, '').trim(),
+    }];
+  } else {
+    const want = clamp(Number(body.searches) || 5, 1, MAX_SEARCHES);
+
+    // Least recently run first. NULL last_run (never run) sorts first.
+    const queue = await db
+      .prepare(
+        `SELECT * FROM search_queue
+          WHERE active = 1
+          ORDER BY (last_run IS NOT NULL), last_run ASC
+          LIMIT ?`
+      )
+      .bind(want)
+      .all();
+
+    rows = queue.results || [];
+    if (!rows.length) return json({ searches: 0, message: 'Queue is empty or all paused' });
+  }
 
   const now = new Date().toISOString();
   const summary = [];
@@ -60,16 +78,19 @@ export async function onRequestPost({ request, env }) {
       error = String(err?.message || err);
     }
 
-    let added = 0;
-    let skipped = 0;
+    let added = 0, skipped = 0, healed = 0;
 
     for (const place of places) {
-      const exists = await db
-        .prepare('SELECT id FROM leads WHERE lower(name) = ? AND lower(suburb) = ?')
-        .bind(place.name.toLowerCase(), row.suburb.toLowerCase())
-        .first();
+      const existing = await findExisting(db, place, row.suburb);
 
-      if (exists) { skipped++; continue; }
+      if (existing) {
+        // Already known. Fill in anything missing without touching the rest —
+        // this is how leads imported before place_id existed get their id and
+        // coordinates, without a separate backfill pass.
+        if (await healLead(db, existing, place)) healed++;
+        skipped++;
+        continue;
+      }
 
       const lead = {
         name: place.name,
@@ -79,9 +100,9 @@ export async function onRequestPost({ request, env }) {
         rating: place.rating,
         review_count: place.review_count,
         business_status: place.business_status,
-        // Left deliberately empty. verify.js fills website_status in far more
-        // reliably than Google's website field ever did, and phone is fetched
-        // only for leads you decide to chase.
+        // Left empty on purpose. verify.js finds websites far more reliably
+        // than Google's website field, and a phone number is only worth
+        // fetching for a lead you have decided to ring.
         website: null,
         phone: null,
         website_status: 'unchecked',
@@ -89,26 +110,34 @@ export async function onRequestPost({ request, env }) {
 
       const s = scoreLead(lead);
 
-      await db
-        .prepare(
-          `INSERT INTO leads
-             (name, category, suburb, address, rating, review_count, business_status,
-              website_status, status, referral_source, date_found,
-              lead_score, tier, score_reason)
-           VALUES (?, ?, ?, ?, ?, ?, ?, 'unchecked', 'new', 'cron_search', ?, ?, ?, ?)`
-        )
-        .bind(
-          lead.name, lead.category, lead.suburb, lead.address,
-          lead.rating, lead.review_count, lead.business_status,
-          now.slice(0, 10),
-          s.lead_score, s.tier, s.score_reason
-        )
-        .run();
-
-      added++;
+      try {
+        await db
+          .prepare(
+            `INSERT INTO leads
+               (name, category, suburb, address, rating, review_count, business_status,
+                place_id, lat, lng,
+                website_status, status, referral_source, date_found,
+                lead_score, tier, score_reason)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'unchecked', 'new', 'cron_search', ?, ?, ?, ?)`
+          )
+          .bind(
+            lead.name, lead.category, lead.suburb, lead.address,
+            lead.rating, lead.review_count, lead.business_status,
+            place.place_id, place.lat, place.lng,
+            now.slice(0, 10),
+            s.lead_score, s.tier, s.score_reason
+          )
+          .run();
+        added++;
+      } catch (err) {
+        // The UNIQUE index on place_id can still fire if the same business
+        // turns up under two categories in one run. Not an error worth
+        // failing the whole job for.
+        skipped++;
+      }
     }
 
-    await db
+    if (row.id !== null) await db
       .prepare(
         `UPDATE search_queue
             SET last_run = ?,
@@ -127,15 +156,19 @@ export async function onRequestPost({ request, env }) {
       found: places.length,
       added,
       skipped,
+      healed,
       error,
     });
   }
 
   const totalAdded = summary.reduce((n, s) => n + s.added, 0);
+  const totalHealed = summary.reduce((n, s) => n + s.healed, 0);
+
   return json({
     ran_at: now,
     searches: summary.length,
     new_leads: totalAdded,
+    healed_existing: totalHealed,
     detail: summary,
     next_step: totalAdded
       ? `Run POST /api/verify {"limit":10} to check the ${totalAdded} new leads`
@@ -144,18 +177,80 @@ export async function onRequestPost({ request, env }) {
 }
 
 /**
+ * Find this business among the leads already stored.
+ *
+ * place_id first, because it is exact — Google's own identifier for that
+ * shopfront. Name matching is the fallback for rows imported before place_id
+ * was being stored, and it is the weaker test: matching on name and suburb is
+ * what let "Palm Springs Burleigh" in twice under two spellings of its suburb.
+ */
+async function findExisting(db, place, suburb) {
+  if (place.place_id) {
+    const byId = await db
+      .prepare('SELECT id, place_id, lat, lng, rating FROM leads WHERE place_id = ?')
+      .bind(place.place_id)
+      .first();
+    if (byId) return byId;
+  }
+
+  return await db
+    .prepare(
+      `SELECT id, place_id, lat, lng, rating FROM leads
+        WHERE lower(TRIM(name)) = ? AND lower(TRIM(suburb)) = ?`
+    )
+    .bind(
+      String(place.name || '').trim().toLowerCase(),
+      String(suburb || '').trim().toLowerCase()
+    )
+    .first();
+}
+
+/**
+ * Fill in fields an older row is missing. COALESCE means anything already
+ * stored wins — this only ever adds, never overwrites.
+ * Returns true if it actually changed something.
+ */
+async function healLead(db, existing, place) {
+  const needsId     = !existing.place_id && place.place_id;
+  const needsCoords = (existing.lat === null || existing.lat === undefined) && place.lat !== null;
+  const needsRating = (existing.rating === null || existing.rating === undefined) && place.rating !== null;
+
+  if (!needsId && !needsCoords && !needsRating) return false;
+
+  try {
+    await db
+      .prepare(
+        `UPDATE leads
+            SET place_id     = COALESCE(place_id, ?),
+                lat          = COALESCE(lat, ?),
+                lng          = COALESCE(lng, ?),
+                rating       = COALESCE(rating, ?),
+                review_count = COALESCE(review_count, ?)
+          WHERE id = ?`
+      )
+      .bind(
+        place.place_id, place.lat, place.lng,
+        place.rating, place.review_count,
+        existing.id
+      )
+      .run();
+    return true;
+  } catch {
+    // Two local rows claiming the same place_id would trip the unique index.
+    // Leave the row as it is rather than failing the run.
+    return false;
+  }
+}
+
+/**
  * One text search = one billed API call, returning up to 20 businesses.
  *
- * Note what is NOT here: a Place Details call per result. Legacy text search
- * does not return website or phone, so fetching those for 20 results would
- * turn one call into twenty-one. Since Google's website field is unreliable
- * anyway (that is the whole reason verify.js exists), the cheap path is to
- * take names, addresses and review data from the search, let verify.js find
- * the websites properly, and pull a phone number only for a lead you have
- * decided to ring.
+ * place_id and geometry.location come back in THIS response at no extra cost.
+ * That is the whole reason to capture them here rather than later — a separate
+ * Place Details call per result would turn one billed call into twenty-one.
  *
- * If your crm.js already has a working search function, use that instead of
- * this one — no sense maintaining two.
+ * If crm.js already has a working search function, use that instead of this
+ * one — no sense maintaining two.
  */
 async function placesTextSearch(query, apiKey) {
   const url =
@@ -177,6 +272,9 @@ async function placesTextSearch(query, apiKey) {
     rating: r.rating ?? null,
     review_count: r.user_ratings_total ?? null,
     business_status: r.business_status ?? null,
+    place_id: r.place_id ?? null,
+    lat: r.geometry?.location?.lat ?? null,
+    lng: r.geometry?.location?.lng ?? null,
   }));
 }
 
