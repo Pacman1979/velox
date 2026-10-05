@@ -416,16 +416,6 @@ function classify(probe, tokens, exact, slug = '', suburb = '', phrase = '') {
   // site got missed. Record it and let the caller keep looking.
   if (probe.status >= 400) return null;
 
-  // Built but never switched on. Checked before anything reads the page text,
-  // because a lock screen has almost no text to read.
-  if (probe.finalUrl && LOCKED_PATHS.test(new URL(probe.finalUrl).pathname)) {
-    return {
-      status: 'parked',
-      note: 'Site exists but is locked behind a password — built and never launched. '
-          + 'Same opening as a parked domain: they started and stalled.',
-    };
-  }
-
   const text = probe.text || '';
   if (!text) return null;
 
@@ -450,6 +440,27 @@ function classify(probe, tokens, exact, slug = '', suburb = '', phrase = '') {
   // A for-sale page belongs to a domain investor. Not theirs, not parked by
   // them, not a website. Report nothing and let the caller keep looking.
   if (FOR_SALE_SIGNATURES.some((f) => text.includes(f))) return null;
+
+  // Built but never switched on — a Shopify or Squarespace lock screen.
+  //
+  // This is an ACCUSATION: it says they own the domain and stalled. So it
+  // needs a domain actually tied to them, exactly like the parked check below.
+  //
+  // The first version did not, and it cost us: "The Stoop Barbershop" produced
+  // the guess thestoop.com, which serves a lock screen belonging to somebody
+  // else entirely. It went out as an 80/prime lead with a domain to quote on
+  // the doorstep. A lock screen has almost no text on it, so a guessed one can
+  // almost never be confirmed — and null is the right answer, not a guess.
+  const locked = probe.finalUrl
+    && LOCKED_PATHS.test(new URL(probe.finalUrl).pathname);
+  if (locked) {
+    if (!exact && !phraseHit) return null;
+    return {
+      status: 'parked',
+      note: 'Site exists but is locked behind a password — built and never launched. '
+          + 'Same opening as a parked domain: they started and stalled.',
+    };
+  }
 
   // Parked FIRST, before the name match. A holding page almost always prints
   // the domain name on it, so checking "is their name on the page" first
