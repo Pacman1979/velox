@@ -1,3 +1,8 @@
+// ===========================================================================
+// SAVE THIS FILE AT:  ~/VELOX/functions/api/scoring.js
+// Replaces the existing file. Commit and push — Cloudflare redeploys itself.
+// ===========================================================================
+
 /**
  * Studio Velox — Lead scoring
  *
@@ -62,6 +67,59 @@ export const TIER_THRESHOLDS = [
 ];
 
 // ---------------------------------------------------------------------------
+// Franchises
+// ---------------------------------------------------------------------------
+// The first live cron run scored Bakers Delight, Just Cuts, Ultra Tune, The
+// Cheesecake Shop and Auto Masters as prime or strong "no website" leads.
+// Technically true — the OUTLET has no site of its own. Commercially useless:
+// head office owns the web presence and the franchisee cannot buy one from
+// you. Five wasted doorsteps in one morning.
+//
+// Matched on whole words against the business name, so "Lost Boys Burleigh"
+// is never caught by a brand called "Boys".
+export const FRANCHISE_BRANDS = [
+  // Food
+  'bakers delight', 'brumbys', "baker's delight", 'the cheesecake shop',
+  'michels patisserie', 'donut king', 'muffin break', 'gloria jeans',
+  "gloria jean's", 'the coffee club', 'zarraffas', "zarraffa's", 'jamaica blue',
+  'cafe2u', 'boost juice', 'subway', 'dominos', "domino's", 'red rooster',
+  'guzman y gomez', 'zambrero', 'nandos', "nando's", 'oporto', 'hungry jacks',
+  "hungry jack's", 'kfc', 'mcdonalds', "mcdonald's", 'grilld', "grill'd",
+  'sushi hub', 'roll d', 'crust pizza', 'pizza hut', 'eagle boys',
+  'baskin robbins', 'cold rock', 'ben and jerrys', 'san churro', 'chatime',
+  'gong cha', 'wendys', "wendy's", 'noodle box', 'schnitz', 'betty blue',
+  // Hair and beauty
+  'just cuts', 'price attack', 'stefan', 'toni and guy', 'toni & guy',
+  'hairhouse', 'hairhouse warehouse', 'laser clinics australia', 'ella bache',
+  'endota spa', 'australian skin clinics',
+  // Automotive
+  'ultra tune', 'auto masters', 'midas', 'kmart tyre', 'bob jane',
+  'beaurepaires', 'jax tyres', 'bridgestone select', 'repco authorised',
+  'lube mobile', 'ultratune', 'mycar', 'national tyres', 'tyrepower',
+  // Other trades and services
+  'jims mowing', "jim's mowing", 'jims cleaning', "jim's cleaning",
+  'jims group', "jim's group", 'hire a hubby', 'vip home services',
+  'poolwerx', 'snap fitness', 'anytime fitness', 'f45', 'plus fitness',
+  'curves', 'battery world', 'the groomers', 'aussie pooch mobile',
+];
+
+/**
+ * Is this business a franchise outlet?
+ * Whole-word match, so "boys" never matches inside "Lost Boys Burleigh".
+ */
+export function franchiseBrand(name) {
+  const n = ' ' + String(name || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9'& ]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim() + ' ';
+  for (const brand of FRANCHISE_BRANDS) {
+    if (n.includes(' ' + brand + ' ')) return brand;
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
 // Scoring
 // ---------------------------------------------------------------------------
 
@@ -79,6 +137,18 @@ export function scoreLead(lead = {}) {
       lead_score: 0,
       tier: 'skip',
       score_reason: 'Permanently closed on Google',
+    };
+  }
+
+  // A franchise outlet cannot buy a website from you — head office owns the
+  // web presence. Cap it low so it never reaches your visit list, but keep
+  // the row so the same name is not rediscovered every week.
+  const franchise = franchiseBrand(lead.name);
+  if (franchise) {
+    return {
+      lead_score: 5,
+      tier: 'skip',
+      score_reason: `Franchise outlet (${franchise}) — head office controls the website. Not a free-build lead.`,
     };
   }
 

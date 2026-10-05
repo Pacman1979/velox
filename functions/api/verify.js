@@ -1,3 +1,8 @@
+// ===========================================================================
+// SAVE THIS FILE AT:  ~/VELOX/functions/api/verify.js
+// Replaces the existing file. Commit and push — Cloudflare redeploys itself.
+// ===========================================================================
+
 /**
  * Studio Velox — Lead website verification
  *
@@ -53,7 +58,26 @@ const PARKED_SIGNATURES = [
   'if you are the site owner',
   'your new website is on its way',
   'placeholder page',
+  // A built-but-unlaunched store. communitysixbarbers.com/password is a
+  // Shopify lock screen — they paid for a site and never turned it on, which
+  // is the SAME conversation as a parked domain, not a working website.
+  'enter store using password',
+  'enter using password',
+  'opening soon',
+  'store is password protected',
+  'this site is password protected',
+  'password protected page',
+  'this store is currently unavailable',
 ];
+
+/**
+ * URL paths that mean "built, not launched".
+ *
+ * Shopify locks a pre-launch store at /password, Squarespace and Wix use
+ * /coming-soon. The path is a harder signal than page text, so it stands on
+ * its own — no name match required.
+ */
+const LOCKED_PATHS = /\/(password|coming-soon|comingsoon|under-construction)\/?$/i;
 
 // A domain investor is sitting on it waiting for an offer. Critically this
 // means the domain is NOT the business's — so it must never be reported as
@@ -269,7 +293,7 @@ async function verifyLead(lead, budget) {
       };
     } else if (budget.spend()) {
       const probe = await probeUrl(known);
-      const verdict = classify(probe, tokens, true);
+      const verdict = classify(probe, tokens, true, labelOf(known), lead.suburb);
       if (verdict) {
         return {
           website_status: verdict.status,
@@ -303,7 +327,7 @@ async function verifyLead(lead, budget) {
       notes.push(`${domain}: no response`);
       continue;
     }
-    const verdict = classify(probe, tokens, exact);
+    const verdict = classify(probe, tokens, exact, domain.split('.')[0], lead.suburb);
     if (verdict) {
       return {
         website_status: verdict.status,
@@ -369,7 +393,7 @@ function makeBudget(max) {
  *               When false we are guessing, so a page that does not mention
  *               them means "not theirs", never "their domain expired".
  */
-function classify(probe, tokens, exact) {
+function classify(probe, tokens, exact, slug = '', suburb = '') {
   if (!probe.reached) return null;
 
   if (probe.finalUrl && isSocial(probe.finalUrl)) {
@@ -387,6 +411,16 @@ function classify(probe, tokens, exact) {
   // whether they own a working .com — which is exactly how Lakeview's real
   // site got missed. Record it and let the caller keep looking.
   if (probe.status >= 400) return null;
+
+  // Built but never switched on. Checked before anything reads the page text,
+  // because a lock screen has almost no text to read.
+  if (probe.finalUrl && LOCKED_PATHS.test(new URL(probe.finalUrl).pathname)) {
+    return {
+      status: 'parked',
+      note: 'Site exists but is locked behind a password — built and never launched. '
+          + 'Same opening as a parked domain: they started and stalled.',
+    };
+  }
 
   const text = probe.text || '';
   if (!text) return null;
@@ -408,6 +442,34 @@ function classify(probe, tokens, exact) {
       status: 'parked',
       note: `Holding page — found "${parked}". Domain is owned but nothing is built.`,
     };
+  }
+
+  // A truncated guess cannot prove itself.
+  //
+  // "Palm Beach Bakery" produced the guess palmbeach.com. Its tokens are
+  // "palm" and "beach" — and a page about Palm Beach, Florida inevitably
+  // contains both, because those are the very words the guess was built FROM.
+  // It came back "live", which is the expensive direction of the error: it
+  // tells you to skip a lead that may well have nothing at all.
+  //
+  // So for a guessed domain, at least one matched word must be a word the
+  // domain did not already supply. An exact domain is exempt — there the
+  // whole business name IS the domain, and that is the point.
+  const proof = exact ? matched : matched.filter((t) => !slug.includes(t));
+  if (confident && !exact && proof.length === 0) {
+    // One way out: does the page put them in the right suburb? That is a word
+    // the domain did not supply, so it is real evidence.
+    //
+    // This is what keeps the guard honest. Without it, "Hidden Perk Cafe"
+    // could never be confirmed at hiddenperk.com.au — the truncation only
+    // dropped the stopword "cafe", so there is nothing left to prove with,
+    // and we would report "no website" to a business that has one. That is
+    // the error this whole file exists to avoid.
+    const sub = String(suburb || '').toLowerCase().trim();
+    const subSlug = sub.replace(/[^a-z0-9]+/g, '');
+    const suburbIsTheDomain = subSlug && slug.includes(subSlug);
+    const placesThem = sub && !suburbIsTheDomain && text.includes(sub);
+    if (!placesThem) return null;
   }
 
   // A confident name match is safe to trust from any domain.
@@ -516,7 +578,7 @@ async function probeUrl(rawUrl) {
  * matters as much as the full name.
  */
 export function candidateDomains(name) {
-  const words = String(name || '')
+  const words = deaccent(name)
     .toLowerCase()
     .replace(/&/g, ' and ')
     .replace(/['’]/g, '')
@@ -557,12 +619,23 @@ export function candidateDomains(name) {
 }
 
 function nameTokens(name) {
-  return String(name || '')
+  return deaccent(name)
     .toLowerCase()
     .replace(/['’]/g, '')
     .replace(/[^a-z0-9]+/g, ' ')
     .split(/\s+/)
     .filter((w) => w.length >= 3 && !STOPWORDS.has(w));
+}
+
+/**
+ * Fold accented letters down to plain ASCII before slugging.
+ *
+ * "Léa_hair" used to become "lahair" — the e was dropped entirely rather than
+ * folded, so leahair.com.au was never even tested. NFD splits the letter from
+ * its accent, then the combining mark is removed.
+ */
+function deaccent(s) {
+  return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
 function isSocial(url) {
@@ -588,6 +661,11 @@ function visibleTextLength(html) {
 function isAggregator(url) {
   const h = hostOf(url);
   return AGGREGATOR_HOSTS.some((a) => h === a || h.endsWith('.' + a));
+}
+
+/** The first label of a hostname: "https://palmbeach.com/x" -> "palmbeach". */
+function labelOf(url) {
+  return hostOf(url).replace(/^www\./, '').split('.')[0];
 }
 
 function hostOf(url) {
