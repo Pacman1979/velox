@@ -54,6 +54,7 @@ export async function onRequestPost({ request, env }) {
   try { body = await request.json(); } catch { /* dry run is the default */ }
   const apply = body.apply === true;
 
+  try {
   const all = (await db.prepare('SELECT * FROM leads ORDER BY id ASC').all()).results || [];
   const groups = findGroups(all);
 
@@ -82,22 +83,39 @@ export async function onRequestPost({ request, env }) {
   }
 
   let merged = 0, deleted = 0;
+
   for (const group of groups) {
     const keeper = pickKeeper(group);
     const losers = group.filter((l) => l.id !== keeper.id);
     const recover = fieldsToRecover(keeper, losers);
 
+    // DELETE FIRST, THEN ENRICH, AND BOTH IN ONE BATCH.
+    //
+    // The first version updated the keeper before deleting the losers, which
+    // threw a bare Cloudflare 1101. There is a UNIQUE index on place_id: for
+    // the moment between the update and the delete, two rows would hold the
+    // same id, and SQLite refuses. The dry run never saw it because the dry
+    // run writes nothing.
+    //
+    // db.batch runs the statements in order inside one transaction, so either
+    // the whole merge happens or none of it does. A half-merge — losers gone,
+    // keeper never enriched — would lose the place_id and coordinates for
+    // good, with nothing left to recover them from.
+    const statements = losers.map((l) =>
+      db.prepare('DELETE FROM leads WHERE id = ?').bind(l.id)
+    );
+
     if (Object.keys(recover).length) {
       const sets = Object.keys(recover).map((k) => `${k} = ?`).join(', ');
-      await db.prepare(`UPDATE leads SET ${sets} WHERE id = ?`)
-        .bind(...Object.values(recover), keeper.id).run();
-      merged++;
+      statements.push(
+        db.prepare(`UPDATE leads SET ${sets} WHERE id = ?`)
+          .bind(...Object.values(recover), keeper.id)
+      );
     }
 
-    for (const l of losers) {
-      await db.prepare('DELETE FROM leads WHERE id = ?').bind(l.id).run();
-      deleted++;
-    }
+    await db.batch(statements);
+    deleted += losers.length;
+    if (Object.keys(recover).length) merged++;
   }
 
   return json({
@@ -107,6 +125,16 @@ export async function onRequestPost({ request, env }) {
     rows_deleted: deleted,
     next_step: 'Open the CRM — the duplicates are gone and the survivor kept your notes.',
   });
+
+  } catch (err) {
+    // Without this, anything thrown here is a bare Cloudflare 1101 with no
+    // clue what went wrong. That is exactly how this bug presented.
+    return json({
+      error: String(err?.message || err),
+      hint: 'A UNIQUE constraint failure means two rows briefly held the same '
+          + 'place_id. Nothing was changed — the batch is all-or-nothing.',
+    }, 500);
+  }
 }
 
 /** GET is the dry run, so you can look at it in a browser. */
