@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<!-- ===========================================================================
+     SAVE THIS FILE AT:  ~/VELOX/today.html
+     Sits beside crm.html at the repo root. It will be live at
+     studiovelox.com/today. Same PIN as the CRM.
+     =========================================================================== -->
+
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Studio Velox — This Morning</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0a1628">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Lato:wght@300;400;700&family=Oswald:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ---------------------------------------------------------------------------
+   Built for a phone held in one hand on a footpath, not for a laptop.
+   Everything is big, the opener is the biggest thing on each card, and every
+   action is a thumb-sized target.
+   --------------------------------------------------------------------------- */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#0a1628;--navy2:#122040;--gold:#e8a020;--gold2:#f5b732;--white:#fff;
+  --offwhite:#f8f6f1;--gray:#6b7280;--border:#e2e8f0;--red:#c0392b;--green:#1b6b3a;
+  --orange:#e05a2b;--font-head:'Playfair Display',Georgia,serif;
+  --font-body:'Lato',sans-serif;--font-acc:'Oswald',sans-serif}
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--font-body);background:var(--offwhite);color:var(--navy);
+  min-height:100vh;font-size:17px;line-height:1.5}
+
+/* PIN — same gate as the CRM, same sessionStorage key, so one unlock does both */
+#pin-screen{position:fixed;inset:0;background:var(--navy);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;z-index:1000;padding:24px}
+.pin-logo{font-family:var(--font-acc);font-size:20px;font-weight:600;color:#fff;
+  letter-spacing:.04em;margin-bottom:36px}.pin-logo span{color:var(--gold)}
+.pin-title{font-family:var(--font-head);font-size:28px;font-weight:900;color:#fff;margin-bottom:28px;text-align:center}
+.pin-dots{display:flex;gap:16px;margin-bottom:28px}
+.pin-dot{width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.1);
+  border:2px solid rgba(255,255,255,.2);transition:all .15s}
+.pin-dot.filled{background:var(--gold);border-color:var(--gold)}
+.pin-dot.error{background:var(--red);border-color:var(--red)}
+.pin-keypad{display:grid;grid-template-columns:repeat(3,76px);gap:12px}
+.pin-key{width:76px;height:76px;border:1.5px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.04);color:#fff;font-family:var(--font-acc);font-size:24px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center}
+.pin-key:active{background:rgba(232,160,32,.25)}
+.pin-error{font-family:var(--font-acc);font-size:13px;letter-spacing:.1em;color:var(--red);
+  text-transform:uppercase;margin-top:18px;min-height:20px}
+#app{display:none}
+
+/* HEADER */
+header{background:var(--navy);padding:18px 18px 20px;position:sticky;top:0;z-index:50}
+.brand{font-family:var(--font-acc);font-size:13px;letter-spacing:.14em;color:#5a7090;
+  text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}
+.brand a{color:var(--gold);text-decoration:none;font-size:12px;border:1px solid rgba(232,160,32,.3);
+  padding:5px 11px}
+h1{font-family:var(--font-head);font-size:30px;font-weight:900;color:#fff;margin-top:8px;line-height:1.1}
+h1 em{font-style:normal;color:var(--gold)}
+.sub{color:#b0bfd4;font-size:15px;margin-top:5px}
+
+/* BANNERS */
+.bar{padding:14px 18px;font-size:15px;line-height:1.45}
+.bar-due{background:var(--red);color:#fff}
+.bar-due b{display:block;font-family:var(--font-acc);letter-spacing:.12em;text-transform:uppercase;
+  font-size:12px;margin-bottom:5px;opacity:.9}
+.bar-due a{color:#fff}
+.bar-route{background:#fff;border-bottom:1px solid var(--border);display:flex;gap:10px;
+  align-items:center;flex-wrap:wrap}
+.route-btn{font-family:var(--font-acc);font-size:13px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;background:var(--navy);color:#fff;padding:13px 18px;
+  text-decoration:none;flex:1;text-align:center;min-width:180px}
+.route-meta{font-size:14px;color:var(--gray)}
+
+/* CARD */
+.stops{padding:16px 14px 60px;max-width:760px;margin:0 auto}
+.card{background:#fff;border:1px solid var(--border);border-left:5px solid var(--gold);
+  margin-bottom:16px;overflow:hidden}
+.card.done{opacity:.45;border-left-color:var(--green)}
+.card-top{padding:16px 16px 12px;display:flex;gap:12px;align-items:flex-start}
+.num{font-family:var(--font-head);font-size:30px;font-weight:900;color:var(--gold);
+  line-height:1;min-width:34px}
+.who{flex:1;min-width:0}
+.who h2{font-family:var(--font-head);font-size:22px;font-weight:800;line-height:1.2;overflow-wrap:anywhere}
+.meta{font-size:14.5px;color:var(--gray);margin-top:4px}
+.meta b{color:var(--navy)}
+.badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.tag{font-family:var(--font-acc);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;
+  padding:4px 9px;border:1px solid var(--border);color:var(--gray)}
+.tag-score{background:var(--navy);color:var(--gold2);border-color:var(--navy);font-weight:600}
+.tag-gap{color:#a8420d;border-color:rgba(168,66,13,.3);font-weight:600}
+.tag-walk{color:var(--gray)}
+
+/* the thing he actually reads */
+.opener{background:var(--offwhite);border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);padding:16px;font-size:19px;line-height:1.5;
+  font-family:var(--font-head);font-weight:700}
+.when{padding:10px 16px;font-size:14px;color:var(--gray);background:#fffdf7}
+.note{padding:0 16px 12px;font-size:14.5px;color:var(--gray)}
+.note b{color:var(--navy)}
+
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
+.act{background:#fff;border:none;padding:15px 8px;font-family:var(--font-acc);font-size:13px;
+  font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--navy);
+  cursor:pointer;text-decoration:none;text-align:center;display:block}
+.act:active{background:var(--offwhite)}
+.act-call{color:var(--green)}
+.act-map{color:var(--navy)}
+.outcome{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border)}
+.out{background:#fff;border:none;padding:14px 4px;font-family:var(--font-acc);font-size:12px;
+  font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.out-yes{color:var(--green)}.out-back{color:var(--orange)}.out-no{color:var(--red)}
+.out:active{opacity:.6}
+.out.chosen{background:var(--navy);color:#fff}
+
+.section-h{font-family:var(--font-acc);font-size:13px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--gray);margin:28px 0 12px;padding-left:4px}
+.calls .card{border-left-color:var(--gray)}
+.empty{text-align:center;padding:60px 24px;color:var(--gray)}
+.empty h2{font-family:var(--font-head);font-size:24px;color:var(--navy);margin-bottom:10px}
+.loading{text-align:center;padding:60px;font-family:var(--font-acc);letter-spacing:.12em;
+  text-transform:uppercase;color:var(--gray);font-size:13px}
+footer{background:var(--navy);padding:20px;text-align:center;font-family:var(--font-acc);
+  font-size:12px;color:#4a6080;letter-spacing:.06em}
+footer span{color:var(--gold)}
+@media(min-width:720px){
+  body{font-size:18px}
+  .stops{padding:22px 20px 80px}
+  .opener{font-size:21px}
+}
+</style>
+</head>
+<body>
+
+<div id="pin-screen">
+  <div class="pin-logo">STUD<span>IO</span> VELOX<span>.</span></div>
+  <div class="pin-title">This Morning</div>
+  <div class="pin-dots">
+    <div class="pin-dot" id="d0"></div><div class="pin-dot" id="d1"></div>
+    <div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div>
+  </div>
+  <div class="pin-keypad">
+    <button class="pin-key" onclick="pp('1')">1</button>
+    <button class="pin-key" onclick="pp('2')">2</button>
+    <button class="pin-key" onclick="pp('3')">3</button>
+    <button class="pin-key" onclick="pp('4')">4</button>
+    <button class="pin-key" onclick="pp('5')">5</button>
+    <button class="pin-key" onclick="pp('6')">6</button>
+    <button class="pin-key" onclick="pp('7')">7</button>
+    <button class="pin-key" onclick="pp('8')">8</button>
+    <button class="pin-key" onclick="pp('9')">9</button>
+    <span></span>
+    <button class="pin-key" onclick="pp('0')">0</button>
+    <button class="pin-key del" onclick="pd()">←</button>
+  </div>
+  <div class="pin-error" id="pin-error"></div>
+</div>
+
+<div id="app">
+  <header>
+    <div class="brand">
+      <span>Studio Velox</span>
+      <a href="/crm">Full CRM →</a>
+    </div>
+    <h1 id="hdr">This <em>Morning</em></h1>
+    <div class="sub" id="sub">Working out where to send you…</div>
+  </header>
+
+  <div id="due" class="bar bar-due" style="display:none"></div>
+  <div id="route" class="bar bar-route" style="display:none"></div>
+
+  <div class="stops" id="body">
+    <div class="loading">Loading your round…</div>
+  </div>
+
+  <footer><p>STUD<span>IO</span> <span>VE</span>LOX<span>.</span> &nbsp;·&nbsp; Private</p></footer>
+</div>
+
+<script>
+// ── PIN (same gate and same session key as /crm) ────────────────────────────
+let pin='';
+function pp(d){if(!d||pin.length>=4)return;pin+=d;dots();if(pin.length===4)checkPin();}
+function pd(){pin=pin.slice(0,-1);dots();document.getElementById('pin-error').textContent='';}
+function dots(){for(let i=0;i<4;i++)document.getElementById('d'+i).classList.toggle('filled',i<pin.length);}
+async function checkPin(){
+  try{
+    const r=await fetch('/api/checkpin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin})});
+    const {ok}=await r.json();
+    if(ok){unlock();sessionStorage.setItem('sv_crm','1');}else pinErr();
+  }catch(e){pinErr();}
+}
+function pinErr(){
+  document.querySelectorAll('.pin-dot').forEach(x=>{x.classList.remove('filled');x.classList.add('error');});
+  document.getElementById('pin-error').textContent='Incorrect PIN';
+  setTimeout(()=>{document.querySelectorAll('.pin-dot').forEach(x=>x.classList.remove('error'));
+    document.getElementById('pin-error').textContent='';pin='';},1200);
+}
+function unlock(){
+  document.getElementById('pin-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  load();
+}
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('pin-screen').style.display==='none')return;
+  if(e.key>='0'&&e.key<='9')pp(e.key);
+  if(e.key==='Backspace')pd();
+});
+
+// ── LOAD ────────────────────────────────────────────────────────────────────
+const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+let DATA=null;
+
+async function load(){
+  const suburb=new URLSearchParams(location.search).get('suburb');
+  try{
+    const r=await fetch('/api/today'+(suburb?('?suburb='+encodeURIComponent(suburb)):''));
+    DATA=await r.json();
+    if(DATA.error)throw new Error(DATA.error);
+    render();
+  }catch(e){
+    document.getElementById('body').innerHTML=
+      '<div class="empty"><h2>Couldn\'t load your round</h2><p>'+esc(e.message)+'</p></div>';
+  }
+}
+
+function render(){
+  const d=DATA, round=d.round;
+
+  // follow-ups first — a promise you made beats a cold door
+  const due=d.followups||[];
+  const dueEl=document.getElementById('due');
+  if(due.length){
+    dueEl.style.display='block';
+    dueEl.innerHTML='<b>'+due.length+' follow-up'+(due.length>1?'s':'')+' due</b>'
+      +due.map(f=>esc(f.name)+(f.notes?' — '+esc(f.notes):'')).join('<br>');
+  }
+
+  if(!round){
+    document.getElementById('sub').textContent='Nothing to visit';
+    document.getElementById('body').innerHTML=
+      '<div class="empty"><h2>Nothing left to walk</h2><p>'+esc(d.message||'')+'</p></div>';
+    return;
+  }
+
+  document.getElementById('hdr').innerHTML='This morning: <em>'+esc(round.suburb)+'</em>';
+  const walk=round.walk_metres?(round.walk_metres<1000
+      ? round.walk_metres+'m on foot'
+      : (round.walk_metres/1000).toFixed(1)+'km'):'';
+  document.getElementById('sub').textContent=
+    round.stops.length+' door'+(round.stops.length===1?'':'s')
+    +(round.calls.length?' · '+round.calls.length+' to ring':'')
+    +(walk?' · '+walk:'');
+
+  if(round.maps_url){
+    const el=document.getElementById('route');
+    el.style.display='flex';
+    el.innerHTML='<a class="route-btn" href="'+esc(round.maps_url)+'" target="_blank" rel="noopener">Open the route in Maps</a>'
+      +'<span class="route-meta">'+esc(round.why)+'</span>';
+  }
+
+  let html=round.stops.map((s,i)=>card(s,i+1)).join('');
+  if(round.calls.length){
+    html+='<div class="section-h">Ring these — no shopfront to walk into</div>'
+      +'<div class="calls">'+round.calls.map(s=>card(s,null)).join('')+'</div>';
+  }
+  if(due.length){
+    html+='<div class="section-h">Follow-ups due</div>'
+      +'<div class="calls">'+due.map(s=>card(s,null)).join('')+'</div>';
+  }
+  document.getElementById('body').innerHTML=html;
+}
+
+function card(s,n){
+  const stars=s.rating?esc(Number(s.rating).toFixed(1))+'★':'';
+  const revs=s.review_count?esc(s.review_count)+' reviews':'';
+  const tel=s.phone?String(s.phone).replace(/\s/g,''):'';
+  return `
+  <div class="card" id="c-${s.id}">
+    <div class="card-top">
+      ${n?`<div class="num">${n}</div>`:''}
+      <div class="who">
+        <h2>${esc(s.name)}</h2>
+        <div class="meta">${[stars,revs].filter(Boolean).join(' · ')}${s.address?'<br>'+esc(s.address):''}</div>
+        <div class="badges">
+          <span class="tag tag-score">${esc(s.lead_score)} ${esc(s.tier||'')}</span>
+          <span class="tag tag-gap">${esc(gapLabel(s.website_status))}</span>
+          ${s.contact_name?`<span class="tag">Ask for ${esc(s.contact_name)}</span>`:''}
+          ${s.walk_m?`<span class="tag tag-walk">${esc(s.walk_m)}m from last</span>`:''}
+        </div>
+      </div>
+    </div>
+
+    <div class="opener">${esc(s.opener)}</div>
+    <div class="when">${esc(s.best_time)}</div>
+    ${s.notes?`<div class="note"><b>Your note:</b> ${esc(s.notes)}</div>`:''}
+    ${s.real_website?`<div class="note"><b>Check on your phone first:</b> ${esc(s.real_website)}</div>`:''}
+
+    <div class="actions">
+      ${tel?`<a class="act act-call" href="tel:${esc(tel)}">Call ${esc(s.phone)}</a>`
+           :`<span class="act" style="color:#bbb">No phone</span>`}
+      <a class="act act-map" href="${esc(s.map_link)}" target="_blank" rel="noopener">Map</a>
+    </div>
+    <div class="outcome">
+      <button class="out out-yes"  onclick="mark(${s.id},'contacted',this)">Spoke to them</button>
+      <button class="out out-back" onclick="mark(${s.id},'follow_up',this)">Come back</button>
+      <button class="out out-no"   onclick="mark(${s.id},'skip',this)">Not interested</button>
+    </div>
+  </div>`;
+}
+
+const GAP={none:'No website',parked:'Domain parked',expired:'Domain expired',
+  thin:'Stub site',aggregator:'Listing page only',social_only:'Social only'};
+function gapLabel(w){return GAP[w]||w||'';}
+
+// ── MARK THE OUTCOME ON THE SPOT ────────────────────────────────────────────
+// Standing outside the shop, before you forget. Writes straight to the CRM.
+async function mark(id,status,btn){
+  const card=document.getElementById('c-'+id);
+  card.querySelectorAll('.out').forEach(b=>b.classList.remove('chosen'));
+  btn.classList.add('chosen');
+
+  const today=new Date().toISOString().slice(0,10);
+  const body={id,status};
+  if(status==='contacted'||status==='follow_up'){
+    body.date_contacted=today;
+    body.contact_method='walk_in';
+  }
+  if(status==='follow_up'){
+    // A week out. Changeable in the CRM, but a date you will actually see
+    // beats no date at all.
+    const d=new Date();d.setDate(d.getDate()+7);
+    body.follow_up_date=d.toISOString().slice(0,10);
+  }
+
+  try{
+    const r=await fetch('/api/leads',{method:'PATCH',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    card.classList.add('done');
+  }catch(e){
+    btn.classList.remove('chosen');
+    btn.textContent='Failed — retry';
+  }
+}
+
+if(sessionStorage.getItem('sv_crm')==='1')unlock();
+</script>
+</body>
+</html>
