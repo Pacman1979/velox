@@ -1,3 +1,8 @@
+-- ===========================================================================
+-- SAVE THIS FILE AT:  ~/VELOX/migrations/002_search_queue.sql
+-- New file. Sits alongside 001, 003, 004, 005 — nothing is replaced.
+-- ===========================================================================
+
 -- Studio Velox — search queue for the weekly cron
 --
 --   npx wrangler d1 execute velox_leads --remote --file=./migrations/002_search_queue.sql
