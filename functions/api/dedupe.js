@@ -166,6 +166,7 @@ function sameBusiness(a, b) {
   const wa = site(a), wb = site(b);
   if (wa && wb && wa === wb) return 'same website';
 
+
   const na = norm(a.name), nb = norm(b.name);
   if (!na || !nb) return null;
   if (na === nb) return 'identical name and suburb';
@@ -274,13 +275,49 @@ function norm(s) {
     .replace(/[^a-z0-9]+/g, '');
 }
 
-/** Hostname only, so http/https and a trailing slash do not make two sites. */
+/**
+ * Hosts that thousands of different businesses share.
+ *
+ * This list exists because the first dry run proposed merging "Espressions
+ * cafe" into "Fletcher's Pantry & Espresso" — two unrelated cafes whose only
+ * web presence is an Instagram page. Comparing hostnames alone, every
+ * Instagram-only lead in the database is the same business.
+ *
+ * For these, the PATH is the identity: instagram.com/woodboxcafe is not
+ * instagram.com/espressions. For an ordinary domain the hostname is the
+ * identity and the path is noise, because /menu and /contact are one site.
+ */
+const SHARED_HOSTS = [
+  'instagram.com', 'facebook.com', 'fb.com', 'linktr.ee', 'tiktok.com',
+  'twitter.com', 'x.com', 'linkedin.com', 'youtube.com',
+  'ubereats.com', 'doordash.com', 'menulog.com.au', 'deliveroo.com.au',
+  'ozfoodhunter.com.au', 'foodiemate.com.au', 'hungryhungry.com',
+  'tripadvisor.com', 'tripadvisor.com.au', 'zomato.com', 'yelp.com',
+  'yelp.com.au', 'opentable.com', 'restaurantguru.com', 'beanhunter.com',
+  'yellowpages.com.au', 'truelocal.com.au', 'localsearch.com.au',
+  'hotfrog.com.au', 'quandoo.com.au', 'now-book-it.com', 'square.site',
+  'wixsite.com', 'myshopify.com', 'business.site', 'godaddysites.com',
+  'weebly.com', 'blogspot.com', 'wordpress.com', 'squarespace.com',
+  'bookwhen.com', 'fresha.com', 'booksy.com', 'timely.com',
+];
+
+/**
+ * A comparable identity for a lead's web presence, or '' when there is none
+ * worth comparing. Strips www, http/https and a trailing slash.
+ */
 function site(l) {
   const u = str(l.real_website) || str(l.website);
   if (!u) return '';
   try {
-    return new URL(/^https?:\/\//i.test(u) ? u : `https://${u}`)
-      .hostname.toLowerCase().replace(/^www\./, '');
+    const url = new URL(/^https?:\/\//i.test(u) ? u : `https://${u}`);
+    const host = url.hostname.toLowerCase().replace(/^www\./, '');
+    const shared = SHARED_HOSTS.some((h) => host === h || host.endsWith('.' + h));
+    if (!shared) return host;
+
+    // A shared platform. The handle is the business, so a bare
+    // instagram.com with no path identifies nobody — return nothing.
+    const path = url.pathname.toLowerCase().replace(/\/+$/, '');
+    return path && path !== '' ? host + path : '';
   } catch {
     return '';
   }
