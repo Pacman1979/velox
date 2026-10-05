@@ -298,10 +298,17 @@ function openerFor(l) {
       // Deliberately not "one of the best-rated <category>" — that produced
       // "best-rated barber" and "best-rated bakery" from the same template,
       // and pluralising a Google category string correctly is a losing game.
+      // Asked, not asserted. The verifier is good but it is not infallible —
+      // it guesses domains, and a business whose name is mostly common words
+      // can slip through as "none" when they have a perfectly good site.
+      // "Have I missed it?" costs nothing and cannot embarrass you. If they
+      // say yes and give you the address, that IS the opening: their customers
+      // could not find it either.
       return numbers
         ? `"You've got ${numbers}. That's one of the best I found anywhere in `
-          + `${l.suburb || 'the area'} — and I couldn't find a website for you at all."`
-        : `"I went looking for you online and couldn't find a website anywhere."`;
+          + `${l.suburb || 'the area'} — but I went looking for your website and `
+          + `couldn't find one. Have I missed it?"`
+        : `"I went looking for your website and couldn't find one — have I missed it?"`;
   }
 }
 

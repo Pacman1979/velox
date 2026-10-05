@@ -270,6 +270,10 @@ export async function onRequestGet({ request, env }) {
 
 async function verifyLead(lead, budget) {
   const tokens = nameTokens(lead.name);
+  // The full name, normalised the same way page text is: lowercase, accents
+  // folded, punctuation collapsed to single spaces.
+  const phrase = deaccent(lead.name).toLowerCase()
+    .replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, ' ').trim();
   const notes = [];
   let listedSiteDead = false;
   let fallback = null;   // social or aggregator page, used only if nothing better turns up
@@ -293,7 +297,7 @@ async function verifyLead(lead, budget) {
       };
     } else if (budget.spend()) {
       const probe = await probeUrl(known);
-      const verdict = classify(probe, tokens, true, labelOf(known), lead.suburb);
+      const verdict = classify(probe, tokens, true, labelOf(known), lead.suburb, phrase);
       if (verdict) {
         return {
           website_status: verdict.status,
@@ -327,7 +331,7 @@ async function verifyLead(lead, budget) {
       notes.push(`${domain}: no response`);
       continue;
     }
-    const verdict = classify(probe, tokens, exact, domain.split('.')[0], lead.suburb);
+    const verdict = classify(probe, tokens, exact, domain.split('.')[0], lead.suburb, phrase);
     if (verdict) {
       return {
         website_status: verdict.status,
@@ -393,7 +397,7 @@ function makeBudget(max) {
  *               When false we are guessing, so a page that does not mention
  *               them means "not theirs", never "their domain expired".
  */
-function classify(probe, tokens, exact, slug = '', suburb = '') {
+function classify(probe, tokens, exact, slug = '', suburb = '', phrase = '') {
   if (!probe.reached) return null;
 
   if (probe.finalUrl && isSocial(probe.finalUrl)) {
@@ -427,7 +431,21 @@ function classify(probe, tokens, exact, slug = '', suburb = '') {
 
   const hijack = HIJACK_SIGNATURES.filter((s) => text.includes(s));
   const matched = tokens.filter((t) => text.includes(t));
-  const confident = nameMatches(matched, tokens, exact);
+
+  // Their WHOLE NAME, as a phrase, on the page. This outranks everything else.
+  //
+  // Without it, "Quest Coffee Roasters" was being reported as having no
+  // website at all. "Coffee" and "Roasters" are stopwords, so the only
+  // distinguishing token left is "quest" — and a single token is never trusted
+  // on a guessed domain, for the good reason that one common word proves
+  // nothing. So questcoffee.com.au could be reached, read, and discarded.
+  //
+  // A page carrying the full business name is a different kind of evidence
+  // from a word that happens to appear on it. Over-confirming costs a missed
+  // lead; under-confirming puts you on a doorstep telling a business with a
+  // good website that they haven't got one.
+  const phraseHit = matchesPhrase(text, phrase);
+  const confident = phraseHit || nameMatches(matched, tokens, exact);
 
   // A for-sale page belongs to a domain investor. Not theirs, not parked by
   // them, not a website. Report nothing and let the caller keep looking.
@@ -455,8 +473,11 @@ function classify(probe, tokens, exact, slug = '', suburb = '') {
   // So for a guessed domain, at least one matched word must be a word the
   // domain did not already supply. An exact domain is exempt — there the
   // whole business name IS the domain, and that is the point.
+  // The phrase match is exempt from the guard below. That guard is about
+  // circular TOKEN counting — a page containing the words the domain was built
+  // from. A complete business name, in order, is different evidence.
   const proof = exact ? matched : matched.filter((t) => !slug.includes(t));
-  if (confident && !exact && proof.length === 0) {
+  if (confident && !phraseHit && !exact && proof.length === 0) {
     // One way out: does the page put them in the right suburb? That is a word
     // the domain did not supply, so it is real evidence.
     //
@@ -525,6 +546,28 @@ function classify(probe, tokens, exact, slug = '', suburb = '') {
  * Culture Cafe" on the word "roots" alone, and garyngary.com claim
  * "Gary & Maddie" on "gary".
  */
+/**
+ * Does the page carry the business's full name?
+ *
+ * Checked twice: as written, then with every separator stripped, because
+ * markup splits names ("Quest<span>Coffee</span>") and URLs join them
+ * ("quest-coffee-roasters"). The squashed pass only looks at the first 20k
+ * characters — the title, header and nav, where a business names itself — to
+ * keep it off the CPU budget.
+ */
+function matchesPhrase(text, phrase) {
+  if (!phrase || phrase.length < 8 || !text) return false;
+  if (text.includes(phrase)) return true;
+  const squashedNeedle = phrase.replace(/[^a-z0-9]+/g, '');
+  if (squashedNeedle.length < 8) return false;
+  // Tags out first, or "<h1>Quest</h1><span>Coffee</span>" squashes to
+  // "h1questh1spancoffee" and the name is still broken up by the markup.
+  return text.slice(0, 20000)
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/[^a-z0-9]+/g, '')
+    .includes(squashedNeedle);
+}
+
 function nameMatches(matched, tokens, exact) {
   if (!tokens.length) return false;
   const ratio = matched.length / tokens.length;
