@@ -81,7 +81,15 @@ export async function onRequestPost({ request, env }) {
     let added = 0, skipped = 0, healed = 0;
 
     for (const place of places) {
-      const existing = await findExisting(db, place, row.suburb);
+      // Where the business ACTUALLY is, not where we searched.
+      //
+      // Google returns results in a radius, not inside a boundary, so a search
+      // for "bakery in Burleigh Heads" returns Palm Beach shops too. Filing
+      // those under Burleigh Heads let Paris Brest in twice, sends the morning
+      // page walking to the wrong suburb, and makes the per-suburb yield
+      // numbers in search_queue meaningless.
+      const suburb = suburbFromAddress(place.address) || row.suburb;
+      const existing = await findExisting(db, place, suburb);
 
       if (existing) {
         // Already known. Fill in anything missing without touching the rest —
@@ -95,7 +103,7 @@ export async function onRequestPost({ request, env }) {
       const lead = {
         name: place.name,
         category: row.category,
-        suburb: row.suburb,
+        suburb,
         address: place.address,
         rating: place.rating,
         review_count: place.review_count,
@@ -276,6 +284,24 @@ async function placesTextSearch(query, apiKey) {
     lat: r.geometry?.location?.lat ?? null,
     lng: r.geometry?.location?.lng ?? null,
   }));
+}
+
+/**
+ * Pull the suburb out of a Google formatted_address.
+ *
+ *   "1073 Gold Coast Hwy, Palm Beach QLD 4221, Australia"  ->  "Palm Beach"
+ *   "Shop 1/100 Burleigh St, Burleigh Heads QLD 4220, …"   ->  "Burleigh Heads"
+ *
+ * Returns null when the address is not in that shape, and the caller falls
+ * back to the suburb that was searched.
+ */
+function suburbFromAddress(address) {
+  if (!address) return null;
+  // (?:^|,) because a shop with no street number has no leading comma:
+  // "Tweed Heads NSW 2485, Australia".
+  const m = String(address)
+    .match(/(?:^|,)\s*([^,]+?)\s+(?:QLD|NSW|VIC|SA|WA|TAS|NT|ACT)\s+\d{4}\b/i);
+  return m ? m[1].trim() : null;
 }
 
 function clamp(n, lo, hi) { return Math.min(hi, Math.max(lo, n)); }
