@@ -22,6 +22,8 @@
  *   - Contactability       (0-15)  can you reach a human
  */
 
+import { requireKey } from './auth.js';
+
 // ---------------------------------------------------------------------------
 // Weights
 // ---------------------------------------------------------------------------
@@ -65,6 +67,83 @@ export const TIER_THRESHOLDS = [
   { tier: 'maybe', min: 30 },
   { tier: 'skip', min: 0 },
 ];
+
+// ---------------------------------------------------------------------------
+// Review volume expectations, by trade
+// ---------------------------------------------------------------------------
+// A cafe collects reviews because people sit in it with a phone in their hand.
+// A mechanic does not. Thirty reviews is quiet for a bakery and busy for a
+// mobile mechanic, so one set of thresholds cannot judge both.
+//
+// Before this, the whole trade half of the queue scored as 'maybe' no matter
+// how good the business was, because nothing but hospitality clears 150
+// reviews — and 'maybe' is a tier you never visit.
+//
+// The bands below are a FIRST GUESS. Appendix B of the runbook has the query
+// that shows the real distribution per category; tune them once a few hundred
+// trade leads are in and the numbers are real rather than estimated.
+
+export const REVIEW_BANDS = {
+  // People review these constantly.
+  hospitality: {
+    categories: ['cafe', 'coffee', 'bakery', 'bakehouse', 'restaurant', 'eatery',
+                 'bar', 'pub', 'fish and chips', 'takeaway', 'butcher',
+                 'greengrocer', 'grocer', 'patisserie', 'deli', 'juice',
+                 'dessert', 'pizza', 'burger*'],
+    bands: [[150, 4.5, 35], [50, 4.3, 25], [20, 4.0, 15]],
+    thin: 20,
+  },
+  // Appointment businesses. Steady, but nothing like a cafe's volume.
+  personal: {
+    categories: ['barber*', 'hair', 'salon', 'nail*', 'beauty', 'massage', 'spa',
+                 'pilates', 'yoga', 'gym', 'tattoo*', 'grooming', 'florist',
+                 'physio*', 'chiro*', 'podiatr*', 'dog'],
+    bands: [[80, 4.5, 35], [30, 4.3, 25], [12, 4.0, 15]],
+    thin: 12,
+  },
+  // Trades. A plumber with 25 reviews at 4.8 is booked three weeks out.
+  trade: {
+    categories: ['mechanic*', 'automotive', 'auto', 'tyre*', 'panel', 'smash',
+                 'landscap*', 'lawn', 'garden*', 'plumb*', 'electric*',
+                 'builder*', 'carpent*', 'paint*', 'roof*', 'concret*', 'tile*',
+                 'fencing', 'pest', 'clean*', 'removal*', 'air conditioning',
+                 'glazier*', 'locksmith*', 'handyman', 'excavat*', 'pool'],
+    bands: [[40, 4.5, 35], [15, 4.3, 25], [5, 4.0, 15]],
+    thin: 5,
+  },
+};
+
+// Anything that matches nothing above. Sits between hospitality and trade.
+const DEFAULT_BAND = { bands: [[60, 4.5, 35], [25, 4.3, 25], [10, 4.0, 15]], thin: 10 };
+
+/**
+ * Which set of expectations applies to this lead.
+ *
+ * Three kinds of keyword, because a plain substring test put "barber" in the
+ * hospitality band — "barber" contains "bar", so every barber was being
+ * measured against a cafe's review volume:
+ *
+ *   'bar'          exact word.   Matches "bar", never "barber".
+ *   'landscap*'    word prefix.  Matches landscaping, landscaper, landscapes.
+ *   'air conditioning'  has a space, so it is matched against the whole string.
+ */
+export function bandFor(category) {
+  const raw = String(category || '').toLowerCase();
+  if (!raw) return { name: 'default', ...DEFAULT_BAND };
+  const words = raw.replace(/[^a-z0-9]+/g, ' ').trim().split(/\s+/).filter(Boolean);
+
+  for (const [name, def] of Object.entries(REVIEW_BANDS)) {
+    for (const key of def.categories) {
+      const hit = key.includes(' ')
+        ? raw.includes(key)
+        : key.endsWith('*')
+          ? words.some((w) => w.startsWith(key.slice(0, -1)))
+          : words.includes(key);
+      if (hit) return { name, ...def };
+    }
+  }
+  return { name: 'default', ...DEFAULT_BAND };
+}
 
 // ---------------------------------------------------------------------------
 // Franchises
@@ -165,29 +244,30 @@ export function scoreLead(lead = {}) {
   const rating = num(lead.rating);
   const reviews = num(lead.review_count);
 
+  const band = bandFor(lead.category);
+
   let quality = 0;
   if (reviews === null) {
     quality = 8;
     reasons.push('No review data (+8)');
-  } else if (reviews >= 150 && rating >= 4.5) {
-    quality = 35;
-    reasons.push(`${reviews} reviews at ${rating} (+35)`);
-  } else if (reviews >= 50 && rating >= 4.3) {
-    quality = 25;
-    reasons.push(`${reviews} reviews at ${rating} (+25)`);
-  } else if (reviews >= 20 && rating >= 4.0) {
-    quality = 15;
-    reasons.push(`${reviews} reviews at ${rating} (+15)`);
-  } else if (reviews >= 20) {
-    quality = 8;
-    reasons.push(`${reviews} reviews, rating only ${rating} (+8)`);
   } else {
-    quality = 4;
-    reasons.push(`Only ${reviews} reviews (+4)`);
+    const hit = band.bands.find(([minR, minStars]) => reviews >= minR && rating >= minStars);
+    if (hit) {
+      quality = hit[2];
+      reasons.push(`${reviews} reviews at ${rating} (+${hit[2]}, ${band.name} scale)`);
+    } else if (reviews >= band.thin) {
+      quality = 8;
+      reasons.push(`${reviews} reviews, rating only ${rating} (+8)`);
+    } else {
+      quality = 4;
+      reasons.push(`Only ${reviews} reviews for a ${band.name} business (+4)`);
+    }
   }
 
   // A genuinely poorly rated business is a hard client and a bad case study.
-  if (rating !== null && rating < 3.8 && reviews !== null && reviews >= 20) {
+  // The review floor moves with the trade too — judging a mechanic harshly on
+  // 20 reviews when 20 is a lot for a mechanic is the same mistake again.
+  if (rating !== null && rating < 3.8 && reviews !== null && reviews >= band.thin) {
     quality -= 10;
     reasons.push('Rating under 3.8 (-10)');
   }
@@ -268,14 +348,25 @@ export async function onRequestGet() {
     JSON.stringify(
       {
         website_opportunity: WEBSITE_POINTS,
+        review_bands: Object.fromEntries(
+          Object.entries(REVIEW_BANDS).map(([k, v]) => [k, {
+            reads_as: v.categories.slice(0, 6).join(', ') + '…',
+            '+35': `${v.bands[0][0]}+ reviews at ${v.bands[0][1]}+`,
+            '+25': `${v.bands[1][0]}+ reviews at ${v.bands[1][1]}+`,
+            '+15': `${v.bands[2][0]}+ reviews at ${v.bands[2][1]}+`,
+          }])
+        ),
+        franchises_capped_at: 5,
         business_quality: {
-          '150+ reviews and 4.5+': 35,
-          '50+ reviews and 4.3+': 25,
-          '20+ reviews and 4.0+': 15,
-          '20+ reviews, lower rating': 8,
-          'under 20 reviews': 4,
+          note: 'Thresholds move with the trade — see review_bands below. '
+              + 'A cafe collects reviews all day; a mechanic does not.',
+          top_band: 35,
+          middle_band: 25,
+          lower_band: 15,
+          'enough reviews, weak rating': 8,
+          'too few reviews to judge': 4,
           'no review data': 8,
-          'penalty: rating under 3.8 with 20+ reviews': -10,
+          'penalty: rating under 3.8 with enough reviews to mean it': -10,
         },
         contactability: { email: 7, phone: 5, contact_name: 3 },
         modifiers: {
@@ -289,4 +380,80 @@ export async function onRequestGet() {
     ),
     { headers: { 'Content-Type': 'application/json' } }
   );
+}
+
+// ---------------------------------------------------------------------------
+// POST /api/scoring — re-apply the rubric to every lead
+// ---------------------------------------------------------------------------
+/**
+ * Every change to the weights above leaves the stored scores stale. This walks
+ * the table and rescores, so a rule change shows up in the CRM instead of only
+ * applying to leads found after it.
+ *
+ *   { }               — DRY RUN. Shows the biggest movers. Writes nothing.
+ *   { "apply": true } — writes the new scores.
+ *
+ * Rows with score_locked = 1 are never touched. A tier you set by hand stays
+ * set, which is the whole point of locking it.
+ */
+export async function onRequestPost({ request, env }) {
+  const denied = requireKey(request, env);
+  if (denied) return denied;
+
+  const db = env.VELOX_DB;
+  if (!db) return json({ error: 'VELOX_DB binding missing' }, 500);
+
+  let body = {};
+  try { body = await request.json(); } catch { /* dry run is the default */ }
+  const apply = body.apply === true;
+
+  const rows = (await db.prepare(
+    'SELECT * FROM leads WHERE score_locked IS NOT 1'
+  ).all()).results || [];
+
+  const moved = [];
+  for (const lead of rows) {
+    const s = scoreLead(lead);
+    const before = lead.lead_score ?? 0;
+    if (s.lead_score === before && s.tier === lead.tier) continue;
+
+    moved.push({
+      id: lead.id,
+      name: lead.name,
+      category: lead.category,
+      band: bandFor(lead.category).name,
+      reviews: lead.review_count,
+      rating: lead.rating,
+      from: `${before} ${lead.tier || '—'}`,
+      to: `${s.lead_score} ${s.tier}`,
+      change: s.lead_score - before,
+    });
+
+    if (apply) {
+      await db.prepare(
+        'UPDATE leads SET lead_score = ?, tier = ?, score_reason = ? WHERE id = ?'
+      ).bind(s.lead_score, s.tier, s.score_reason, lead.id).run();
+    }
+  }
+
+  moved.sort((a, b) => Math.abs(b.change) - Math.abs(a.change));
+  const promoted = moved.filter((m) => m.to.includes('prime') || m.to.includes('strong'));
+
+  return json({
+    dry_run: !apply,
+    considered: rows.length,
+    changed: moved.length,
+    now_worth_visiting: promoted.length,
+    biggest_movers: moved.slice(0, 30),
+    next_step: apply
+      ? 'Open the CRM — the list is re-ordered.'
+      : 'Read the movers. If they look right, send {"apply": true}.',
+  });
+}
+
+function json(obj, status = 200) {
+  return new Response(JSON.stringify(obj, null, 2), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  });
 }
