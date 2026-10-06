@@ -17,6 +17,7 @@
   --red:    #c0392b;
   --white:  #ffffff;
   --offwhite: #f8f6f1;
+  --cream:  #f7f1e6;
   --gray:   #6b7280;
   --light:  #eef2f7;
   --font-head: 'Playfair Display', Georgia, serif;
@@ -828,6 +829,114 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
   .btn-gold:hover { transform: none; }
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   OPTIONS 6 & 7 — October 2026
+   6: the page changes colour as you scroll, so the four navy sections
+      that used to run together each get their own room.
+   7: the portfolio holds still on a computer while the work slides
+      sideways; on a phone it becomes a swipe deck.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── 6. One wash of colour behind the whole page ──────────────────── */
+/* The wash is fixed, so it only ever covers the screen. The page itself
+   is navy underneath, which means a visitor with scripts blocked still
+   sees light text on dark, not light text on white. */
+body { background: var(--navy); }
+.page-wash {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-color: var(--navy); transition: background-color 0.85s ease;
+}
+body > *:not(.page-wash) { position: relative; z-index: 1; }
+
+/* The navy-family sections let the wash show through. The light ones
+   (proof bar, testimonials, trust, the gold call to action) stay solid
+   and simply sit on top of it. */
+.hero, .audit-section, .velox-definition, .showcase, .work-strip, .process {
+  background: transparent;
+}
+.testimonials { background: var(--cream); }
+
+/* ── 7. The portfolio that slides sideways ────────────────────────── */
+.work-strip { padding: 80px 0 72px; color: var(--white); }
+.strip-top {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 18px 36px; margin-bottom: 30px;
+}
+.strip-top .sec-title { color: var(--white); margin-bottom: 0; }
+.strip-bar { flex: none; width: clamp(90px, 15vw, 200px); height: 3px; background: rgba(255,255,255,0.16); margin-bottom: 10px; }
+.strip-bar i { display: block; height: 100%; width: calc(var(--p, 0) * 100%); background: var(--gold); transition: width 0.1s linear; }
+
+.strip-track {
+  display: flex; gap: 22px; overflow-x: auto; padding-bottom: 14px;
+  scroll-snap-type: x mandatory; scrollbar-width: thin;
+}
+.strip-card {
+  flex: 0 0 min(86%, 520px); scroll-snap-align: start;
+  display: grid; gap: 13px; align-content: start; min-width: 0;
+}
+.strip-shot { aspect-ratio: 16/10; overflow: hidden; background: #fff; }
+.strip-shot img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.strip-card figcaption { display: grid; gap: 3px; }
+.strip-biz { font-family: var(--font-head); font-size: clamp(20px, 2vw, 26px); font-weight: 700; line-height: 1.18; color: var(--white); }
+.strip-what { font-size: 14px; color: #8fa3bd; }
+.strip-what a { color: var(--gold); }
+
+/* the card that asks for the job */
+.strip-cta {
+  align-content: end; gap: 14px; padding: clamp(24px, 3vw, 38px);
+  background: var(--gold); color: var(--navy);
+}
+.strip-cta-h { font-family: var(--font-head); font-size: clamp(26px, 3vw, 40px); font-weight: 900; line-height: 1.04; }
+.strip-cta p { font-size: 15px; line-height: 1.55; }
+.strip-cta .btn-gold {
+  background: var(--navy); color: var(--gold); box-shadow: none;
+  justify-self: start; font-size: 14px; padding: 15px 24px;
+}
+.strip-cta .btn-gold:hover { background: #050d1c; transform: none; }
+
+.strip-nav { display: flex; gap: 10px; margin-top: 18px; }
+.strip-nav button {
+  display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.25); background: transparent;
+  color: var(--white); cursor: pointer; padding: 0; font-size: 18px;
+  transition: border-color 0.2s, color 0.2s;
+}
+.strip-nav button:hover { border-color: var(--gold); color: var(--gold); }
+.strip-nav button[disabled] { opacity: 0.35; cursor: default; border-color: rgba(255,255,255,0.15); }
+
+.strip-hint { font-size: 13px; color: #6a7f9a; margin-top: 12px; }
+.strip-hint .pinned { display: none; }
+
+/* Pinned mode: added by the script, and only on a wide screen where the
+   visitor has not asked for less motion. Everyone else keeps the deck. */
+.work-strip.pin .strip-runway { position: relative; }
+.work-strip.pin .strip-pin {
+  position: sticky; top: 0; height: 100vh;
+  display: flex; flex-direction: column; justify-content: center;
+  gap: 4px; overflow: hidden;
+}
+.work-strip.pin .strip-top { margin-bottom: 22px; }
+.work-strip.pin .strip-hint { margin-top: 18px; }
+.work-strip.pin .strip-track {
+  overflow: visible; scroll-snap-type: none; width: max-content;
+  padding-bottom: 0; will-change: transform;
+}
+.work-strip.pin .strip-card { flex: 0 0 clamp(400px, 34vw, 520px); }
+.work-strip.pin .strip-nav { display: none; }
+.work-strip.pin .strip-hint .deck { display: none; }
+.work-strip.pin .strip-hint .pinned { display: inline; }
+
+@media (max-width: 900px) {
+  .work-strip { padding: 52px 0 48px; }
+  .strip-top { margin-bottom: 22px; }
+  .strip-card { flex: 0 0 min(88%, 420px); }
+  .strip-track { gap: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-wash { transition: none; }
+  .strip-bar i { transition: none; }
+}
+
 /* NO-WEBSITE TOGGLE */
 .form-toggle {
   display: flex; background: #eef2f7; border-radius: 0;
@@ -846,6 +955,9 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
 </head>
 <body>
 
+<!-- The colour behind the whole page. It changes as you scroll. -->
+<div class="page-wash" aria-hidden="true"></div>
+
 <!-- One icon set, drawn by us in our gold, replacing the emoji that used to
      be drawn by whatever phone or computer the visitor happened to be on. -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
@@ -860,6 +972,7 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
   <symbol id="i-gift" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3.5" y="9.5" width="17" height="10.5" rx="1.5"/><path d="M2.6 6.2h18.8v3.3H2.6zM12 6.2V20"/><path d="M12 6.2S10.8 3 8.9 3a2 2 0 0 0 0 3.2zM12 6.2S13.2 3 15.1 3a2 2 0 0 1 0 3.2z"/></g></symbol>
   <symbol id="i-play" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M10.2 8.6l5.4 3.4-5.4 3.4z"/></g></symbol>
   <symbol id="i-arrows" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M9 7l-5 5 5 5M15 7l5 5-5 5"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M14.5 6l-6 6 6 6"/></symbol>
   <symbol id="i-right" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9.5 6l6 6-6 6"/></symbol>
   <symbol id="i-hand" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M3 11.5l3.5-3.5a2 2 0 0 1 2.8 0L12 10.7l2.7-2.7a2 2 0 0 1 2.8 0L21 11.5M7.5 14.5l2.3 2.3a1.6 1.6 0 0 0 2.3 0l4.4-4.4"/></symbol>
 </svg>
@@ -901,7 +1014,7 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
 
 <!-- ══ HERO ══ The work first. A visitor who sells nothing but good-looking
      websites should not open with four statistics and no pictures. -->
-<section class="hero" id="hero">
+<section class="hero" id="hero" data-wash="#0a1628">
   <div class="atmo" aria-hidden="true"></div>
   <div class="container">
     <div class="hero-inner">
@@ -933,6 +1046,7 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
             <div class="laptop-scr">
               <img data-i="0" class="on" src="/img/boulangerie-desktop.webp" width="800" height="500" alt="Boulangerie Vietnam's website, built by Studio Velox">
               <img data-i="1" src="/img/triaxle-desktop.webp" width="800" height="500" alt="Tri-Axle Group's website, redesigned by Studio Velox">
+              <img data-i="2" src="/img/breath-desktop.webp" width="800" height="500" alt="The Breath Therapy's website, built by Studio Velox">
             </div>
           </div>
           <div class="laptop-base"></div>
@@ -941,6 +1055,7 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
           <div class="dev-phone-scr">
             <img data-i="0" class="on" src="/img/boulangerie-mobile-sm.webp" width="300" height="650" alt="">
             <img data-i="1" src="/img/triaxle-mobile-sm.webp" width="300" height="650" alt="">
+            <img data-i="2" src="/img/breath-mobile-sm.webp" width="300" height="650" alt="">
           </div>
         </div>
         <figcaption class="dev-cap">
@@ -948,7 +1063,7 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
             <span class="dev-cap-name">Boulangerie Vietnam</span>
             <span class="dev-cap-what">Artisan bakery, Burleigh Waters</span>
           </span>
-          <span class="dev-dots" aria-hidden="true"><i data-i="0" class="on"></i><i data-i="1"></i></span>
+          <span class="dev-dots" aria-hidden="true"><i data-i="0" class="on"></i><i data-i="1"></i><i data-i="2"></i></span>
           <button type="button" class="dev-next" aria-label="Show the next client site"><svg class="ic" aria-hidden="true"><use href="#i-right"/></svg></button>
         </figcaption>
       </figure>
@@ -970,7 +1085,7 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
 <!-- ══ FREE AUDIT ══ Was in the hero, competing with the work. It sits
      one screen lower now, where it has room and still catches everyone
      who scrolls. Watch the submissions for a fortnight. -->
-<section class="audit-section" id="audit-form">
+<section class="audit-section" id="audit-form" data-wash="#122040">
   <div class="container">
     <div class="audit-inner">
       <div>
@@ -1053,7 +1168,7 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
 </section>
 
 <!-- VELOX DEFINITION — compact banner -->
-<section class="velox-definition">
+<section class="velox-definition" data-wash="#0a1628">
   <div class="atmo" aria-hidden="true"></div>
   <div class="velox-def-inner">
     <div class="velox-def-word">VELOX<span>.</span></div>
@@ -1068,11 +1183,11 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
 
 
 <!-- ══ BEFORE / AFTER SHOWCASE ══ -->
-<section class="showcase" id="work">
+<section class="showcase" id="work" data-wash="#0f2547">
   <div class="container">
     <div class="sec-label">Real business transformations</div>
     <h2 class="sec-title anim">See Exactly What We Do —<br><em>Before & After, Side by Side</em></h2>
-    <p class="showcase-intro anim">Real Gold Coast businesses. Real websites. Drag the first one across and ask yourself honestly which one you'd call.</p>
+    <p class="showcase-intro anim">Drag the line across. On the left is the site a real Gold Coast business has today. On the right is what we'd replace it with. Ask yourself honestly which one you'd call.</p>
 
     <div class="work-list">
 
@@ -1107,48 +1222,84 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
         </div>
       </div>
 
-      <!-- Tri-Axle: the old site came down the day the new one went up,
-           so there is nothing left to compare it against. -->
-      <div class="work-item anim">
-        <div class="work-head">
-          <div class="work-biz">Tri-Axle Group</div>
-          <div class="work-what">Heavy transport — <a href="https://triaxlegroup.com.au" target="_blank" rel="noopener">triaxlegroup.com.au</a></div>
-        </div>
-        <div class="shot-card">
-          <img src="/img/triaxle-desktop.webp" width="800" height="500" loading="lazy" alt="Tri-Axle Group's website: a road train at dusk behind the words Heavy Loads, More Roads, Less Hassle.">
-        </div>
-        <div class="work-foot">
-          Redesigned by Studio Velox. The old site came down when this one went live — <a href="https://www.youtube.com/watch?v=q6Cxh5QlteI" target="_blank" rel="noopener">here's what it looked like</a> &nbsp;·&nbsp; <a href="https://www.youtube.com/watch?v=vY5qykkGIrA" target="_blank" rel="noopener">walkthrough of the new one</a>
-        </div>
-      </div>
-
-      <!-- Boulangerie Vietnam: built from nothing. -->
-      <div class="work-item anim">
-        <div class="work-head">
-          <div class="work-biz">Boulangerie Vietnam Artisan Bakery</div>
-          <div class="work-what">Artisan bakery, Burleigh Waters — <a href="https://boulangerievietnam.com.au" target="_blank" rel="noopener">boulangerievietnam.com.au</a></div>
-        </div>
-        <div class="shot-card">
-          <img src="/img/boulangerie-desktop.webp" width="800" height="500" loading="lazy" alt="Boulangerie Vietnam's website: the headline Tired of bread that tastes like it came from a warehouse, beside a photo of the shopfront.">
-        </div>
-        <div class="work-foot">
-          Built and hosted by Studio Velox. Before this they had a Facebook page and nothing else — <a href="https://www.youtube.com/watch?v=FUC4RubKtmY" target="_blank" rel="noopener">watch the walkthrough</a>
-        </div>
-      </div>
-
     </div>
 
     <div class="showcase-cta anim">
       <p>Want to see what we'd do with your website?</p>
       <button class="btn-gold" onclick="goToAudit()">Get My Free Audit — See Your Transformation →</button>
-      <p style="margin-top:16px;"><a href="/portfolio" style="font-family:var(--font-accent);font-size:13px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);text-decoration:none;">View Full Portfolio →</a></p>
     </div>
   </div>
 </section>
 
 
+<!-- ══ SELECTED WORK ══ On a computer this holds still while the work
+     slides sideways; the script only pins it on a wide screen when the
+     visitor hasn't asked for less motion. Everyone else swipes. It uses
+     the same pictures as the hero, so it costs nothing extra to load. -->
+<section class="work-strip" id="selected" data-wash="#0a1628">
+  <div class="strip-runway">
+    <div class="strip-pin">
+      <div class="container">
+        <div class="strip-top">
+          <div>
+            <div class="sec-label" style="color:var(--gold)">Selected work</div>
+            <h2 class="sec-title anim">Built, Rebuilt and <em>Live on the Gold Coast</em></h2>
+          </div>
+          <div class="strip-bar" aria-hidden="true"><i></i></div>
+        </div>
+      </div>
+      <div class="container">
+        <div class="strip-track" tabindex="0" aria-label="Client websites">
+
+          <figure class="strip-card">
+            <div class="strip-shot"><img src="/img/boulangerie-desktop.webp" width="800" height="500" loading="lazy" alt="Boulangerie Vietnam's website"></div>
+            <figcaption>
+              <div class="strip-biz">Boulangerie Vietnam</div>
+              <div class="strip-what">Artisan bakery, Burleigh Waters. Built from scratch — they had a Facebook page and nothing else. <a href="https://boulangerievietnam.com.au" target="_blank" rel="noopener">boulangerievietnam.com.au</a></div>
+            </figcaption>
+          </figure>
+
+          <figure class="strip-card">
+            <div class="strip-shot"><img src="/img/triaxle-desktop.webp" width="800" height="500" loading="lazy" alt="Tri-Axle Group's website"></div>
+            <figcaption>
+              <div class="strip-biz">Tri-Axle Group</div>
+              <div class="strip-what">Heavy transport. A full redesign of a site that was costing them enquiries. <a href="https://triaxlegroup.com.au" target="_blank" rel="noopener">triaxlegroup.com.au</a></div>
+            </figcaption>
+          </figure>
+
+          <figure class="strip-card">
+            <div class="strip-shot"><img src="/img/breath-desktop.webp" width="800" height="500" loading="lazy" alt="The Breath Therapy's website"></div>
+            <figcaption>
+              <div class="strip-biz">The Breath Therapy</div>
+              <div class="strip-what">Breathwork, Gold Coast and Melbourne. Built from scratch — Taylor had Instagram and nowhere for it to land. <a href="https://thebreaththerapy.com.au" target="_blank" rel="noopener">thebreaththerapy.com.au</a></div>
+            </figcaption>
+          </figure>
+
+          <div class="strip-card strip-cta">
+            <div class="strip-cta-h">Your business next.</div>
+            <p>A free concept of your new site within 24 hours. No catch, no obligation.</p>
+            <button class="btn-gold" onclick="goToAudit()">Get My Free Audit</button>
+          </div>
+
+        </div>
+      </div>
+      <div class="container">
+        <div class="strip-nav">
+          <button type="button" class="strip-prev" aria-label="Previous project"><svg class="ic" aria-hidden="true"><use href="#i-left"/></svg></button>
+          <button type="button" class="strip-next" aria-label="Next project"><svg class="ic" aria-hidden="true"><use href="#i-right"/></svg></button>
+        </div>
+        <p class="strip-hint">
+          <span class="deck">Swipe sideways, or use the arrows.</span>
+          <span class="pinned">Keep scrolling — the work moves across.</span>
+          <a href="/portfolio" style="color:var(--gold);margin-left:6px;">See the full portfolio →</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- PROCESS -->
-<section class="process" id="process">
+<section class="process" id="process" data-wash="#122040">
   <div class="container">
     <div class="sec-label" style="color:var(--gold)">Simple 4-step process</div>
     <h2 class="sec-title anim">From Free Audit to Live & <em>Generating Leads in Under 2 Weeks</em></h2>
@@ -1319,6 +1470,7 @@ function goToWork() {
   const SLIDES = [
     ['Boulangerie Vietnam', 'Artisan bakery, Burleigh Waters'],
     ['Tri-Axle Group', 'Heavy transport, Gold Coast'],
+    ['The Breath Therapy', 'Breathwork, Gold Coast and Melbourne'],
   ];
   const name = group.querySelector('.dev-cap-name');
   const what = group.querySelector('.dev-cap-what');
@@ -1413,6 +1565,105 @@ document.querySelectorAll('.ba').forEach((ba) => {
   }, { threshold: 0.6 });
   io.observe(ba);
 });
+
+// ── 6. The colour behind the page follows the story ──────────────────
+// Four navy sections used to run straight into each other. Each one now
+// washes the page a slightly different colour as it comes into view.
+(function colourWash() {
+  const wash = document.querySelector('.page-wash');
+  const marked = document.querySelectorAll('[data-wash]');
+  if (!wash || !marked.length || !('IntersectionObserver' in window)) return;
+
+  // Whichever marked section covers the middle of the screen wins. Without
+  // that rule, scrolling fast past a short section leaves the wrong colour.
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (e.isIntersecting) wash.style.backgroundColor = e.target.dataset.wash;
+    });
+  }, { rootMargin: '-49% 0px -49% 0px', threshold: 0 });
+  marked.forEach((el) => io.observe(el));
+})();
+
+// ── 7. The portfolio that slides sideways ────────────────────────────
+(function workStrip() {
+  const strip = document.getElementById('selected');
+  if (!strip) return;
+  const runway = strip.querySelector('.strip-runway');
+  const pin = strip.querySelector('.strip-pin');
+  const track = strip.querySelector('.strip-track');
+  const bar = strip.querySelector('.strip-bar i');
+  const prev = strip.querySelector('.strip-prev');
+  const next = strip.querySelector('.strip-next');
+  const wide = window.matchMedia('(min-width: 900px)');
+  let distance = 0;
+  let queued = false;
+
+  const paint = () => {
+    queued = false;
+    if (!strip.classList.contains('pin')) return;
+    const top = runway.getBoundingClientRect().top;
+    const travel = runway.offsetHeight - window.innerHeight;
+    const p = travel > 0 ? Math.min(1, Math.max(0, -top / travel)) : 0;
+    track.style.transform = 'translate3d(' + (-p * distance).toFixed(1) + 'px,0,0)';
+    bar.style.setProperty('--p', p.toFixed(4));
+  };
+
+  const measure = () => {
+    // How far the track has to travel for its last card to reach the edge.
+    const col = track.parentElement;                  // the page's column
+    const cs = getComputedStyle(col);
+    const visible = col.clientWidth
+      - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
+    distance = Math.max(0, track.scrollWidth - visible);
+    runway.style.height = (window.innerHeight + distance) + 'px';
+    paint();
+  };
+
+  const mode = () => {
+    const on = wide.matches && motionOK();
+    strip.classList.toggle('pin', on);
+    if (on) {
+      measure();
+    } else {
+      runway.style.height = '';
+      track.style.transform = '';
+      bar.style.setProperty('--p', '0');
+      deckProgress();
+    }
+  };
+
+  // Swipe-deck mode: the bar tracks how far along the row you are.
+  const deckProgress = () => {
+    if (strip.classList.contains('pin')) return;
+    const max = track.scrollWidth - track.clientWidth;
+    const p = max > 0 ? track.scrollLeft / max : 0;
+    bar.style.setProperty('--p', p.toFixed(4));
+    prev.disabled = track.scrollLeft < 4;
+    next.disabled = track.scrollLeft > max - 4;
+  };
+
+  const step = (dir) => {
+    const card = track.querySelector('.strip-card');
+    const w = card ? card.getBoundingClientRect().width + 22 : 320;
+    track.scrollBy({ left: dir * w, behavior: motionOK() ? 'smooth' : 'auto' });
+  };
+
+  prev.addEventListener('click', () => step(-1));
+  next.addEventListener('click', () => step(1));
+  track.addEventListener('scroll', deckProgress, { passive: true });
+  window.addEventListener('scroll', () => {
+    if (!queued) { queued = true; requestAnimationFrame(paint); }
+  }, { passive: true });
+  window.addEventListener('resize', () => {
+    if (strip.classList.contains('pin')) measure(); else deckProgress();
+  });
+  wide.addEventListener('change', mode);
+  REDUCED.addEventListener('change', mode);
+
+  // Pictures change the track's width, so measure again once they're in.
+  window.addEventListener('load', () => { if (strip.classList.contains('pin')) measure(); });
+  mode();
+})();
 
 // Toggle between has-website and no-website panels
 function switchTab(tab) {
