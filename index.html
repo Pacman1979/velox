@@ -48,9 +48,19 @@ a { text-decoration: none; color: inherit; }
 .announce {
   background: var(--gold); color: var(--navy);
   padding: 11px 0; font-family: var(--font-accent); font-size: 14px; letter-spacing: 0.04em;
-  overflow: hidden; white-space: nowrap;
+  line-height: 1.4;
 }
 .announce strong { color: var(--navy); font-weight: 900; }
+.announce-line {
+  display: flex; align-items: center; justify-content: center;
+  gap: 14px; text-align: center;
+}
+.announce-cta {
+  font-family: inherit; font-size: inherit; letter-spacing: inherit;
+  color: var(--navy); background: none; border: none; padding: 0;
+  border-bottom: 1px solid rgba(10,22,40,0.45); cursor: pointer; font-weight: 700;
+}
+.announce-cta:hover { border-bottom-color: var(--navy); }
 .announce-track {
   display: inline-block;
   animation: ticker 38s linear infinite;
@@ -85,13 +95,8 @@ nav {
 .nav-portfolio:hover { color: var(--gold); }
 
 /* ── HERO ── */
-.hero { background: var(--navy); color: var(--white); padding: 36px 0 40px; position: relative; overflow: hidden; }
-.hero::after {
-  content: ''; position: absolute; top: 0; right: 0; width: 45%; height: 100%;
-  background: linear-gradient(135deg, transparent, rgba(232,160,32,0.07));
-  pointer-events: none;
-}
-.hero-inner { display: grid; grid-template-columns: 1fr 420px; gap: 60px; align-items: start; }
+.hero { background: var(--navy); color: var(--white); padding: 54px 0 58px; position: relative; overflow: hidden; }
+.hero-inner { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 520px); gap: 48px; align-items: center; }
 .eyebrow {
   font-family: var(--font-accent); font-size: 12px; letter-spacing: 0.2em;
   text-transform: uppercase; color: var(--gold); margin-bottom: 12px;
@@ -99,10 +104,15 @@ nav {
 }
 .eyebrow::before { content: ''; display: block; width: 36px; height: 2px; background: var(--gold); flex-shrink: 0; }
 .hero h1 {
-  font-family: var(--font-head); font-size: clamp(30px, 3.8vw, 48px);
-  font-weight: 900; line-height: 1.05; margin-bottom: 16px; color: var(--white);
+  font-family: var(--font-head); font-size: clamp(32px, 4.2vw, 54px);
+  font-weight: 900; line-height: 1.04; margin-bottom: 18px; color: var(--white);
+  text-wrap: balance;
 }
 .hero h1 em { font-style: normal; color: var(--gold); display: block; white-space: nowrap; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
 .agitate { font-size: 15px; line-height: 1.6; color: #b0bfd4; margin-bottom: 8px; max-width: 560px; }
 .agitate strong { color: var(--white); }
 .agitate .pain { color: #ff8a80; font-weight: 700; }
@@ -124,7 +134,7 @@ nav {
   box-shadow: 0 20px 60px rgba(0,0,0,0.45); position: relative;
 }
 .form-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; background: var(--gold); }
-.form-badge {
+.form-badge { display: inline-flex; align-items: center; gap: 7px;
   background: var(--red); color: var(--white); font-family: var(--font-accent);
   font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
   padding: 4px 12px; display: inline-block; margin-bottom: 10px;
@@ -353,7 +363,7 @@ nav {
 .guarantee {
   background: rgba(232,160,32,0.1); border: 2px solid var(--gold); padding: 22px; margin-top: 24px;
 }
-.guarantee h4 { font-family: var(--font-accent); font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gold); margin-bottom: 8px; }
+.guarantee h4 { display: flex; align-items: center; gap: 9px; font-family: var(--font-accent); font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gold); margin-bottom: 8px; }
 .guarantee p { font-size: 14px; color: #b0bfd4; line-height: 1.6; }
 
 /* FINAL CTA */
@@ -407,7 +417,7 @@ nav {
   pointer-events: none;
   white-space: nowrap;
 }
-.velox-def-inner {
+.velox-def-inner { position: relative;
   position: relative;
   z-index: 1;
   max-width: 680px;
@@ -470,7 +480,7 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
 .foot-logo { font-family: var(--font-accent); font-size: 22px; color: var(--white); }
 .foot-logo span { color: var(--gold); }
 .foot-links { display: flex; gap: 24px; }
-.foot-links a { font-size: 13px; color: #7a8fa8; transition: color 0.2s; }
+.foot-links a { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #7a8fa8; transition: color 0.2s; }
 .foot-links a:hover { color: var(--gold); }
 .foot-copy { font-size: 13px; }
 
@@ -551,6 +561,273 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
   .announce-track { font-size: 13px; }
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   UPGRADE — October 2026
+   Options 1–5 from the homepage review. Everything below is additive;
+   nothing above this line was deleted.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Icons: one SVG set replacing 22 emoji ─────────────────────────
+   Emoji are drawn by the visitor's device, so they look different on
+   every phone and computer. These are drawn by us, in our gold. */
+.ic {
+  width: 1em; height: 1em; flex: none;
+  vertical-align: -0.125em;
+}
+
+/* ── The hero's work slideshow (option 1) ──────────────────────────
+   A laptop and a phone showing three real client sites. This is the
+   first thing a visitor sees now, instead of statistics. */
+.hero-devices { position: relative; padding-top: 8px; }
+.laptop { width: 78%; }
+.laptop-lid {
+  background: #060a12; border: 1px solid #2a3552;
+  border-radius: 12px 12px 0 0; padding: 9px 9px 11px;
+  box-shadow: 0 44px 80px -36px rgba(0,0,0,0.9);
+}
+.laptop-scr {
+  position: relative; aspect-ratio: 16/10; overflow: hidden;
+  border-radius: 3px; background: #fff;
+}
+.laptop-base {
+  position: relative; height: 13px; margin: 0 -7%;
+  background: linear-gradient(#d6dce6, #8e98aa); border-radius: 0 0 14px 14px;
+}
+.laptop-base::before {
+  content: ''; position: absolute; left: 50%; top: 0; width: 16%; height: 4px;
+  transform: translateX(-50%); background: #8e98aa; border-radius: 0 0 5px 5px;
+}
+.dev-phone {
+  position: absolute; right: 0; top: 24%; width: 21%;
+  background: #05080e; border: 1px solid #2a3552; border-radius: 22px; padding: 5px;
+  box-shadow: 0 36px 64px -28px rgba(0,0,0,0.9);
+}
+.dev-phone-scr {
+  position: relative; aspect-ratio: 9/19.5; overflow: hidden;
+  border-radius: 17px; background: #fff;
+}
+.laptop-scr img, .dev-phone-scr img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: top;
+  opacity: 0; transition: opacity 0.9s ease;
+}
+.laptop-scr img.on, .dev-phone-scr img.on { opacity: 1; }
+.dev-cap {
+  display: flex; align-items: center; gap: 18px;
+  width: 78%; margin-top: 20px;
+}
+.dev-cap-txt { display: flex; flex-direction: column; gap: 2px; min-width: 220px; }
+.dev-cap-name {
+  font-family: var(--font-accent); font-size: 16px; font-weight: 500;
+  letter-spacing: 0.04em; color: var(--white);
+}
+.dev-cap-what { font-size: 13px; color: #6a7f9a; }
+.dev-dots { display: flex; gap: 7px; }
+.dev-dots i { width: 20px; height: 3px; background: rgba(255,255,255,0.22); transition: background 0.4s; }
+.dev-dots i.on { background: var(--gold); }
+.dev-next {
+  display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.25); background: transparent;
+  color: var(--white); cursor: pointer; font-size: 16px; padding: 0;
+  transition: border-color 0.2s, color 0.2s;
+}
+.dev-next:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ── Hero proof row, replacing the statistics strip ─────────────── */
+.hero-proof {
+  list-style: none; display: flex; flex-wrap: wrap; gap: 14px 28px;
+  margin-top: 30px; padding: 0;
+  font-weight: 700; font-size: 14px; color: #c3cbdb;
+}
+.hero-proof li { display: flex; align-items: center; gap: 8px; }
+.hero-proof .ic { font-size: 18px; color: var(--gold); }
+.hero-link {
+  font-family: var(--font-accent); font-size: 14px; font-weight: 500;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--white);
+  background: none; border: none; border-bottom: 2px solid var(--gold);
+  padding: 0 0 4px; cursor: pointer;
+}
+.hero-link:hover { color: var(--gold); }
+
+/* ── The audit form, now its own section under the hero ─────────── */
+.audit-section { background: var(--navy2); color: var(--white); padding: 64px 0; }
+.audit-inner { display: grid; grid-template-columns: 1fr 440px; gap: 56px; align-items: start; }
+.audit-section .sec-title { color: var(--white); margin-bottom: 18px; }
+.audit-lede { font-size: 16px; line-height: 1.65; color: #b0bfd4; max-width: 460px; }
+.audit-section .stats-row {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 24px; border-color: rgba(255,255,255,0.12); margin-top: 28px;
+}
+
+/* ── Before / after slider (option 2), replacing the YouTube embeds ─ */
+.ba {
+  --pos: 50%;
+  position: relative; aspect-ratio: 16/10; overflow: hidden;
+  background: #fff; touch-action: pan-y; cursor: ew-resize;
+  user-select: none; -webkit-user-select: none;
+}
+.ba picture, .ba img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.ba img { object-fit: cover; object-position: top; pointer-events: none; -webkit-user-drag: none; }
+.ba-before { position: absolute; inset: 0; clip-path: inset(0 calc(100% - var(--pos)) 0 0); }
+.ba-line {
+  position: absolute; top: 0; bottom: 0; left: var(--pos);
+  width: 2px; margin-left: -1px; background: var(--gold); pointer-events: none;
+}
+.ba-knob {
+  position: absolute; top: 50%; left: var(--pos); width: 44px; height: 44px;
+  margin: -22px 0 0 -22px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--gold); color: var(--navy); font-size: 20px;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.35); pointer-events: none;
+}
+.ba-tag {
+  position: absolute; top: 12px; padding: 6px 11px; pointer-events: none;
+  font-family: var(--font-accent); font-size: 12px; font-weight: 600; letter-spacing: 0.06em;
+}
+.ba-tag.l { left: 12px; background: rgba(10,22,40,0.85); color: var(--white); }
+.ba-tag.r { right: 12px; background: var(--gold); color: var(--navy); }
+.ba:focus-within .ba-knob { outline: 3px solid var(--white); outline-offset: 3px; }
+.ba-sr {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+.drag-hint {
+  display: flex; align-items: center; gap: 8px; margin-top: 12px;
+  font-size: 13px; color: #6a7f9a;
+}
+.drag-hint .ic { font-size: 16px; color: var(--gold); }
+
+/* A single large shot, for the projects where the old site is gone */
+.shot-card { position: relative; overflow: hidden; background: #fff; }
+.shot-card img { display: block; width: 100%; height: auto; }
+
+.work-item {
+  margin-bottom: 56px; padding-bottom: 56px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.work-item:last-of-type { border-bottom: none; margin-bottom: 36px; padding-bottom: 0; }
+.work-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 10px 24px; flex-wrap: wrap; margin-bottom: 18px;
+}
+.work-biz { font-family: var(--font-head); font-size: 26px; font-weight: 700; color: var(--white); }
+.work-what { font-size: 14px; color: #7a8fa8; }
+.work-what a { color: var(--gold); }
+.work-foot { margin-top: 14px; font-size: 13px; color: #6a7f9a; }
+.work-foot a { color: var(--gold); border-bottom: 1px solid rgba(232,160,32,0.4); }
+.work-foot a:hover { border-bottom-color: var(--gold); }
+
+/* ── Depth: grain and a slow drifting glow (option 5) ────────────── */
+.hero, .velox-definition { position: relative; isolation: isolate; }
+.atmo { position: absolute; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.atmo::before {
+  content: ''; position: absolute; inset: -18%;
+  background:
+    radial-gradient(36% 46% at 76% 26%, rgba(232,160,32,0.22), transparent 70%),
+    radial-gradient(42% 52% at 12% 92%, rgba(64,104,184,0.30), transparent 70%),
+    radial-gradient(70% 70% at 50% 50%, transparent 52%, rgba(4,8,16,0.55));
+  animation: drift 26s ease-in-out infinite alternate;
+}
+.atmo::after {
+  content: ''; position: absolute; inset: 0; opacity: 0.08; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+@keyframes drift {
+  0%   { transform: translate3d(0,0,0) scale(1); }
+  50%  { transform: translate3d(-4%,3%,0) scale(1.04); }
+  100% { transform: translate3d(3%,-2%,0) scale(1); }
+}
+
+/* ── The headline arrives, word by word (option 4) ───────────────── */
+.hero h1 .w {
+  display: inline-block; overflow: hidden; vertical-align: top;
+  padding-bottom: 0.16em; margin-bottom: -0.16em;
+}
+.hero h1 .w > span { display: inline-block; }
+.hero h1 .stop { display: inline-block; color: var(--gold); }
+.js .hero h1 .w > span { transform: translateY(112%); }
+.js .hero h1 .stop { opacity: 0; }
+.hero.play h1 .w > span {
+  animation: wordRise 0.6s cubic-bezier(0.2,0.85,0.2,1) both;
+  animation-delay: calc(var(--i) * 70ms);
+}
+.hero.play h1 .stop {
+  animation: stopDrop 0.45s cubic-bezier(0.3,1.55,0.5,1) both;
+  animation-delay: calc(var(--i) * 70ms + 180ms);
+}
+@keyframes wordRise { from { transform: translateY(112%); } to { transform: none; } }
+@keyframes stopDrop {
+  0%   { transform: translateY(-1.1em); opacity: 0; }
+  50%  { opacity: 1; }
+  100% { transform: none; opacity: 1; }
+}
+
+/* ── Mobile nav (option 3) ───────────────────────────────────────── */
+.nav-toggle {
+  display: none; width: 40px; height: 40px; padding: 0;
+  background: transparent; border: 1px solid rgba(255,255,255,0.2);
+  color: var(--white); cursor: pointer;
+}
+.nav-toggle i { display: block; width: 18px; height: 2px; margin: 3px auto; background: currentColor; }
+.nav-drawer { display: none; }
+
+/* ── Scroll reveal, but only when the script is alive ────────────── */
+.anim { opacity: 1; }
+.js .anim { opacity: 0; }
+.js .anim.visible { animation: fadeUp 0.7s ease forwards; }
+
+/* ── RESPONSIVE for everything above ─────────────────────────────── */
+@media (max-width: 900px) {
+  .audit-inner { grid-template-columns: 1fr; gap: 28px; }
+  .hero-devices { margin-top: 26px; }
+  .laptop { width: 84%; }
+  .dev-phone { width: 22%; }
+  .dev-cap { width: 84%; margin-top: 16px; }
+  .hero { padding: 34px 0 40px; }
+  .dev-cap-txt { min-width: 0; }
+  .work-head { margin-bottom: 14px; }
+  .work-biz { font-size: 22px; }
+
+  /* The header that used to wrap onto two lines */
+  .logo { white-space: nowrap; }
+  .nav-portfolio { display: none; }
+  .nav-toggle { display: block; order: 3; }
+  .nav-btn { order: 2; margin-left: auto; font-size: 12px; padding: 11px 14px; }
+  .nav-inner { gap: 10px; }
+  .nav-drawer {
+    display: none; width: 100%; order: 4; padding-top: 14px; margin-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.12);
+  }
+  .nav-drawer.open { display: grid; gap: 12px; }
+  .nav-drawer a {
+    font-family: var(--font-accent); font-size: 15px; letter-spacing: 0.06em;
+    text-transform: uppercase; color: rgba(255,255,255,0.85);
+  }
+  .nav-inner { flex-wrap: wrap; }
+  .btn-gold.nav-btn { width: auto; }
+}
+
+@media (max-width: 640px) {
+  .ba { aspect-ratio: 3/5; }
+  .dev-cap { gap: 12px; }
+  .dev-cap-name { font-size: 14px; }
+  .dev-cap-what { font-size: 12px; }
+  .dev-dots i { width: 14px; }
+}
+
+/* ── Anyone who asked their device for less motion gets none ─────── */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .atmo::before { animation: none; }
+  .announce-track { animation: none; padding-left: 0; }
+  .laptop-scr img, .dev-phone-scr img { transition: none; }
+  .js .anim { opacity: 1; }
+  .js .anim.visible { animation: none; }
+  .js .hero h1 .w > span { transform: none; }
+  .js .hero h1 .stop { opacity: 1; }
+  .hero.play h1 .w > span, .hero.play h1 .stop { animation: none; }
+  .btn-gold:hover { transform: none; }
+}
+
 /* NO-WEBSITE TOGGLE */
 .form-toggle {
   display: flex; background: #eef2f7; border-radius: 0;
@@ -569,14 +846,32 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
 </head>
 <body>
 
+<!-- One icon set, drawn by us in our gold, replacing the emoji that used to
+     be drawn by whatever phone or computer the visitor happened to be on. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-star" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M12 3.6l2.5 5.2 5.7.8-4.1 4 1 5.7L12 16.6l-5.1 2.7 1-5.7-4.1-4 5.7-.8z"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 20.5s-6-5.3-6-10.3a6 6 0 0 1 12 0c0 5-6 10.3-6 10.3z"/><circle cx="12" cy="10.2" r="2.2"/></g></symbol>
+  <symbol id="i-unlock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5.5" y="10.5" width="13" height="9" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 6.6-1.6"/></g></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8.4"/><path d="M12 7.6V12l3 2"/></g></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19l1-4.2L15.6 5.2a1.9 1.9 0 0 1 2.7 0l.5.5a1.9 1.9 0 0 1 0 2.7L9.2 18 5 19z"/><path d="M14 6.8l3.2 3.2"/></g></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M7.2 4.5H4.8A1.3 1.3 0 0 0 3.5 6c.4 7.4 6.6 13.6 14 14a1.3 1.3 0 0 0 1.5-1.3v-2.4a1.3 1.3 0 0 0-1-1.3l-2.6-.6a1.3 1.3 0 0 0-1.3.5l-.9 1.2a12 12 0 0 1-5.3-5.3l1.2-.9a1.3 1.3 0 0 0 .5-1.3L8.5 5.5a1.3 1.3 0 0 0-1.3-1z"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3.2" y="5.5" width="17.6" height="13" rx="2"/><path d="M3.8 6.6L12 12.6l8.2-6"/></g></symbol>
+  <symbol id="i-fb" viewBox="0 0 24 24"><path fill="currentColor" d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5h1.65V3.6A22 22 0 0 0 14.3 3.5c-2.4 0-4 1.45-4 4.1v2.3H7.6V13h2.7v8z"/></symbol>
+  <symbol id="i-gift" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3.5" y="9.5" width="17" height="10.5" rx="1.5"/><path d="M2.6 6.2h18.8v3.3H2.6zM12 6.2V20"/><path d="M12 6.2S10.8 3 8.9 3a2 2 0 0 0 0 3.2zM12 6.2S13.2 3 15.1 3a2 2 0 0 1 0 3.2z"/></g></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M10.2 8.6l5.4 3.4-5.4 3.4z"/></g></symbol>
+  <symbol id="i-arrows" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M9 7l-5 5 5 5M15 7l5 5-5 5"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9.5 6l6 6-6 6"/></symbol>
+  <symbol id="i-hand" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M3 11.5l3.5-3.5a2 2 0 0 1 2.8 0L12 10.7l2.7-2.7a2 2 0 0 1 2.8 0L21 11.5M7.5 14.5l2.3 2.3a1.6 1.6 0 0 0 2.3 0l4.4-4.4"/></symbol>
+</svg>
+
 <!-- ANNOUNCE BAR with scrolling ticker -->
+<!-- Was a scrolling ticker. On a phone it only ever showed the lightning
+     bolt, because the rest had scrolled off. One short line fits. -->
 <div class="announce">
-  <span class="announce-track">
-    🚀 <strong>24-HOUR TURNAROUND:</strong> Submit your details today and receive your free website concept or audit <strong>within 24 hours.</strong> No catch. No obligation. Just results. &nbsp;—&nbsp; <strong onclick="goToAudit()" style="cursor:pointer;text-decoration:underline;">Claim yours now →</strong>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⚡&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    🚀 <strong>24-HOUR TURNAROUND:</strong> Submit your details today and receive your free website concept or audit <strong>within 24 hours.</strong> No catch. No obligation. Just results. &nbsp;—&nbsp; <strong onclick="goToAudit()" style="cursor:pointer;text-decoration:underline;">Claim yours now →</strong>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⚡&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  </span>
+  <div class="container announce-line">
+    <strong>Free website concept within 24 hours.</strong>
+    <button type="button" class="announce-cta" onclick="goToAudit()">Claim yours</button>
+  </div>
 </div>
 
 <!-- NAV -->
@@ -586,106 +881,77 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
     <a href="/portfolio" class="nav-portfolio">Portfolio</a>
     <a href="/pricing" class="nav-portfolio">Pricing</a>
     <div class="nav-contact">
-      <span class="nav-phone">📞 <a href="tel:0422777865" style="color:inherit">0422 777 865</a></span>
+      <span class="nav-phone"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg> <a href="tel:0422777865" style="color:inherit">0422 777 865</a></span>
       <span class="nav-divider">|</span>
-      <span class="nav-email">✉️ <a href="mailto:phil@studiovelox.com" style="color:inherit">phil@studiovelox.com</a></span>
+      <span class="nav-email"><svg class="ic" aria-hidden="true"><use href="#i-mail"/></svg> <a href="mailto:phil@studiovelox.com" style="color:inherit">phil@studiovelox.com</a></span>
       <span class="nav-divider">|</span>
-      <span class="nav-email">📘 <a href="https://www.facebook.com/profile.php?id=61592078741097" target="_blank" rel="noopener" style="color:inherit">Facebook</a></span>
+      <span class="nav-email"><svg class="ic" aria-hidden="true"><use href="#i-fb"/></svg> <a href="https://www.facebook.com/profile.php?id=61592078741097" target="_blank" rel="noopener" style="color:inherit">Facebook</a></span>
     </div>
-    <button class="btn-gold nav-btn" onclick="goToAudit()">Get My Free Audit →</button>
+    <button class="btn-gold nav-btn" onclick="goToAudit()">Free Audit</button>
+    <button class="nav-toggle" type="button" id="nav-toggle" aria-expanded="false" aria-controls="nav-drawer" aria-label="Menu"><i></i><i></i><i></i></button>
+    <div class="nav-drawer" id="nav-drawer">
+      <a href="/portfolio">Portfolio</a>
+      <a href="/pricing">Pricing</a>
+      <a href="tel:0422777865">0422 777 865</a>
+      <a href="mailto:phil@studiovelox.com">phil@studiovelox.com</a>
+      <a href="https://www.facebook.com/profile.php?id=61592078741097" target="_blank" rel="noopener">Facebook</a>
+    </div>
   </div>
 </nav>
 
-<!-- ══ HERO ══ JD Points 1 + 2 + 6 (Problem Headline, Agitation, Lead Magnet above fold) -->
-<section class="hero">
+<!-- ══ HERO ══ The work first. A visitor who sells nothing but good-looking
+     websites should not open with four statistics and no pictures. -->
+<section class="hero" id="hero">
+  <div class="atmo" aria-hidden="true"></div>
   <div class="container">
     <div class="hero-inner">
       <div>
-        <div class="eyebrow anim">Gold Coast Web Design</div>
-        <h1 class="anim d1">
-          <em>A website your<br>business deserves.</em>
+        <div class="eyebrow">Gold Coast web design</div>
+        <h1>
+          <span class="sr-only">A website your business deserves.</span>
+          <span aria-hidden="true"><span class="w"><span style="--i:0">A</span></span> <span class="w"><span style="--i:1">website</span></span> <span class="w"><span style="--i:2">your</span></span> <span class="w"><span style="--i:3">business</span></span> <span class="w"><span style="--i:4">deserves</span></span><span class="stop" style="--i:5">.</span></span>
         </h1>
-        <p class="agitate anim d2">
-          Clean, modern websites designed for Gold Coast businesses that need their first website or a fresh new look. <strong>Initial design concepts delivered within 24 hours.</strong>
+        <p class="agitate">
+          Clean, modern websites for Gold Coast businesses that need their first website or a fresh new look. <strong>See a concept of your new site within 24 hours.</strong>
         </p>
-        <div class="stats-row anim d3">
-          <div><div class="stat-num">8–15</div><div class="stat-lbl">Leads lost per month</div></div>
-          <div><div class="stat-num">5 sec</div><div class="stat-lbl">Before visitors leave</div></div>
-          <div><div class="stat-num">99%</div><div class="stat-lbl">Google you first</div></div>
-          <div><div class="stat-num">24hr</div><div class="stat-lbl">Concept delivery</div></div>
+        <div class="cta-row">
+          <button class="btn-gold" onclick="goToAudit()">Get My Free Audit</button>
+          <button class="hero-link" type="button" onclick="goToWork()">See the work</button>
         </div>
-        <div class="cta-row anim d4">
-          <button class="btn-gold" onclick="goToAudit()">Get My Free Website Audit →</button>
-          <button class="btn-outline" onclick="goToProcess()">See How It Works</button>
-        </div>
-        <div class="hero-guarantee anim d4">100% free. No obligation. Results in 24 hours.</div>
+        <ul class="hero-proof">
+          <li><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg>5.0 on Google</li>
+          <li><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>Live in 14 days</li>
+          <li><svg class="ic" aria-hidden="true"><use href="#i-unlock"/></svg>No lock-in contracts</li>
+        </ul>
       </div>
 
-      <!-- JD POINT 6: Lead magnet form — two audiences -->
-      <div id="audit-form">
-        <div class="form-card anim d1">
-          <span class="form-badge">🎁 Free — No Catch</span>
-          <h3>Get Your Free Website Strategy</h3>
-          <p>Tell us where you're at and we'll show you exactly what we'd do — at zero cost, zero obligation.</p>
-
-          <!-- TOGGLE -->
-          <div class="form-toggle">
-            <button class="toggle-btn active" id="tab-has" onclick="switchTab('has')">
-              I have a website<br><span style="font-size:10px;opacity:0.7">that isn't getting leads</span>
-            </button>
-            <button class="toggle-btn" id="tab-none" onclick="switchTab('none')">
-              I don't have<br><span style="font-size:10px;opacity:0.7">a website yet</span>
-            </button>
-          </div>
-
-          <!-- PANEL A: Has a website -->
-          <div class="form-panel active" id="panel-has">
-            <p style="font-size:13px;color:#e8a020;font-weight:700;margin-bottom:14px;">→ We'll audit your site & show you exactly what's losing you leads.</p>
-            <div id="hf-content">
-              <div class="field"><input type="text" id="hf-name" placeholder="Your first name" /></div>
-              <div class="field"><input type="email" id="hf-email" placeholder="Your email address" /></div>
-              <div class="field"><input type="text" id="hf-biz" placeholder="Business name" /></div>
-              <div class="field"><input type="text" id="hf-url" placeholder="Your website URL" /></div>
-              <button class="form-btn" onclick="submitHero('audit')">Get My Free Audit →</button>
-              <p class="form-fine">✓ 100% Free &nbsp;|&nbsp; ✓ No Sales Pitch &nbsp;|&nbsp; ✓ Results in 24hrs</p>
-            </div>
-            <div class="form-success" id="hf-success" style="display:none">
-              <div class="tick">✓</div>
-              <h4>You're locked in!</h4>
-              <p>Your personalised audit will be with you within 24 hours. We'll reach out to book a 15-minute walkthrough too.</p>
+      <!-- Real client sites, on a laptop and a phone, changing every few
+           seconds. Click anywhere on it to move to the next one. -->
+      <figure class="hero-devices" id="work-slides">
+        <div class="laptop">
+          <div class="laptop-lid">
+            <div class="laptop-scr">
+              <img data-i="0" class="on" src="/img/boulangerie-desktop.webp" width="800" height="500" alt="Boulangerie Vietnam's website, built by Studio Velox">
+              <img data-i="1" src="/img/triaxle-desktop.webp" width="800" height="500" alt="Tri-Axle Group's website, redesigned by Studio Velox">
             </div>
           </div>
-
-          <!-- PANEL B: No website -->
-          <div class="form-panel" id="panel-none">
-            <p style="font-size:13px;color:#e8a020;font-weight:700;margin-bottom:14px;">→ We'll put together a free plan showing what your site could look like & what it would cost.</p>
-            <div id="nw-content">
-              <div class="field"><input type="text" id="nw-name" placeholder="Your first name" /></div>
-              <div class="field"><input type="email" id="nw-email" placeholder="Your email address" /></div>
-              <div class="field"><input type="text" id="nw-biz" placeholder="Business name" /></div>
-              <div class="field">
-                <select id="nw-type">
-                  <option value="" disabled selected>What type of business?</option>
-                  <option>Tradie (plumber, painter, builder etc.)</option>
-                  <option>Cafe / Restaurant / Hospitality</option>
-                  <option>Beauty / Wellness / Health</option>
-                  <option>Retail / Product-based</option>
-                  <option>Professional Services</option>
-                  <option>Other</option>
-                </select>
-              </div>
-              <button class="form-btn" onclick="submitHero('noweb')">Get My Free Website Plan →</button>
-              <p class="form-fine">✓ 100% Free &nbsp;|&nbsp; ✓ No Obligation &nbsp;|&nbsp; ✓ Response in 24hrs</p>
-            </div>
-            <div class="form-success" id="nw-success" style="display:none">
-              <div class="tick">✓</div>
-              <h4>Perfect — we'll be in touch!</h4>
-              <p>We'll put together a free plan and concept for your new site. Expect to hear from us within 24 hours.</p>
-            </div>
-          </div>
-
+          <div class="laptop-base"></div>
         </div>
-      </div>
+        <div class="dev-phone">
+          <div class="dev-phone-scr">
+            <img data-i="0" class="on" src="/img/boulangerie-mobile-sm.webp" width="300" height="650" alt="">
+            <img data-i="1" src="/img/triaxle-mobile-sm.webp" width="300" height="650" alt="">
+          </div>
+        </div>
+        <figcaption class="dev-cap">
+          <span class="dev-cap-txt">
+            <span class="dev-cap-name">Boulangerie Vietnam</span>
+            <span class="dev-cap-what">Artisan bakery, Burleigh Waters</span>
+          </span>
+          <span class="dev-dots" aria-hidden="true"><i data-i="0" class="on"></i><i data-i="1"></i></span>
+          <button type="button" class="dev-next" aria-label="Show the next client site"><svg class="ic" aria-hidden="true"><use href="#i-right"/></svg></button>
+        </figcaption>
+      </figure>
     </div>
   </div>
 </section>
@@ -693,16 +959,102 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
 <!-- PROOF BAR -->
 <div class="proof-bar">
   <div class="container proof-inner">
-    <div class="proof-item"><a href="https://g.page/r/Cfdm27s-FYjPEAI/review" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">⭐ Leave Us a Google Review</a></div>
-    <div class="proof-item">📍 Gold Coast Based</div>
-    <div class="proof-item">🤝 No Lock-In Contracts</div>
-    <div class="proof-item">⚡ Sites Live in 14 Days</div>
-    <div class="proof-item">🎨 Custom Design Every Time</div>
+    <div class="proof-item"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg> 5.0 on Google</div>
+    <div class="proof-item"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg> Gold Coast based</div>
+    <div class="proof-item"><svg class="ic" aria-hidden="true"><use href="#i-unlock"/></svg> No lock-in contracts</div>
+    <div class="proof-item"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg> Live in 14 days</div>
+    <div class="proof-item"><svg class="ic" aria-hidden="true"><use href="#i-pen"/></svg> Custom design every time</div>
   </div>
 </div>
 
+<!-- ══ FREE AUDIT ══ Was in the hero, competing with the work. It sits
+     one screen lower now, where it has room and still catches everyone
+     who scrolls. Watch the submissions for a fortnight. -->
+<section class="audit-section" id="audit-form">
+  <div class="container">
+    <div class="audit-inner">
+      <div>
+        <div class="sec-label" style="color:var(--gold)">Free, no obligation</div>
+        <h2 class="sec-title">Find Out What's <em>Costing You Customers</em></h2>
+        <p class="audit-lede">Tell us where you're at and we'll show you exactly what we'd do — at zero cost, zero obligation. Most people have their concept back the next day.</p>
+        <div class="stats-row anim">
+          <div><div class="stat-num">8–15</div><div class="stat-lbl">Leads lost per month</div></div>
+          <div><div class="stat-num">5 sec</div><div class="stat-lbl">Before visitors leave</div></div>
+          <div><div class="stat-num">99%</div><div class="stat-lbl">Google you first</div></div>
+          <div><div class="stat-num">24hr</div><div class="stat-lbl">Concept delivery</div></div>
+        </div>
+      </div>
+      <div>
+      <div class="form-card anim d1">
+        <span class="form-badge"><svg class="ic" aria-hidden="true"><use href="#i-gift"/></svg> Free — No Catch</span>
+        <h3>Get Your Free Website Strategy</h3>
+        <p>Tell us where you're at and we'll show you exactly what we'd do — at zero cost, zero obligation.</p>
+
+        <!-- TOGGLE -->
+        <div class="form-toggle">
+          <button class="toggle-btn active" id="tab-has" onclick="switchTab('has')">
+            I have a website<br><span style="font-size:10px;opacity:0.7">that isn't getting leads</span>
+          </button>
+          <button class="toggle-btn" id="tab-none" onclick="switchTab('none')">
+            I don't have<br><span style="font-size:10px;opacity:0.7">a website yet</span>
+          </button>
+        </div>
+
+        <!-- PANEL A: Has a website -->
+        <div class="form-panel active" id="panel-has">
+          <p style="font-size:13px;color:#e8a020;font-weight:700;margin-bottom:14px;">→ We'll audit your site & show you exactly what's losing you leads.</p>
+          <div id="hf-content">
+            <div class="field"><input type="text" id="hf-name" placeholder="Your first name" /></div>
+            <div class="field"><input type="email" id="hf-email" placeholder="Your email address" /></div>
+            <div class="field"><input type="text" id="hf-biz" placeholder="Business name" /></div>
+            <div class="field"><input type="text" id="hf-url" placeholder="Your website URL" /></div>
+            <button class="form-btn" onclick="submitHero('audit')">Get My Free Audit →</button>
+            <p class="form-fine">✓ 100% Free &nbsp;|&nbsp; ✓ No Sales Pitch &nbsp;|&nbsp; ✓ Results in 24hrs</p>
+          </div>
+          <div class="form-success" id="hf-success" style="display:none">
+            <div class="tick">✓</div>
+            <h4>You're locked in!</h4>
+            <p>Your personalised audit will be with you within 24 hours. We'll reach out to book a 15-minute walkthrough too.</p>
+          </div>
+        </div>
+
+        <!-- PANEL B: No website -->
+        <div class="form-panel" id="panel-none">
+          <p style="font-size:13px;color:#e8a020;font-weight:700;margin-bottom:14px;">→ We'll put together a free plan showing what your site could look like & what it would cost.</p>
+          <div id="nw-content">
+            <div class="field"><input type="text" id="nw-name" placeholder="Your first name" /></div>
+            <div class="field"><input type="email" id="nw-email" placeholder="Your email address" /></div>
+            <div class="field"><input type="text" id="nw-biz" placeholder="Business name" /></div>
+            <div class="field">
+              <select id="nw-type">
+                <option value="" disabled selected>What type of business?</option>
+                <option>Tradie (plumber, painter, builder etc.)</option>
+                <option>Cafe / Restaurant / Hospitality</option>
+                <option>Beauty / Wellness / Health</option>
+                <option>Retail / Product-based</option>
+                <option>Professional Services</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <button class="form-btn" onclick="submitHero('noweb')">Get My Free Website Plan →</button>
+            <p class="form-fine">✓ 100% Free &nbsp;|&nbsp; ✓ No Obligation &nbsp;|&nbsp; ✓ Response in 24hrs</p>
+          </div>
+          <div class="form-success" id="nw-success" style="display:none">
+            <div class="tick">✓</div>
+            <h4>Perfect — we'll be in touch!</h4>
+            <p>We'll put together a free plan and concept for your new site. Expect to hear from us within 24 hours.</p>
+          </div>
+        </div>
+
+      </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- VELOX DEFINITION — compact banner -->
 <section class="velox-definition">
+  <div class="atmo" aria-hidden="true"></div>
   <div class="velox-def-inner">
     <div class="velox-def-word">VELOX<span>.</span></div>
     <div class="velox-def-phonetic">(vel · ox)</div>
@@ -716,83 +1068,71 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
 
 
 <!-- ══ BEFORE / AFTER SHOWCASE ══ -->
-<section class="showcase">
+<section class="showcase" id="work">
   <div class="container">
     <div class="sec-label">Real business transformations</div>
     <h2 class="sec-title anim">See Exactly What We Do —<br><em>Before & After, Side by Side</em></h2>
-    <p class="showcase-intro anim">Real businesses. Real websites we've transformed. Watch the before, watch the after — and ask yourself honestly which one you'd call.</p>
+    <p class="showcase-intro anim">Real Gold Coast businesses. Real websites. Drag the first one across and ask yourself honestly which one you'd call.</p>
 
-    <div class="showcase-grid">
+    <div class="work-list">
 
-      <!-- CLIENT 1: Ellie -->
-      <div class="showcase-item anim">
-        <div class="showcase-panel">
-          <span class="showcase-label label-before">Before</span>
-          <div class="showcase-video" id="ellie-before">
-            <iframe src="https://www.youtube.com/embed/lbebKxfUOBw" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:none;"></iframe>
-          </div>
-          <div class="showcase-meta">
-            <div class="showcase-biz">DoGood Pet Nutrition</div>
-            <div class="showcase-type">Current website — <a href="https://dogoodgc.com.au" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">dogoodgc.com.au</a></div>
-          </div>
+      <!-- DoGood: the one project where the old site is still up, so the
+           whole change fits in a single picture you drag across. -->
+      <div class="work-item anim">
+        <div class="work-head">
+          <div class="work-biz">DoGood Pet Nutrition</div>
+          <div class="work-what">Their site today, and our redesign — <a href="https://dogoodgc.com.au" target="_blank" rel="noopener">dogoodgc.com.au</a></div>
         </div>
-        <div class="showcase-panel">
-          <span class="showcase-label label-after" style="background:#7b5ea7;">Future</span>
-          <div class="showcase-video" id="ellie-after">
-            <iframe src="https://www.youtube.com/embed/XmISAMu9ZOw" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:none;"></iframe>
+        <div class="ba" id="ba-dogood">
+          <picture>
+            <source media="(max-width: 640px)" srcset="/img/dogood-after-mobile-top.webp">
+            <img src="/img/dogood-after-desktop.webp" width="800" height="500" loading="lazy" alt="Our redesign: one clear headline, Ellie's photo, the Google rating and a single call to action.">
+          </picture>
+          <div class="ba-before">
+            <picture>
+              <source media="(max-width: 640px)" srcset="/img/dogood-before-mobile-top.webp">
+              <img src="/img/dogood-before-desktop.webp" width="800" height="500" loading="lazy" alt="Their site today: a paragraph of text, emoji bullets and two small buttons.">
+            </picture>
           </div>
-          <div class="showcase-meta">
-            <div class="showcase-biz">DoGood Pet Nutrition</div>
-            <div class="showcase-type">Future redesign — <a href="https://pacman1979.github.io/DoGoodGC/v2/" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">preview here</a></div>
-          </div>
+          <span class="ba-tag l" aria-hidden="true">Today</span>
+          <span class="ba-tag r" aria-hidden="true">Our redesign</span>
+          <span class="ba-line" aria-hidden="true"></span>
+          <span class="ba-knob" aria-hidden="true"><svg class="ic"><use href="#i-arrows"/></svg></span>
+          <label class="ba-sr" for="ba-dogood-range">Before and after. Lower values show more of their current site.</label>
+          <input class="ba-sr" id="ba-dogood-range" type="range" min="0" max="100" value="50">
+        </div>
+        <div class="drag-hint"><svg class="ic" aria-hidden="true"><use href="#i-arrows"/></svg> Drag to compare</div>
+        <div class="work-foot">
+          Prefer to watch it? <a href="https://www.youtube.com/watch?v=lbebKxfUOBw" target="_blank" rel="noopener">The site today</a> &nbsp;·&nbsp; <a href="https://www.youtube.com/watch?v=XmISAMu9ZOw" target="_blank" rel="noopener">The redesign</a> &nbsp;·&nbsp; <a href="https://pacman1979.github.io/DoGoodGC/v2/" target="_blank" rel="noopener">Open the concept</a>
         </div>
       </div>
 
-      <!-- CLIENT 2: Evan / Tri-Axle Group -->
-      <div class="showcase-item anim">
-        <div class="showcase-panel">
-          <span class="showcase-label label-before">Before</span>
-          <div class="showcase-video" id="evan-before">
-            <iframe src="https://www.youtube.com/embed/q6Cxh5QlteI" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:none;"></iframe>
-          </div>
-          <div class="showcase-meta">
-            <div class="showcase-biz">Tri-Axle Group</div>
-            <div class="showcase-type">Original website — <a href="https://triaxlegroup.com.au" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">triaxlegroup.com.au</a></div>
-          </div>
+      <!-- Tri-Axle: the old site came down the day the new one went up,
+           so there is nothing left to compare it against. -->
+      <div class="work-item anim">
+        <div class="work-head">
+          <div class="work-biz">Tri-Axle Group</div>
+          <div class="work-what">Heavy transport — <a href="https://triaxlegroup.com.au" target="_blank" rel="noopener">triaxlegroup.com.au</a></div>
         </div>
-        <div class="showcase-panel">
-          <span class="showcase-label label-after">After</span>
-          <div class="showcase-video" id="evan-after">
-            <iframe src="https://www.youtube.com/embed/vY5qykkGIrA" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:none;"></iframe>
-          </div>
-          <div class="showcase-meta">
-            <div class="showcase-biz">Tri-Axle Group</div>
-            <div class="showcase-type">Redesigned by Studio Velox — <a href="https://triaxlegroup.com.au" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">triaxlegroup.com.au</a></div>
-          </div>
+        <div class="shot-card">
+          <img src="/img/triaxle-desktop.webp" width="800" height="500" loading="lazy" alt="Tri-Axle Group's website: a road train at dusk behind the words Heavy Loads, More Roads, Less Hassle.">
+        </div>
+        <div class="work-foot">
+          Redesigned by Studio Velox. The old site came down when this one went live — <a href="https://www.youtube.com/watch?v=q6Cxh5QlteI" target="_blank" rel="noopener">here's what it looked like</a> &nbsp;·&nbsp; <a href="https://www.youtube.com/watch?v=vY5qykkGIrA" target="_blank" rel="noopener">walkthrough of the new one</a>
         </div>
       </div>
 
-      <!-- CLIENT 3: Boulangerie Vietnam -->
-      <div class="showcase-item anim">
-        <div class="showcase-panel">
-          <span class="showcase-label label-before">Before</span>
-          <div class="showcase-video" id="bv-before">
-            <iframe src="https://www.youtube.com/embed/aAtABzX_WQY" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:none;"></iframe>
-          </div>
-          <div class="showcase-meta">
-            <div class="showcase-biz">Boulangerie Vietnam Artisan Bakery</div>
-            <div class="showcase-type">Facebook only — <a href="https://boulangerievietnam.com.au" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">boulangerievietnam.com.au</a></div>
-          </div>
+      <!-- Boulangerie Vietnam: built from nothing. -->
+      <div class="work-item anim">
+        <div class="work-head">
+          <div class="work-biz">Boulangerie Vietnam Artisan Bakery</div>
+          <div class="work-what">Artisan bakery, Burleigh Waters — <a href="https://boulangerievietnam.com.au" target="_blank" rel="noopener">boulangerievietnam.com.au</a></div>
         </div>
-        <div class="showcase-panel">
-          <span class="showcase-label label-after">After</span>
-          <div class="showcase-video" id="bv-after">
-            <iframe src="https://www.youtube.com/embed/FUC4RubKtmY" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:none;"></iframe>
-          </div>
-          <div class="showcase-meta">
-            <div class="showcase-biz">Boulangerie Vietnam Artisan Bakery</div>
-            <div class="showcase-type">New website concept — <a href="https://boulangerievietnam.com.au" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">boulangerievietnam.com.au</a></div>
-          </div>
+        <div class="shot-card">
+          <img src="/img/boulangerie-desktop.webp" width="800" height="500" loading="lazy" alt="Boulangerie Vietnam's website: the headline Tired of bread that tastes like it came from a warehouse, beside a photo of the shopfront.">
+        </div>
+        <div class="work-foot">
+          Built and hosted by Studio Velox. Before this they had a Facebook page and nothing else — <a href="https://www.youtube.com/watch?v=FUC4RubKtmY" target="_blank" rel="noopener">watch the walkthrough</a>
         </div>
       </div>
 
@@ -830,24 +1170,24 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
       <div class="testi-card anim">
         <div class="stars">★★★★★</div>
         <div class="testi-quote">"Phillip is incredibly knowledgeable and always willing to help. He consistently comes up with great ideas to improve my website and always finds a solution, no matter how challenging the problem is. For him, nothing seems impossible. He's easy to communicate with, takes the time needed to properly fix any issue, and never makes you feel rushed. His pricing is very affordable, and working with him gives you complete confidence that you're in good hands."</div>
-        <div class="testi-result">⭐ "I can't recommend Phillip highly enough."</div>
+        <div class="testi-result">"I can't recommend Phillip highly enough."</div>
         <div class="testi-author"><div class="testi-avatar">EG</div><div><div class="testi-name">Ellie Gronkowski</div><div class="testi-biz">DoGood Pet Nutrition — <a href="https://dogoodgc.com.au" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">dogoodgc.com.au</a></div></div></div>
       </div>
       <div class="testi-card anim d1">
         <div class="stars">★★★★★</div>
         <div class="testi-quote">"Studio Velox did a redesign of our website and the experience was excellent from start to finish. Phil was great to deal with, communication was spot on throughout, but what stood out was how fast he turned around an initial concept. Seeing what the site could become so quickly made the whole process easy and got us excited from day one. Would definitely use them again, and I'd recommend Phil and the team to anyone who needs a new website or wants to refresh their existing website."</div>
-        <div class="testi-result">🚀 Fast concept — excited from day one</div>
+        <div class="testi-result">Fast concept — excited from day one</div>
         <div class="testi-author"><div class="testi-avatar">EC</div><div><div class="testi-name">Evan Courtney</div><div class="testi-biz">Tri-Axle Group — <a href="https://triaxlegroup.com.au" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">triaxlegroup.com.au</a></div></div></div>
       </div>
       <div class="testi-card anim d2">
         <div class="stars">★★★★★</div>
         <div class="testi-quote">"I couldn't recommend Phil highly enough for creating your website! He made the whole process of creating mine so easy and stress-free. For someone who is terrible at anything tech related (me), he has been incredibly patient and basically took the entire process off my hands. If you are looking for someone who is knowledgeable, reliable and most importantly cares about building something that truly aligns with your brand and your vision, Phil is the person to go to. Thank you so much again for everything 🙏"</div>
-        <div class="testi-result">✨ "Took the entire process off my hands"</div>
+        <div class="testi-result">"Took the entire process off my hands"</div>
         <div class="testi-author"><div class="testi-avatar">TV</div><div><div class="testi-name">Taylor Valentino</div><div class="testi-biz">The Breath Therapy — <a href="https://thebreaththerapy.com.au" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">thebreaththerapy.com.au</a></div></div></div>
       </div>
     </div>
     <div class="vid-testi-note">
-      <p><strong>📹 Video testimonials coming soon.</strong> We capture real client stories at the moment they're most excited about their results. Want to be one of our first case studies? <a href="#" style="color:var(--gold);font-weight:700" onclick="scrollTo('audit-form');return false">Claim your free audit →</a></p>
+      <p><strong><svg class="ic" aria-hidden="true" style="color:var(--gold)"><use href="#i-play"/></svg> Video testimonials coming soon.</strong> We capture real client stories at the moment they're most excited about their results. Want to be one of our first case studies? <a href="#" style="color:var(--gold);font-weight:700" onclick="scrollTo('audit-form');return false">Claim your free audit →</a></p>
     </div>
   </div>
 </section>
@@ -878,7 +1218,7 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
           <hr class="cred-div">
           <div class="cred-row"><div class="cred-n">5★</div><div class="cred-l">Google-rated service</div></div>
           <div class="guarantee">
-            <h4>🤝 The Studio Velox Commitment</h4>
+            <h4><svg class="ic" aria-hidden="true"><use href="#i-hand"/></svg> The Studio Velox Commitment</h4>
             <p>We care genuinely about every website we build. You'll have direct access to Phil throughout the entire process — no account managers, no outsourcing, no disappearing acts. Just honest work, clear communication, and a site you're proud to share.</p>
           </div>
         </div>
@@ -900,7 +1240,7 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
       <p class="final-small">✓ Free — No obligation &nbsp;|&nbsp; ✓ Results in 24 hours &nbsp;|&nbsp; ✓ No sales pitch</p>
     </div>
     <div class="final-success" id="ff-success">
-      <h3>You're in! 🎉</h3>
+      <h3>You're in!</h3>
       <p>We'll be in touch within 24 hours with your personalised audit.</p>
     </div>
   </div>
@@ -917,21 +1257,162 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
       <a href="/terms">Terms</a>
       <a href="mailto:phil@studiovelox.com">phil@studiovelox.com</a>
       <a href="tel:0422777865">0422 777 865</a>
-      <a href="https://www.facebook.com/profile.php?id=61592078741097" target="_blank" rel="noopener" style="color:var(--gold);">📘 Facebook</a>
-      <a href="https://g.page/r/Cfdm27s-FYjPEAI/review" target="_blank" rel="noopener" style="color:var(--gold);">⭐ Google Review</a>
+      <a href="https://www.facebook.com/profile.php?id=61592078741097" target="_blank" rel="noopener" style="color:var(--gold);"><svg class="ic" aria-hidden="true"><use href="#i-fb"/></svg> Facebook</a>
+      <a href="https://g.page/r/Cfdm27s-FYjPEAI/review" target="_blank" rel="noopener" style="color:var(--gold);"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg> Leave a review</a>
     </div>
   </div>
 </footer>
 
 <script>
 function goToAudit() {
-  document.getElementById('audit-form').scrollIntoView({ behavior: 'smooth' });
-  setTimeout(() => { document.getElementById('hf-name').focus(); }, 600);
+  const el = document.getElementById('audit-form');
+  el.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  setTimeout(() => { document.getElementById('hf-name').focus({ preventScroll: true }); }, 600);
 }
 
 function goToProcess() {
   document.getElementById('process').scrollIntoView({ behavior: 'smooth' });
 }
+
+// Mark the page as scripted. Until this line runs, nothing is hidden —
+// so if the script ever fails, the page is still readable.
+document.documentElement.classList.add('js');
+
+const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)');
+const motionOK = () => !REDUCED.matches;
+
+// ── The headline arrives, word by word (option 4) ────────────────────
+(function heroHeadline() {
+  const hero = document.getElementById('hero');
+  if (!hero) return;
+  if (!motionOK()) { hero.classList.add('play'); return; }
+  requestAnimationFrame(() => requestAnimationFrame(() => hero.classList.add('play')));
+})();
+
+// ── Jump to the work ─────────────────────────────────────────────────
+function goToWork() {
+  const el = document.getElementById('work');
+  if (el) el.scrollIntoView({ behavior: motionOK() ? 'smooth' : 'auto' });
+}
+
+// ── The phone menu (option 3) ────────────────────────────────────────
+(function navMenu() {
+  const btn = document.getElementById('nav-toggle');
+  const drawer = document.getElementById('nav-drawer');
+  if (!btn || !drawer) return;
+  btn.addEventListener('click', () => {
+    const open = drawer.classList.toggle('open');
+    btn.setAttribute('aria-expanded', String(open));
+  });
+  drawer.addEventListener('click', (e) => {
+    if (e.target.tagName === 'A') {
+      drawer.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+    }
+  });
+})();
+
+// ── The client sites in the hero (option 1) ──────────────────────────
+(function workSlides() {
+  const group = document.getElementById('work-slides');
+  if (!group) return;
+  const SLIDES = [
+    ['Boulangerie Vietnam', 'Artisan bakery, Burleigh Waters'],
+    ['Tri-Axle Group', 'Heavy transport, Gold Coast'],
+  ];
+  const name = group.querySelector('.dev-cap-name');
+  const what = group.querySelector('.dev-cap-what');
+  let i = 0;
+  let paused = false;
+
+  const show = (n) => {
+    i = (n + SLIDES.length) % SLIDES.length;
+    group.querySelectorAll('[data-i]').forEach((el) => {
+      el.classList.toggle('on', Number(el.dataset.i) === i);
+    });
+    name.textContent = SLIDES[i][0];
+    what.textContent = SLIDES[i][1];
+  };
+
+  group.addEventListener('click', () => show(i + 1));
+  group.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') paused = true; });
+  group.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') paused = false; });
+
+  setInterval(() => {
+    if (motionOK() && !paused && !document.hidden) show(i + 1);
+  }, 5000);
+})();
+
+// ── Drag to compare (option 2) ───────────────────────────────────────
+document.querySelectorAll('.ba').forEach((ba) => {
+  const range = ba.querySelector('input[type="range"]');
+  let drag = null;
+  let touched = false;
+  let nudge = 0;
+
+  const set = (p) => {
+    const v = Math.max(0, Math.min(100, p));
+    ba.style.setProperty('--pos', v.toFixed(2) + '%');
+    range.value = String(Math.round(v));
+  };
+  const pct = (x) => {
+    const r = ba.getBoundingClientRect();
+    return ((x - r.left) / r.width) * 100;
+  };
+  const stopNudge = () => {
+    touched = true;
+    if (nudge) cancelAnimationFrame(nudge);
+    nudge = 0;
+  };
+
+  ba.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    stopNudge();
+    // On a finger, wait to see whether this is a sideways drag or the
+    // visitor scrolling the page. Grabbing it straight away traps them.
+    drag = { id: e.pointerId, x: e.clientX, y: e.clientY, live: e.pointerType === 'mouse' };
+    if (drag.live) { ba.setPointerCapture(e.pointerId); set(pct(e.clientX)); }
+  });
+  ba.addEventListener('pointermove', (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    if (!drag.live) {
+      const dx = Math.abs(e.clientX - drag.x);
+      const dy = Math.abs(e.clientY - drag.y);
+      if (dx > 6 && dx > dy) { drag.live = true; ba.setPointerCapture(e.pointerId); }
+      else return;
+    }
+    set(pct(e.clientX));
+  });
+  const end = () => { drag = null; };
+  ba.addEventListener('pointerup', end);
+  ba.addEventListener('pointercancel', end);
+  range.addEventListener('input', () => { stopNudge(); set(Number(range.value)); });
+
+  // One nudge the first time it comes into view, so people see it moves.
+  const io = new IntersectionObserver((entries) => {
+    if (!entries.some((e) => e.isIntersecting)) return;
+    io.disconnect();
+    if (!motionOK()) return;
+    const keys = [[0, 50], [450, 30], [1000, 68], [1450, 50]];
+    const ease = (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+    setTimeout(() => {
+      if (touched) return;
+      const t0 = performance.now();
+      const step = (now) => {
+        const t = now - t0;
+        let k = 1;
+        while (k < keys.length - 1 && t > keys[k][0]) k += 1;
+        const [ta, pa] = keys[k - 1];
+        const [tb, pb] = keys[k];
+        const u = Math.min(1, Math.max(0, (t - ta) / (tb - ta)));
+        set(pa + (pb - pa) * ease(u));
+        nudge = t < keys[keys.length - 1][0] ? requestAnimationFrame(step) : 0;
+      };
+      nudge = requestAnimationFrame(step);
+    }, 350);
+  }, { threshold: 0.6 });
+  io.observe(ba);
+});
 
 // Toggle between has-website and no-website panels
 function switchTab(tab) {
