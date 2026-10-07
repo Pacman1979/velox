@@ -3,7 +3,35 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Studio Velox — Are You Losing Customers Online Without Knowing It?</title>
+<title>Studio Velox — Gold Coast Web Design | Concept in 24 Hours</title>
+<meta name="description" content="Clean, modern websites for Gold Coast businesses. See a free concept of your new site within 24 hours, live in 14 days, no lock-in contracts. 5.0 on Google.">
+<link rel="canonical" href="https://studiovelox.com/">
+<meta name="theme-color" content="#0a1628">
+
+<!-- What a shared link looks like. Without these, texting someone your own
+     address shows a grey box with no picture — which, for a web designer,
+     is the worst possible first impression. -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://studiovelox.com/">
+<meta property="og:site_name" content="Studio Velox">
+<meta property="og:title" content="A website your business deserves.">
+<meta property="og:description" content="Gold Coast web design. A free concept of your new site within 24 hours, live in 14 days, no lock-in contracts.">
+<meta property="og:image" content="https://studiovelox.com/img/og-studiovelox.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Studio Velox — a website your business deserves.">
+<meta property="og:locale" content="en_AU">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="A website your business deserves.">
+<meta name="twitter:description" content="Gold Coast web design. A free concept of your new site within 24 hours.">
+<meta name="twitter:image" content="https://studiovelox.com/img/og-studiovelox.jpg">
+
+<!-- The tab icon, and the icon if someone saves the site to their phone. -->
+<link rel="icon" href="/img/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/img/favicon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Lato:wght@300;400;700&family=Oswald:wght@500;600&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/@formspree/ajax@1" defer></script>
 <style>
@@ -342,9 +370,6 @@ nav {
 }
 .testi-name { font-weight: 700; font-size: 14px; color: var(--navy); }
 .testi-biz { font-size: 12px; color: var(--gray); }
-.vid-testi-note { text-align: center; margin-top: 32px; padding: 22px; background: var(--navy); color: var(--white); }
-.vid-testi-note p { font-size: 14px; color: #7a8fa8; }
-.vid-testi-note strong { color: var(--gold); }
 
 /* TRUST */
 .trust { background: var(--white); padding: 80px 0; }
@@ -485,12 +510,7 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
 .foot-links a:hover { color: var(--gold); }
 .foot-copy { font-size: 13px; }
 
-/* ANIMATE */
-@keyframes fadeUp { from { opacity:0; transform:translateY(22px); } to { opacity:1; transform:translateY(0); } }
-.anim { opacity: 0; }
-.anim.visible { animation: fadeUp 0.7s ease forwards; }
-.d1 { animation-delay: 0.1s; } .d2 { animation-delay: 0.2s; }
-.d3 { animation-delay: 0.3s; } .d4 { animation-delay: 0.4s; }
+/* ANIMATE — see "Nothing on this page starts invisible", further down. */
 
 /* RESPONSIVE */
 @media (max-width: 900px) {
@@ -771,10 +791,24 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
 .nav-toggle i { display: block; width: 18px; height: 2px; margin: 3px auto; background: currentColor; }
 .nav-drawer { display: none; }
 
-/* ── Scroll reveal, but only when the script is alive ────────────── */
+/* ── Nothing on this page starts invisible ───────────────────────────
+   Eighteen elements used to begin at opacity 0 and fade up as you reached
+   them. It is the most-used effect on template sites, and on a fast scroll
+   you arrive at blank space and wait for it to catch up.
+
+   What replaced it: a gold rule that draws itself under each section
+   heading, once, as the heading arrives. The words are readable the whole
+   time. The one real moment on the page is still the headline in the hero. */
 .anim { opacity: 1; }
-.js .anim { opacity: 0; }
-.js .anim.visible { animation: fadeUp 0.7s ease forwards; }
+
+.sec-title, .section-title { position: relative; }
+.sec-title::after, .section-title::after {
+  content: ''; position: absolute; left: 0; bottom: -14px;
+  height: 2px; width: 0; background: var(--gold);
+}
+.js .rule-in::after { animation: ruleIn 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+@keyframes ruleIn { from { width: 0; } to { width: 64px; } }
+.sec-title { margin-bottom: 30px; }
 
 /* ── RESPONSIVE for everything above ─────────────────────────────── */
 @media (max-width: 900px) {
@@ -821,8 +855,7 @@ footer { background: var(--navy2); color: #7a8fa8; padding: 36px 0; }
   .atmo::before { animation: none; }
   .announce-track { animation: none; padding-left: 0; }
   .laptop-scr img, .dev-phone-scr img { transition: none; }
-  .js .anim { opacity: 1; }
-  .js .anim.visible { animation: none; }
+  .js .rule-in::after { animation: none; width: 64px; }
   .js .hero h1 .w > span { transform: none; }
   .js .hero h1 .stop { opacity: 1; }
   .hero.play h1 .w > span, .hero.play h1 .stop { animation: none; }
@@ -937,6 +970,78 @@ body > *:not(.page-wash) { position: relative; z-index: 1; }
   .strip-bar i { transition: none; }
 }
 
+/* ── The instant audit ──────────────────────────────────────────────
+   A visitor types their own address and the page tells them something
+   true about their site in about three seconds. The findings come from
+   /api/quickaudit, which actually fetches the page and measures it. */
+.instant { padding: 76px 0 72px; color: var(--white); }
+.instant-head { max-width: 640px; margin-bottom: 28px; }
+.instant .sec-title { color: var(--white); }
+.instant-lede { font-size: 16px; line-height: 1.65; color: #b0bfd4; margin-top: 26px; }
+
+.ia-form { display: flex; gap: 12px; max-width: 640px; }
+.ia-form input {
+  flex: 1; min-width: 0; padding: 18px 18px; border: 1px solid rgba(255,255,255,0.22);
+  background: rgba(255,255,255,0.05); color: var(--white);
+  font-family: var(--font-body); font-size: 16px;
+}
+.ia-form input::placeholder { color: #6a7f9a; }
+.ia-form input:focus { outline: 2px solid var(--gold); outline-offset: -1px; border-color: transparent; }
+.ia-form button { flex: none; padding: 18px 28px; font-size: 15px; }
+.ia-form button[disabled] { opacity: 0.6; cursor: default; }
+
+.ia-note { font-size: 13px; color: #6a7f9a; margin-top: 12px; }
+
+.ia-out { margin-top: 34px; max-width: 820px; }
+.ia-head {
+  display: flex; align-items: baseline; gap: 12px 18px; flex-wrap: wrap;
+  padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.14);
+}
+.ia-headline { font-family: var(--font-head); font-size: clamp(22px, 2.6vw, 32px); font-weight: 900; line-height: 1.12; }
+.ia-url { font-size: 13px; color: #6a7f9a; word-break: break-all; }
+.ia-detail { font-size: 16px; line-height: 1.6; color: #b0bfd4; margin-top: 14px; }
+
+.ia-list { list-style: none; padding: 0; margin-top: 22px; display: grid; gap: 2px; }
+.ia-list li {
+  display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 2px 12px;
+  padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.ia-list .ic { grid-row: span 2; margin-top: 3px; font-size: 18px; }
+.ia-list b { font-size: 17px; line-height: 1.35; }
+.ia-list span { font-size: 15px; line-height: 1.55; color: #9aabc4; }
+.ia-list li.costing .ic { color: #ff8a80; }
+.ia-list li.watch .ic { color: var(--gold); }
+.ia-list li.good .ic { color: #9ad27a; }
+.ia-list li.good b { font-weight: 400; color: #b0bfd4; font-size: 16px; }
+
+.ia-group { font-family: var(--font-accent); font-size: 14px; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--gold); margin: 28px 0 -6px; }
+.ia-more { background: none; border: none; padding: 0; margin-top: 20px; cursor: pointer;
+  font-family: var(--font-accent); font-size: 14px; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--white); border-bottom: 2px solid var(--gold); }
+.ia-more:hover { color: var(--gold); }
+
+.ia-cta { margin-top: 30px; padding: 24px; background: rgba(255,255,255,0.05);
+  border-left: 3px solid var(--gold); display: grid; gap: 14px; justify-items: start; }
+.ia-cta p { font-size: 16px; line-height: 1.6; color: #d4ddea; }
+
+.ia-busy { display: flex; align-items: center; gap: 12px; margin-top: 30px; font-size: 16px; color: #b0bfd4; }
+.ia-spin { width: 18px; height: 18px; flex: none; border: 2px solid rgba(255,255,255,0.25);
+  border-top-color: var(--gold); border-radius: 50%; animation: iaSpin 0.8s linear infinite; }
+@keyframes iaSpin { to { transform: rotate(360deg); } }
+.ia-err { margin-top: 24px; padding: 16px 18px; background: rgba(192,57,43,0.18);
+  border-left: 3px solid var(--red); font-size: 15px; color: #f3d7d3; }
+
+@media (max-width: 640px) {
+  .instant { padding: 52px 0 48px; }
+  .ia-form { flex-direction: column; }
+  .ia-form button { width: 100%; }
+  @keyframes iaSpin { to { transform: rotate(360deg); } }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ia-spin { animation-duration: 2s; }
+}
+
 /* NO-WEBSITE TOGGLE */
 .form-toggle {
   display: flex; background: #eef2f7; border-radius: 0;
@@ -972,6 +1077,9 @@ body > *:not(.page-wash) { position: relative; z-index: 1; }
   <symbol id="i-gift" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3.5" y="9.5" width="17" height="10.5" rx="1.5"/><path d="M2.6 6.2h18.8v3.3H2.6zM12 6.2V20"/><path d="M12 6.2S10.8 3 8.9 3a2 2 0 0 0 0 3.2zM12 6.2S13.2 3 15.1 3a2 2 0 0 1 0 3.2z"/></g></symbol>
   <symbol id="i-play" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M10.2 8.6l5.4 3.4-5.4 3.4z"/></g></symbol>
   <symbol id="i-arrows" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M9 7l-5 5 5 5M15 7l5 5-5 5"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4.2L2.6 20.4h18.8z" stroke-linejoin="round"/><path d="M12 10v4.2M12 17.2v.1"/></g></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M1.8 12S5.6 5.4 12 5.4 22.2 12 22.2 12 18.4 18.6 12 18.6 1.8 12 1.8 12z"/><circle cx="12" cy="12" r="2.8"/></g></symbol>
+  <symbol id="i-tick" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.8l4.8 4.7L19.5 7"/></symbol>
   <symbol id="i-left" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M14.5 6l-6 6 6 6"/></symbol>
   <symbol id="i-right" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9.5 6l6 6-6 6"/></symbol>
   <symbol id="i-hand" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M3 11.5l3.5-3.5a2 2 0 0 1 2.8 0L12 10.7l2.7-2.7a2 2 0 0 1 2.8 0L21 11.5M7.5 14.5l2.3 2.3a1.6 1.6 0 0 0 2.3 0l4.4-4.4"/></symbol>
@@ -992,7 +1100,6 @@ body > *:not(.page-wash) { position: relative; z-index: 1; }
   <div class="container nav-inner">
     <div class="logo">STUD<span style="color:var(--gold)">IO</span> <span style="color:var(--gold)">VE</span>LOX<span>.</span></div>
     <a href="/portfolio" class="nav-portfolio">Portfolio</a>
-    <a href="/pricing" class="nav-portfolio">Pricing</a>
     <div class="nav-contact">
       <span class="nav-phone"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg> <a href="tel:0422777865" style="color:inherit">0422 777 865</a></span>
       <span class="nav-divider">|</span>
@@ -1004,7 +1111,6 @@ body > *:not(.page-wash) { position: relative; z-index: 1; }
     <button class="nav-toggle" type="button" id="nav-toggle" aria-expanded="false" aria-controls="nav-drawer" aria-label="Menu"><i></i><i></i><i></i></button>
     <div class="nav-drawer" id="nav-drawer">
       <a href="/portfolio">Portfolio</a>
-      <a href="/pricing">Pricing</a>
       <a href="tel:0422777865">0422 777 865</a>
       <a href="mailto:phil@studiovelox.com">phil@studiovelox.com</a>
       <a href="https://www.facebook.com/profile.php?id=61592078741097" target="_blank" rel="noopener">Facebook</a>
@@ -1082,6 +1188,30 @@ body > *:not(.page-wash) { position: relative; z-index: 1; }
   </div>
 </div>
 
+<!-- ══ INSTANT AUDIT ══ Every designer on the coast offers a free audit and
+     means "fill in a form and wait". This one answers in about three
+     seconds, from a real fetch of their homepage. It also collects the one
+     thing the form below actually needs. -->
+<section class="instant" id="instant" data-wash="#0f2547">
+  <div class="container">
+    <div class="instant-head">
+      <div class="sec-label" style="color:var(--gold)">No form, no waiting</div>
+      <h2 class="sec-title">Put Your Own Website In Here. <em>We'll Tell You Now.</em></h2>
+      <p class="instant-lede">Not a brochure and not a sales call — we fetch your homepage, measure it, and show you what we find. It takes about three seconds.</p>
+    </div>
+
+    <form class="ia-form" id="ia-form" novalidate>
+      <label class="sr-only" for="ia-url">Your website address</label>
+      <input type="text" id="ia-url" name="url" inputmode="url" autocomplete="url"
+             placeholder="yourbusiness.com.au" spellcheck="false">
+      <button class="btn-gold" type="submit" id="ia-go">Check My Site</button>
+    </form>
+    <p class="ia-note">Nothing is saved and nothing is sent to you unless you ask.</p>
+
+    <div class="ia-out" id="ia-out" hidden></div>
+  </div>
+</section>
+
 <!-- ══ FREE AUDIT ══ Was in the hero, competing with the work. It sits
      one screen lower now, where it has room and still catches everyone
      who scrolls. Watch the submissions for a fortnight. -->
@@ -1092,7 +1222,7 @@ body > *:not(.page-wash) { position: relative; z-index: 1; }
         <div class="sec-label" style="color:var(--gold)">Free, no obligation</div>
         <h2 class="sec-title">Find Out What's <em>Costing You Customers</em></h2>
         <p class="audit-lede">Tell us where you're at and we'll show you exactly what we'd do — at zero cost, zero obligation. Most people have their concept back the next day.</p>
-        <div class="stats-row anim">
+        <div class="stats-row">
           <div><div class="stat-num">8–15</div><div class="stat-lbl">Leads lost per month</div></div>
           <div><div class="stat-num">5 sec</div><div class="stat-lbl">Before visitors leave</div></div>
           <div><div class="stat-num">99%</div><div class="stat-lbl">Google you first</div></div>
@@ -1100,7 +1230,7 @@ body > *:not(.page-wash) { position: relative; z-index: 1; }
         </div>
       </div>
       <div>
-      <div class="form-card anim d1">
+      <div class="form-card">
         <span class="form-badge"><svg class="ic" aria-hidden="true"><use href="#i-gift"/></svg> Free — No Catch</span>
         <h3>Get Your Free Website Strategy</h3>
         <p>Tell us where you're at and we'll show you exactly what we'd do — at zero cost, zero obligation.</p>
@@ -1186,14 +1316,14 @@ body > *:not(.page-wash) { position: relative; z-index: 1; }
 <section class="showcase" id="work" data-wash="#0f2547">
   <div class="container">
     <div class="sec-label">Real business transformations</div>
-    <h2 class="sec-title anim">See Exactly What We Do —<br><em>Before & After, Side by Side</em></h2>
-    <p class="showcase-intro anim">Drag the line across. On the left is the site a real Gold Coast business has today. On the right is what we'd replace it with. Ask yourself honestly which one you'd call.</p>
+    <h2 class="sec-title">See Exactly What We Do —<br><em>Before & After, Side by Side</em></h2>
+    <p class="showcase-intro">Drag the line across. On the left is the site a real Gold Coast business has today. On the right is what we'd replace it with. Ask yourself honestly which one you'd call.</p>
 
     <div class="work-list">
 
       <!-- DoGood: the one project where the old site is still up, so the
            whole change fits in a single picture you drag across. -->
-      <div class="work-item anim">
+      <div class="work-item">
         <div class="work-head">
           <div class="work-biz">DoGood Pet Nutrition</div>
           <div class="work-what">Their site today, and our redesign — <a href="https://dogoodgc.com.au" target="_blank" rel="noopener">dogoodgc.com.au</a></div>
@@ -1224,7 +1354,7 @@ body > *:not(.page-wash) { position: relative; z-index: 1; }
 
     </div>
 
-    <div class="showcase-cta anim">
+    <div class="showcase-cta">
       <p>Want to see what we'd do with your website?</p>
       <button class="btn-gold" onclick="goToAudit()">Get My Free Audit — See Your Transformation →</button>
     </div>
@@ -1243,7 +1373,7 @@ body > *:not(.page-wash) { position: relative; z-index: 1; }
         <div class="strip-top">
           <div>
             <div class="sec-label" style="color:var(--gold)">Selected work</div>
-            <h2 class="sec-title anim">Built, Rebuilt and <em>Live on the Gold Coast</em></h2>
+            <h2 class="sec-title">Built, Rebuilt and <em>Live on the Gold Coast</em></h2>
           </div>
           <div class="strip-bar" aria-hidden="true"><i></i></div>
         </div>
@@ -1302,12 +1432,12 @@ body > *:not(.page-wash) { position: relative; z-index: 1; }
 <section class="process" id="process" data-wash="#122040">
   <div class="container">
     <div class="sec-label" style="color:var(--gold)">Simple 4-step process</div>
-    <h2 class="sec-title anim">From Free Audit to Live & <em>Generating Leads in Under 2 Weeks</em></h2>
+    <h2 class="sec-title">From Free Audit to Live & <em>Generating Leads in Under 2 Weeks</em></h2>
     <div class="steps">
-      <div class="step-item anim"><div class="step-circle">1</div><div class="step-title">Free Audit</div><div class="step-desc">We score your site against our 8-point framework and show you exactly what we'd fix. Zero cost. Zero obligation.</div></div>
-      <div class="step-item anim d1"><div class="step-circle">2</div><div class="step-title">Custom Plan</div><div class="step-desc">We map out exactly what to build — what to design, what pages you need, and what results to target.</div></div>
-      <div class="step-item anim d2"><div class="step-circle">3</div><div class="step-title">We Build It</div><div class="step-desc">Our team does all the heavy lifting. You spend less than 2 hours on your end total. Live in 14 days.</div></div>
-      <div class="step-item anim d3"><div class="step-circle">4</div><div class="step-title">Leads Roll In</div><div class="step-desc">Your site captures leads, visitors can contact you instantly, and you focus on the work — we handle the rest.</div></div>
+      <div class="step-item"><div class="step-circle">1</div><div class="step-title">Free Audit</div><div class="step-desc">We score your site against our 8-point framework and show you exactly what we'd fix. Zero cost. Zero obligation.</div></div>
+      <div class="step-item"><div class="step-circle">2</div><div class="step-title">Custom Plan</div><div class="step-desc">We map out exactly what to build — what to design, what pages you need, and what results to target.</div></div>
+      <div class="step-item"><div class="step-circle">3</div><div class="step-title">We Build It</div><div class="step-desc">Our team does all the heavy lifting. You spend less than 2 hours on your end total. Live in 14 days.</div></div>
+      <div class="step-item"><div class="step-circle">4</div><div class="step-title">Leads Roll In</div><div class="step-desc">Your site captures leads, visitors can contact you instantly, and you focus on the work — we handle the rest.</div></div>
     </div>
   </div>
 </section>
@@ -1316,29 +1446,26 @@ body > *:not(.page-wash) { position: relative; z-index: 1; }
 <section class="testimonials">
   <div class="container">
     <div class="sec-label">Real Gold Coast businesses. Real results.</div>
-    <h2 class="sec-title anim">Don't Take Our Word for It —<br><em>Hear It From Business Owners Like You</em></h2>
+    <h2 class="sec-title">Don't Take Our Word for It —<br><em>Hear It From Business Owners Like You</em></h2>
     <div class="testi-grid">
-      <div class="testi-card anim">
+      <div class="testi-card">
         <div class="stars">★★★★★</div>
         <div class="testi-quote">"Phillip is incredibly knowledgeable and always willing to help. He consistently comes up with great ideas to improve my website and always finds a solution, no matter how challenging the problem is. For him, nothing seems impossible. He's easy to communicate with, takes the time needed to properly fix any issue, and never makes you feel rushed. His pricing is very affordable, and working with him gives you complete confidence that you're in good hands."</div>
         <div class="testi-result">"I can't recommend Phillip highly enough."</div>
         <div class="testi-author"><div class="testi-avatar">EG</div><div><div class="testi-name">Ellie Gronkowski</div><div class="testi-biz">DoGood Pet Nutrition — <a href="https://dogoodgc.com.au" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">dogoodgc.com.au</a></div></div></div>
       </div>
-      <div class="testi-card anim d1">
+      <div class="testi-card">
         <div class="stars">★★★★★</div>
         <div class="testi-quote">"Studio Velox did a redesign of our website and the experience was excellent from start to finish. Phil was great to deal with, communication was spot on throughout, but what stood out was how fast he turned around an initial concept. Seeing what the site could become so quickly made the whole process easy and got us excited from day one. Would definitely use them again, and I'd recommend Phil and the team to anyone who needs a new website or wants to refresh their existing website."</div>
         <div class="testi-result">Fast concept — excited from day one</div>
         <div class="testi-author"><div class="testi-avatar">EC</div><div><div class="testi-name">Evan Courtney</div><div class="testi-biz">Tri-Axle Group — <a href="https://triaxlegroup.com.au" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">triaxlegroup.com.au</a></div></div></div>
       </div>
-      <div class="testi-card anim d2">
+      <div class="testi-card">
         <div class="stars">★★★★★</div>
         <div class="testi-quote">"I couldn't recommend Phil highly enough for creating your website! He made the whole process of creating mine so easy and stress-free. For someone who is terrible at anything tech related (me), he has been incredibly patient and basically took the entire process off my hands. If you are looking for someone who is knowledgeable, reliable and most importantly cares about building something that truly aligns with your brand and your vision, Phil is the person to go to. Thank you so much again for everything 🙏"</div>
         <div class="testi-result">"Took the entire process off my hands"</div>
         <div class="testi-author"><div class="testi-avatar">TV</div><div><div class="testi-name">Taylor Valentino</div><div class="testi-biz">The Breath Therapy — <a href="https://thebreaththerapy.com.au" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;">thebreaththerapy.com.au</a></div></div></div>
       </div>
-    </div>
-    <div class="vid-testi-note">
-      <p><strong><svg class="ic" aria-hidden="true" style="color:var(--gold)"><use href="#i-play"/></svg> Video testimonials coming soon.</strong> We capture real client stories at the moment they're most excited about their results. Want to be one of our first case studies? <a href="#" style="color:var(--gold);font-weight:700" onclick="scrollTo('audit-form');return false">Claim your free audit →</a></p>
     </div>
   </div>
 </section>
@@ -1350,7 +1477,7 @@ body > *:not(.page-wash) { position: relative; z-index: 1; }
       <div>
         <div class="sec-label">Why Studio Velox</div>
         <h2 class="sec-title" style="margin-bottom:28px;">5 Reasons Gold Coast Businesses <em>Choose Us Over the Rest</em></h2>
-        <ul class="trust-list anim">
+        <ul class="trust-list">
           <li class="trust-item"><div class="trust-num">01</div><div><div class="trust-ttl">We're Gold Coast locals — we know your market</div><div class="trust-dsc">Not an offshore agency or a faceless corporation. We're based here, we know the local market, and we're available when you need us.</div></div></li>
           <li class="trust-item"><div class="trust-num">02</div><div><div class="trust-ttl">We build to a proven conversion framework — not just looks</div><div class="trust-dsc">Our 8-point homepage formula is built on direct-response principles proven across thousands of Australian businesses. Pretty sites don't pay bills — sites built to convert do.</div></div></li>
           <li class="trust-item"><div class="trust-num">03</div><div><div class="trust-ttl">Live in 14 days — not 14 weeks</div><div class="trust-dsc">Other agencies drag projects on for months. We have a streamlined system that gets you live and generating leads in 14 days flat.</div></div></li>
@@ -1359,7 +1486,7 @@ body > *:not(.page-wash) { position: relative; z-index: 1; }
         </ul>
       </div>
       <div>
-        <div class="creds anim d1">
+        <div class="creds">
           <div class="creds-label">Studio Velox by the numbers</div>
           <div class="cred-row"><div class="cred-n">14</div><div class="cred-l">days average from start to live</div></div>
           <hr class="cred-div">
@@ -1404,7 +1531,6 @@ body > *:not(.page-wash) { position: relative; z-index: 1; }
     <div class="foot-logo">STUD<span style="color:var(--gold)">IO</span> <span style="color:var(--gold)">VE</span>LOX<span style="color:var(--gold)">.</span></div>
     <div class="foot-copy">© 2026 Studio Velox. Gold Coast Web Design.</div>
     <div class="foot-links">
-      <a href="/pricing">Pricing</a>
       <a href="/terms">Terms</a>
       <a href="mailto:phil@studiovelox.com">phil@studiovelox.com</a>
       <a href="tel:0422777865">0422 777 865</a>
@@ -1665,6 +1791,121 @@ document.querySelectorAll('.ba').forEach((ba) => {
   mode();
 })();
 
+// ── The instant audit ────────────────────────────────────────────────
+(function instantAudit() {
+  const form = document.getElementById('ia-form');
+  if (!form) return;
+  const field = document.getElementById('ia-url');
+  const go = document.getElementById('ia-go');
+  const out = document.getElementById('ia-out');
+  let busy = false;
+
+  const esc = (t) => String(t == null ? '' : t)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
+  const show = (html) => { out.innerHTML = html; out.hidden = false; };
+
+  const row = (kind, icon, f) =>
+    '<li class="' + kind + '"><svg class="ic" aria-hidden="true"><use href="#' + icon + '"/></svg>'
+    + '<b>' + esc(f.title) + '</b>'
+    + (f.detail ? '<span>' + esc(f.detail) + '</span>' : '<span></span>') + '</li>';
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (busy) return;
+    const url = field.value.trim();
+    if (!url) { field.focus(); return; }
+
+    busy = true;
+    go.disabled = true;
+    const label = go.textContent;
+    go.textContent = 'Checking…';
+    show('<div class="ia-busy"><span class="ia-spin" aria-hidden="true"></span>'
+       + '<span>Fetching ' + esc(url) + ' and measuring it…</span></div>');
+
+    let data;
+    try {
+      const res = await fetch('/api/quickaudit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url }),
+      });
+      data = await res.json();
+    } catch (err) {
+      show('<div class="ia-err">Our end had a problem reaching out just now. '
+         + 'Try again in a moment, or send the address through the form below '
+         + 'and Phil will look at it himself.</div>');
+      busy = false; go.disabled = false; go.textContent = label;
+      return;
+    }
+
+    busy = false;
+    go.disabled = false;
+    go.textContent = label;
+
+    if (!data || data.ok === false) {
+      show('<div class="ia-err">' + esc((data && data.message)
+        || "That doesn't look like a web address.") + '</div>');
+      field.focus();
+      return;
+    }
+
+    let html = '<div class="ia-head"><div class="ia-headline">' + esc(data.headline) + '</div>'
+      + '<div class="ia-url">' + esc(data.url) + '</div></div>'
+      + '<p class="ia-detail">' + esc(data.detail) + '</p>';
+
+    const costing = data.findings || [];
+    const watch = data.worth_a_look || [];
+    const right = data.already_right || [];
+
+    if (costing.length) {
+      html += '<ul class="ia-list">' + costing.map((f) => row('costing', 'i-alert', f)).join('') + '</ul>';
+    }
+    if (watch.length) {
+      html += '<p class="ia-group">Worth a look</p><ul class="ia-list">'
+        + watch.map((f) => row('watch', 'i-eye', f)).join('') + '</ul>';
+    }
+    if (right.length) {
+      html += '<button type="button" class="ia-more" id="ia-more">'
+        + 'Show the ' + right.length + ' things already right</button>'
+        + '<ul class="ia-list" id="ia-good" hidden>'
+        + right.map((f) => row('good', 'i-tick', f)).join('') + '</ul>';
+    }
+
+    html += '<div class="ia-cta"><p>'
+      + (costing.length
+          ? 'Want these fixed, and a concept of what your site could look like instead? '
+            + 'Send it through and you will have it within 24 hours.'
+          : 'Want a second opinion on what the page actually says, rather than how it is built? '
+            + 'That is the part that wins work.')
+      + '</p><button type="button" class="btn-gold" id="ia-hand">Send Me The Full Audit</button></div>';
+
+    show(html);
+
+    const more = document.getElementById('ia-more');
+    if (more) {
+      more.addEventListener('click', () => {
+        const list = document.getElementById('ia-good');
+        list.hidden = !list.hidden;
+        more.textContent = list.hidden
+          ? 'Show the ' + right.length + ' things already right'
+          : 'Hide them again';
+      });
+    }
+
+    // Hand the address straight to the form below, so nobody types it twice.
+    document.getElementById('ia-hand').addEventListener('click', () => {
+      try {
+        switchTab('has');
+        const f = document.getElementById('hf-url');
+        if (f) f.value = data.url;
+      } catch (err) { /* the form may have already been submitted */ }
+      goToAudit();
+    });
+  });
+})();
+
 // Toggle between has-website and no-website panels
 function switchTab(tab) {
   document.getElementById('panel-has').classList.toggle('active', tab === 'has');
@@ -1675,11 +1916,19 @@ function switchTab(tab) {
   if (tab === 'none') setTimeout(() => document.getElementById('nw-name').focus(), 100);
 }
 
-// Scroll reveal
-const obs = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.1 });
-document.querySelectorAll('.anim').forEach(el => obs.observe(el));
+// Draw the gold rule under each section heading as it arrives. Nothing is
+// hidden before this runs — it only adds a line.
+(function sectionRules() {
+  if (!('IntersectionObserver' in window)) return;
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      e.target.classList.add('rule-in');
+      obs.unobserve(e.target);
+    });
+  }, { threshold: 0.2 });
+  document.querySelectorAll('.sec-title, .section-title').forEach((el) => obs.observe(el));
+})();
 
 // Save lead locally
 function saveLead(data) {
