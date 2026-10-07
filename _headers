@@ -1,11 +1,2 @@
 /lakeview/*
   X-Robots-Tag: noindex, nofollow
-
-# Pricing is hidden while the $147/month figure is under review. The page
-# itself is untouched — put the links back in the nav and footer and delete
-# these three lines to bring it back.
-/pricing
-  X-Robots-Tag: noindex, nofollow
-
-/pricing.html
-  X-Robots-Tag: noindex, nofollow
