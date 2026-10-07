@@ -69,6 +69,10 @@ h1 em{font-style:normal;color:var(--gold)}
 .route-btn{font-family:var(--font-acc);font-size:13px;font-weight:600;letter-spacing:.1em;
   text-transform:uppercase;background:var(--navy);color:#fff;padding:13px 18px;
   text-decoration:none;flex:1;text-align:center;min-width:180px}
+.print-btn{font-family:var(--font-acc);font-size:13px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;background:#fff;color:var(--navy);border:1.5px solid var(--navy);
+  padding:12px 18px;cursor:pointer;flex:1;text-align:center;min-width:150px}
+.print-btn:active{background:var(--offwhite)}
 .route-meta{font-size:14px;color:var(--gray)}
 
 /* CARD */
@@ -122,6 +126,91 @@ h1 em{font-style:normal;color:var(--gold)}
 footer{background:var(--navy);padding:20px;text-align:center;font-family:var(--font-acc);
   font-size:12px;color:#4a6080;letter-spacing:.06em}
 footer span{color:var(--gold)}
+
+/* Things that only exist on paper. */
+.print-only{display:none}
+
+/* ---------------------------------------------------------------------------
+   ON PAPER
+   A sheet to fold into a back pocket. No buttons, because you cannot tap
+   paper. No navy panels, because that is a cartridge. The phone number
+   printed as a number you can read, and ruled space under each door for
+   whatever they actually say to you.
+   --------------------------------------------------------------------------- */
+@media print{
+  @page{size:A4 portrait;margin:14mm 12mm}
+
+  .print-only{display:block}
+  #pin-screen,.brand a,.actions,.outcome,.bar-route,footer,.loading{display:none!important}
+  #app{display:block!important}
+
+  html,body{background:#fff!important;color:#000;font-size:10pt;line-height:1.36}
+  body{min-height:0}
+
+  /* the header becomes one line, in ink you can afford */
+  header{background:#fff!important;padding:0 0 7pt;position:static;
+    border-bottom:1.5pt solid #000;margin-bottom:10pt}
+  .brand{color:#000;font-size:8pt;letter-spacing:.14em}
+  h1{color:#000!important;font-size:19pt;margin-top:4pt}
+  h1 em{color:#000!important;font-style:italic}
+  .sub{color:#333;font-size:9.5pt}
+  .print-date{font-family:var(--font-acc);font-size:8.5pt;letter-spacing:.1em;
+    text-transform:uppercase;color:#555;margin-top:6pt}
+
+  /* follow-ups: a rule, not a red block */
+  .bar-due{background:#fff!important;color:#000!important;border:1.5pt solid #000;
+    padding:7pt 9pt;margin-bottom:10pt}
+  .bar-due b{color:#000;font-size:8.5pt}
+  .bar-due a{color:#000}
+
+  .stops{padding:0;max-width:none}
+
+  /* one door per block, never split across a page */
+  .card{border:none;border-top:0.75pt solid #999;border-left:none;
+    margin:0 0 7pt;padding-top:7pt;break-inside:avoid;page-break-inside:avoid}
+  .card:first-child{border-top:none;padding-top:0}
+  .card.done{opacity:1}
+  .card-top{padding:0;gap:9pt}
+  .num{color:#000;font-size:17pt;min-width:22pt}
+  .who h2{font-size:13pt}
+  .meta{color:#222;font-size:9.5pt;margin-top:2pt}
+  .badges{margin-top:5pt;gap:5pt}
+  .tag{border:0.5pt solid #777;color:#333;font-size:8pt;padding:1.5pt 5pt}
+  .tag-score{background:#fff;color:#000;border-color:#000;font-weight:700}
+  .tag-gap{color:#000;border-color:#000;font-weight:700}
+
+  /* the sentence you say at the door — the one thing that must be legible */
+  .opener{background:#fff;border:none;border-left:2.5pt solid #000;
+    padding:3pt 0 3pt 8pt;margin:5pt 0 4pt;font-size:11pt;line-height:1.38}
+  .when{background:#fff;padding:0;color:#333;font-size:9pt;font-style:italic}
+  .note{padding:3pt 0 0;color:#222;font-size:9.5pt}
+  .note b{color:#000}
+
+  /* printed facts that were buttons on the screen */
+  .pmeta{font-size:9.5pt;color:#000;padding-top:4pt}
+  .pmeta b{font-family:var(--font-acc);font-size:8pt;letter-spacing:.08em;
+    text-transform:uppercase;color:#555;font-weight:600}
+
+  /* tick one, then enter it in the CRM tonight */
+  .pbox{display:flex;gap:13pt;margin-top:5pt;font-family:var(--font-acc);
+    font-size:8.5pt;letter-spacing:.07em;text-transform:uppercase;color:#333}
+  .pbox span{display:flex;align-items:center;gap:4pt}
+  .pbox i{display:inline-block;width:9pt;height:9pt;border:0.75pt solid #000}
+
+  /* somewhere to write what they said */
+  .plines{margin-top:5pt}
+  .plines i{display:block;border-bottom:0.5pt solid #bbb;height:12pt}
+
+  .section-h{color:#000;font-size:9pt;letter-spacing:.14em;margin:14pt 0 8pt;
+    padding:0;border-bottom:0.75pt solid #000;padding-bottom:3pt;break-after:avoid}
+  .calls .card{border-left:none}
+  .print-foot{margin-top:14pt;padding-top:6pt;border-top:0.75pt solid #999;
+    font-family:var(--font-acc);font-size:8pt;letter-spacing:.1em;
+    text-transform:uppercase;color:#777}
+
+  a{color:#000;text-decoration:none}
+}
+
 @media(min-width:720px){
   body{font-size:18px}
   .stops{padding:22px 20px 80px}
@@ -163,6 +252,7 @@ footer span{color:var(--gold)}
     </div>
     <h1 id="hdr">This <em>Morning</em></h1>
     <div class="sub" id="sub">Working out where to send you…</div>
+    <div class="print-only print-date" id="print-date"></div>
   </header>
 
   <div id="due" class="bar bar-due" style="display:none"></div>
@@ -172,6 +262,7 @@ footer span{color:var(--gold)}
     <div class="loading">Loading your round…</div>
   </div>
 
+  <div class="print-only print-foot">Studio Velox &nbsp;·&nbsp; studiovelox.com/today &nbsp;·&nbsp; enter the outcomes in the CRM tonight</div>
   <footer><p>STUD<span>IO</span> <span>VE</span>LOX<span>.</span> &nbsp;·&nbsp; Private</p></footer>
 </div>
 
@@ -225,6 +316,10 @@ async function load(){
 function render(){
   const d=DATA, round=d.round;
 
+  document.getElementById('print-date').textContent=
+    new Date().toLocaleDateString('en-AU',
+      {weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
   // follow-ups first — a promise you made beats a cold door
   const due=d.followups||[];
   const dueEl=document.getElementById('due');
@@ -254,6 +349,7 @@ function render(){
     const el=document.getElementById('route');
     el.style.display='flex';
     el.innerHTML='<a class="route-btn" href="'+esc(round.maps_url)+'" target="_blank" rel="noopener">Open the route in Maps</a>'
+      +'<button class="print-btn" onclick="window.print()">Print this round</button>'
       +'<span class="route-meta">'+esc(round.why)+'</span>';
   }
 
@@ -293,6 +389,14 @@ function card(s,n){
     <div class="when">${esc(s.best_time)}</div>
     ${s.notes?`<div class="note"><b>Your note:</b> ${esc(s.notes)}</div>`:''}
     ${s.real_website?`<div class="note"><b>Check on your phone first:</b> ${esc(s.real_website)}</div>`:''}
+
+    <div class="print-only pmeta">
+      <b>Phone</b> ${s.phone?esc(s.phone):'none on record'}
+    </div>
+    <div class="print-only pbox">
+      <span><i></i>Spoke to them</span><span><i></i>Come back</span><span><i></i>Not interested</span>
+    </div>
+    <div class="print-only plines"><i></i></div>
 
     <div class="actions">
       ${tel?`<a class="act act-call" href="tel:${esc(tel)}">Call ${esc(s.phone)}</a>`
