@@ -1,2 +1,3 @@
 Exclude
 .DS_Store
+.wrangler/

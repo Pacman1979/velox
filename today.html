@@ -119,6 +119,9 @@ h1 em{font-style:normal;color:var(--gold)}
 .section-h{font-family:var(--font-acc);font-size:13px;letter-spacing:.14em;text-transform:uppercase;
   color:var(--gray);margin:28px 0 12px;padding-left:4px}
 .calls .card{border-left-color:var(--gray)}
+.nearby .card{border-left-color:#c9d2de}
+.why-out{font-family:var(--font-acc);font-size:11.5px;letter-spacing:.07em;
+  text-transform:uppercase;color:#8a9ab0;padding:0 16px 14px}
 .empty{text-align:center;padding:60px 24px;color:var(--gray)}
 .empty h2{font-family:var(--font-head);font-size:24px;color:var(--navy);margin-bottom:10px}
 .loading{text-align:center;padding:60px;font-family:var(--font-acc);letter-spacing:.12em;
@@ -138,7 +141,14 @@ footer span{color:var(--gold)}
    whatever they actually say to you.
    --------------------------------------------------------------------------- */
 @media print{
-  @page{size:A4 portrait;margin:14mm 12mm}
+  /* No page size declared on purpose. Naming one in CSS can clash with
+     whatever the printer driver is set to; the print dialog wins instead.
+     Set A4 and Black & White once as a macOS printer preset and every
+     print from here follows it. */
+  @page{margin:14mm 12mm}
+
+  /* Ask the browser not to spend colour it does not need to. */
+  html{print-color-adjust:economy;-webkit-print-color-adjust:economy}
 
   .print-only{display:block}
   #pin-screen,.brand a,.actions,.outcome,.bar-route,footer,.loading{display:none!important}
@@ -204,6 +214,8 @@ footer span{color:var(--gold)}
   .section-h{color:#000;font-size:9pt;letter-spacing:.14em;margin:14pt 0 8pt;
     padding:0;border-bottom:0.75pt solid #000;padding-bottom:3pt;break-after:avoid}
   .calls .card{border-left:none}
+  .nearby .card{border-left:none}
+  .why-out{padding:2pt 0 0;color:#555;font-size:8.5pt;letter-spacing:.06em}
   .print-foot{margin-top:14pt;padding-top:6pt;border-top:0.75pt solid #999;
     font-family:var(--font-acc);font-size:8pt;letter-spacing:.1em;
     text-transform:uppercase;color:#777}
@@ -337,9 +349,10 @@ function render(){
   }
 
   document.getElementById('hdr').innerHTML='This morning: <em>'+esc(round.suburb)+'</em>';
+  const unit=round.on_foot?' on foot':' by car';
   const walk=round.walk_metres?(round.walk_metres<1000
-      ? round.walk_metres+'m on foot'
-      : (round.walk_metres/1000).toFixed(1)+'km'):'';
+      ? round.walk_metres+'m'+unit
+      : (round.walk_metres/1000).toFixed(1)+'km'+unit):'';
   document.getElementById('sub').textContent=
     round.stops.length+' door'+(round.stops.length===1?'':'s')
     +(round.calls.length?' · '+round.calls.length+' to ring':'')
@@ -361,6 +374,14 @@ function render(){
   if(due.length){
     html+='<div class="section-h">Follow-ups due</div>'
       +'<div class="calls">'+due.map(s=>card(s,null)).join('')+'</div>';
+  }
+  // Everything in this suburb that did not make the round. It used to be
+  // dropped without a word — including the best lead in Burleigh Heads,
+  // which has no coordinates and so could never be put on the map.
+  const out=round.nearby||[];
+  if(out.length){
+    html+='<div class="section-h">Also in '+esc(round.suburb)+' — not in this round</div>'
+      +'<div class="nearby">'+out.map(s=>card(s,null)).join('')+'</div>';
   }
   document.getElementById('body').innerHTML=html;
 }
@@ -387,6 +408,7 @@ function card(s,n){
 
     <div class="opener">${esc(s.opener)}</div>
     <div class="when">${esc(s.best_time)}</div>
+    ${s.not_in_round?`<div class="why-out">${esc(s.not_in_round)}</div>`:''}
     ${s.notes?`<div class="note"><b>Your note:</b> ${esc(s.notes)}</div>`:''}
     ${s.real_website?`<div class="note"><b>Check on your phone first:</b> ${esc(s.real_website)}</div>`:''}
 

@@ -39,6 +39,15 @@ const OPPORTUNITY = ['expired', 'parked', 'thin', 'none', 'aggregator', 'social_
 // Eight is about a morning. More than that and the last ones never happen.
 const MAX_STOPS = 8;
 
+// How far you will walk from one door to the next before it stops being one
+// round. 700m is about eight minutes. Anything further is a second trip, and
+// pretending otherwise is how a morning turns into a driving day.
+// Override per round with ?maxleg=1200.
+const MAX_LEG_M = 700;
+
+// Below this, the whole round is on foot and Maps should say so.
+const WALKABLE_M = 1500;
+
 export async function onRequest({ request, env }) {
   const headers = { 'Content-Type': 'application/json' };
   const db = env.VELOX_DB;
@@ -97,12 +106,15 @@ export async function onRequest({ request, env }) {
       });
     }
 
-    // Split before ordering. A mobile mechanic has no door, so leaving one in
-    // the route sends you walking 200m to stand outside a business that is not
-    // there — which is exactly what the first version did.
-    const chosen = picked.leads.slice(0, MAX_STOPS);
-    const stops = walkOrder(chosen.filter((l) => approachFor(l) === 'visit')).map(dress);
-    const calls = chosen.filter((l) => approachFor(l) === 'call').map(dress);
+    // A mobile mechanic has no door, so it never belongs in the walk.
+    const visitable = picked.leads.filter((l) => approachFor(l) === 'visit');
+    const calls = picked.leads.filter((l) => approachFor(l) === 'call')
+      .slice(0, MAX_STOPS).map(dress);
+
+    const maxLeg = Number(url.searchParams.get('maxleg')) || MAX_LEG_M;
+    const { round: chosen, left } = pickCluster(visitable, MAX_STOPS, maxLeg);
+    const stops = walkOrder(chosen).map(dress);
+    const walk = stops.reduce((n, s) => n + (s.walk_m || 0), 0);
 
     return json({
       date: today,
@@ -112,8 +124,18 @@ export async function onRequest({ request, env }) {
            + (ranked.length > 1 ? `, the best of ${plural(ranked.length, 'suburb')}` : ''),
         stops,
         calls,
-        maps_url: mapsUrl(stops),
-        walk_metres: stops.reduce((n, s) => n + (s.walk_m || 0), 0),
+        maps_url: mapsUrl(stops, walk),
+        walk_metres: walk,
+        on_foot: walk > 0 && walk <= WALKABLE_M,
+        // What did not make this round, and why. Nothing is ever dropped
+        // silently: a lead with no coordinates used to vanish off the map
+        // without a word, and the best lead in Burleigh Heads was one.
+        nearby: left.map((l) => ({
+          ...dress(l),
+          not_in_round: isNum(l.lat) && isNum(l.lng)
+            ? 'A drive from this round'
+            : 'No coordinates yet — add them in the CRM and it will join the route',
+        })),
       },
       followups: followups.map(dress),
       other_suburbs: ranked.slice(1, 6).map((r) => ({
@@ -134,35 +156,145 @@ export async function onRequest({ request, env }) {
 // ---------------------------------------------------------------------------
 
 /**
- * Order the stops so you are never doubling back.
+ * Choose which doors make up one round.
  *
- * Starts at the best lead — if the morning falls apart after two doors, those
- * two should be the ones worth having — then repeatedly walks to the nearest
- * one left. Anything without coordinates goes on the end rather than being
- * dropped; a lead with no lat/lng is still a lead.
+ * Starts at the best-scoring lead and grows outward, always taking the
+ * nearest door still unclaimed, and stopping the moment the nearest one left
+ * is further than maxLeg. Returns the round and everything it left behind,
+ * so the page can show the rest instead of losing it.
+ *
+ * Leads with no coordinates cannot be routed, so they are never in the
+ * round — but they are always in `left`, with a reason.
+ */
+function pickCluster(leads, max, maxLeg) {
+  const placed = leads.filter((l) => isNum(l.lat) && isNum(l.lng));
+  const unplaced = leads.filter((l) => !isNum(l.lat) || !isNum(l.lng));
+  if (!placed.length) return { round: [], left: unplaced };
+
+  const round = [placed[0]];
+  const pool = placed.slice(1);
+
+  while (round.length < max && pool.length) {
+    // Nearest to anything already in the round, not just to the last one —
+    // a round is a cluster, not a chain.
+    let bi = -1;
+    let bd = Infinity;
+    pool.forEach((l, i) => {
+      const d = Math.min(...round.map((r) => metresBetween(r, l)));
+      if (d < bd) { bd = d; bi = i; }
+    });
+    if (bd > maxLeg) break;
+    round.push(pool.splice(bi, 1)[0]);
+  }
+
+  return { round, left: [...pool, ...unplaced] };
+}
+
+/**
+ * Order the round so you are never doubling back.
+ *
+ * Google's own URL cannot do this — there is no parameter that reorders
+ * waypoints, it simply plots them in the order we hand over. So the ordering
+ * has to happen here.
+ *
+ * The first door stays the best lead: if the morning falls apart after two
+ * doors, those two should be the ones worth having. Every order of the rest
+ * is then measured and the shortest wins. Seven doors after the first is
+ * 5,040 orderings, which a Worker does in under a millisecond, so there is
+ * no reason to guess. Above that it falls back to nearest-neighbour tidied
+ * up with 2-opt, which is within a few percent and never slow.
  */
 function walkOrder(leads) {
   const placed = leads.filter((l) => isNum(l.lat) && isNum(l.lng));
   const unplaced = leads.filter((l) => !isNum(l.lat) || !isNum(l.lng));
-  if (placed.length < 2) return [...placed, ...unplaced];
+  if (placed.length < 3) return legs([...placed, ...unplaced]);
 
-  const out = [placed[0]];
-  const left = placed.slice(1);
+  const first = placed[0];
+  const rest = placed.slice(1);
+  const best = rest.length <= 7
+    ? shortestOrder(first, rest)
+    : twoOpt([first, ...nearestFirst(first, rest)]);
 
+  return legs([...best, ...unplaced]);
+}
+
+/** Every order of `rest` after `first`; the shortest one wins. */
+function shortestOrder(first, rest) {
+  let bestPath = null;
+  let bestLen = Infinity;
+
+  const walk = (used, path, len) => {
+    if (len >= bestLen) return;            // already worse, stop here
+    if (path.length === rest.length) {
+      bestLen = len;
+      bestPath = path.slice();
+      return;
+    }
+    const from = path.length ? path[path.length - 1] : first;
+    for (let i = 0; i < rest.length; i++) {
+      if (used[i]) continue;
+      used[i] = true;
+      path.push(rest[i]);
+      walk(used, path, len + metresBetween(from, rest[i]));
+      path.pop();
+      used[i] = false;
+    }
+  };
+
+  walk(new Array(rest.length).fill(false), [], 0);
+  return [first, ...(bestPath || rest)];
+}
+
+/** Greedy order, used only as a starting point for 2-opt on big rounds. */
+function nearestFirst(from, rest) {
+  const out = [];
+  const left = rest.slice();
+  let at = from;
   while (left.length) {
-    const from = out[out.length - 1];
-    let best = 0;
-    let bestD = Infinity;
+    let bi = 0;
+    let bd = Infinity;
     left.forEach((l, i) => {
-      const d = metresBetween(from, l);
-      if (d < bestD) { bestD = d; best = i; }
+      const d = metresBetween(at, l);
+      if (d < bd) { bd = d; bi = i; }
     });
-    const next = left.splice(best, 1)[0];
-    next._walk = Math.round(bestD);
-    out.push(next);
+    at = left.splice(bi, 1)[0];
+    out.push(at);
   }
+  return out;
+}
 
-  return [...out, ...unplaced];
+/** Untangle any crossings, keeping the first stop where it is. */
+function twoOpt(path) {
+  const len = (p) => p.slice(1).reduce((n, x, i) => n + metresBetween(p[i], x), 0);
+  let best = path.slice();
+  let bestLen = len(best);
+  for (let pass = 0; pass < 8; pass++) {
+    let moved = false;
+    for (let i = 1; i < best.length - 1; i++) {
+      for (let k = i + 1; k < best.length; k++) {
+        const trial = [
+          ...best.slice(0, i),
+          ...best.slice(i, k + 1).reverse(),
+          ...best.slice(k + 1),
+        ];
+        const l = len(trial);
+        if (l < bestLen - 0.5) { best = trial; bestLen = l; moved = true; }
+      }
+    }
+    if (!moved) break;
+  }
+  return best;
+}
+
+/** Record how far each door is from the one before it. */
+function legs(order) {
+  order.forEach((l, i) => {
+    const prev = order[i - 1];
+    l._walk = i && isNum(l.lat) && isNum(l.lng) && prev && isNum(prev.lat) && isNum(prev.lng)
+      ? Math.round(metresBetween(prev, l))
+      : null;
+  });
+  return order;
 }
 
 /** Haversine, in metres. */
@@ -179,8 +311,11 @@ function metresBetween(a, b) {
 /**
  * One Google Maps link for the whole round. Free — this is just a URL, not
  * the Directions API. Capped at 8 stops, which the URL format allows.
+ *
+ * Maps plots the waypoints in exactly the order given and has no parameter
+ * to reorder them, which is why walkOrder() does that work first.
  */
-function mapsUrl(stops) {
+function mapsUrl(stops, walkM) {
   const pts = stops.filter((s) => isNum(s.lat) && isNum(s.lng));
   if (pts.length < 2) return null;
   const at = (p) => `${p.lat},${p.lng}`;
@@ -189,7 +324,7 @@ function mapsUrl(stops) {
     + `&origin=${at(pts[0])}`
     + `&destination=${at(pts[pts.length - 1])}`
     + (mid ? `&waypoints=${encodeURIComponent(mid)}` : '')
-    + '&travelmode=driving';
+    + `&travelmode=${walkM && walkM <= WALKABLE_M ? 'walking' : 'driving'}`;
 }
 
 // ---------------------------------------------------------------------------
