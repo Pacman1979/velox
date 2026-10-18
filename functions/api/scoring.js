@@ -107,9 +107,66 @@ export const REVIEW_BANDS = {
                  'landscap*', 'lawn', 'garden*', 'plumb*', 'electric*',
                  'builder*', 'carpent*', 'paint*', 'roof*', 'concret*', 'tile*',
                  'fencing', 'pest', 'clean*', 'removal*', 'air conditioning',
-                 'glazier*', 'locksmith*', 'handyman', 'excavat*', 'pool'],
+                 'glazier*', 'locksmith*', 'handyman', 'excavat*', 'pool',
+                 // added with the 69 new categories
+                 'solar', 'towing', 'tow truck', 'appliance', 'skip bin',
+                 'pressure washing', 'mowing', 'gutter'],
     bands: [[40, 4.5, 35], [15, 4.3, 25], [5, 4.0, 15]],
     thin: 5,
+  },
+
+  // ─────────────────────────────────────────────────────────────────────
+  // The four bands below came in with the trust-and-information categories.
+  // ─────────────────────────────────────────────────────────────────────
+
+  // Professional services. Almost nobody reviews their accountant, and the
+  // ones who do are either delighted or in a dispute. Twelve reviews at 4.6
+  // is a well-regarded firm — on a cafe's scale it would score as nothing.
+  // Funeral homes and aged care sit here too: people do not leave reviews
+  // after a funeral, which says nothing at all about the business.
+  professional: {
+    categories: ['lawyer*', 'solicitor*', 'legal', 'conveyanc*', 'accountant*',
+                 'accounting', 'bookkeep*', 'tax', 'financial', 'planner',
+                 'broker*', 'mortgage', 'insurance', 'leasing', 'funeral',
+                 'aged care', 'retirement', 'recruit*', 'photograph*',
+                 'tutor*', 'driving instructor', 'driving school', 'notary'],
+    bands: [[30, 4.6, 35], [12, 4.4, 25], [4, 4.0, 15]],
+    thin: 4,
+  },
+
+  // Health. Review counts run high because clinics ask for them, and
+  // ratings run lower than you would expect because unwell people are a
+  // tough crowd — so the rating bar moves up and the volume bar with it.
+  medical: {
+    categories: ['dentist*', 'dental', 'orthodont*', 'doctor*', 'medical',
+                 'gp', 'clinic', 'psycholog*', 'psychiatr*', 'counsell*',
+                 'therapist', 'veterinar*', 'vet', 'hearing', 'audiolog*',
+                 'optometr*', 'optical', 'skin', 'health centre'],
+    bands: [[150, 4.6, 35], [50, 4.4, 25], [20, 4.0, 15]],
+    thin: 20,
+  },
+
+  // Shops. Somewhere between a cafe and an appointment business: enough
+  // foot traffic to collect reviews, not enough to collect a cafe's.
+  retail: {
+    categories: ['store', 'shop', 'boutique', 'clothing', 'fashion', 'jewell*',
+                 'furniture', 'homeware*', 'surf', 'supplement*', 'health food',
+                 'bike', 'bicycle', 'cycle*', 'bookshop', 'bookstore', 'pet supplies',
+                 'nursery', 'gift*'],
+    bands: [[100, 4.5, 35], [40, 4.3, 25], [15, 4.0, 15]],
+    thin: 15,
+  },
+
+  // Business to business. Their customers are other businesses, and a
+  // business never leaves a Google review. Three reviews is normal and
+  // means nothing bad. Judge these on the website, not the stars.
+  b2b: {
+    categories: ['commercial', 'industrial', 'it support', 'managed services',
+                 'printing', 'printer*', 'signage', 'signwrit*', 'freight',
+                 'logistics', 'haulage', 'office supplies', 'wholesale*',
+                 'distribut*', 'supplier*', 'engineering'],
+    bands: [[20, 4.5, 35], [8, 4.3, 25], [3, 4.0, 15]],
+    thin: 3,
   },
 };
 
@@ -126,6 +183,10 @@ const DEFAULT_BAND = { bands: [[60, 4.5, 35], [25, 4.3, 25], [10, 4.0, 15]], thi
  *   'bar'          exact word.   Matches "bar", never "barber".
  *   'landscap*'    word prefix.  Matches landscaping, landscaper, landscapes.
  *   'air conditioning'  has a space, so it is matched against the whole string.
+ *
+ * The bands are tried in the order they are declared, first hit wins, so
+ * the broad keywords ('clinic', 'store', 'commercial') sit in the bands
+ * declared last and cannot steal a lead from a more specific one above.
  */
 export function bandFor(category) {
   const raw = String(category || '').toLowerCase();

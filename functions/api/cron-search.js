@@ -52,9 +52,12 @@ export async function onRequestPost({ request, env }) {
     // Least recently run first. NULL last_run (never run) sorts first.
     const queue = await db
       .prepare(
+        // Priority first, then never-run, then longest-waiting. Without the
+        // priority column an 83-category queue takes years to come round and
+        // the best categories wait behind the worst. Migration 007 adds it.
         `SELECT * FROM search_queue
           WHERE active = 1
-          ORDER BY (last_run IS NOT NULL), last_run ASC
+          ORDER BY COALESCE(priority, 2) ASC, (last_run IS NOT NULL), last_run ASC
           LIMIT ?`
       )
       .bind(want)

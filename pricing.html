@@ -80,14 +80,14 @@ nav .nav-links a:hover { color: var(--gold); }
 /* ── PLANS ── */
 .plans-wrap { background: var(--navy2); padding: 0 32px 64px; }
 .plans {
-  display: grid; grid-template-columns: 1fr 1fr;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
   max-width: 1060px; margin: 0 auto;
 }
-.plan { padding: 36px 40px 36px 0; }
-.plan + .plan {
-  border-left: 1px solid rgba(255,255,255,0.1);
-  padding-left: 40px; padding-right: 0;
-}
+.plan { padding: 36px 26px; }
+.plan:first-child { padding-left: 0; }
+.plan:last-child { padding-right: 0; }
+.plan + .plan { border-left: 1px solid rgba(255,255,255,0.1); }
+.plan-name { min-height: 1em; }
 .plan-name {
   font-family: var(--font-acc); font-size: 13px; font-weight: 600;
   letter-spacing: 0.14em; text-transform: uppercase;
@@ -95,7 +95,7 @@ nav .nav-links a:hover { color: var(--gold); }
 }
 .amount {
   font-family: var(--font-head); font-weight: 900;
-  font-size: clamp(56px, 8vw, 86px);
+  font-size: clamp(46px, 5.4vw, 68px);
   line-height: 0.9; letter-spacing: -0.03em;
   color: var(--white); display: block;
 }
@@ -105,11 +105,17 @@ nav .nav-links a:hover { color: var(--gold); }
   padding-top: 18px; margin-bottom: 22px;
 }
 .recurring strong {
-  font-family: var(--font-head); font-size: 30px; font-weight: 800;
+  font-family: var(--font-head); font-size: 26px; font-weight: 800;
   color: var(--gold); display: block; line-height: 1.2;
 }
 .recurring span { font-size: 14px; color: var(--navy-dim); }
-.plan > p { font-size: 15px; color: var(--navy-text); max-width: 36ch; margin-bottom: 30px; }
+.plan > p { font-size: 15px; color: var(--navy-text); max-width: 34ch; margin-bottom: 22px; }
+.plan-terms {
+  font-size: 13.5px; color: var(--navy-dim); line-height: 1.6;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 14px; margin-bottom: 26px;
+}
+.plan-terms strong { color: var(--navy-text); font-weight: 600; }
 
 .button {
   display: inline-block; background: var(--gold); color: var(--navy);
@@ -191,6 +197,41 @@ nav .nav-links a:hover { color: var(--gold); }
 
 /* ── COVERED ── */
 .covered { padding: 64px 0 56px; }
+.ladder {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0; margin-bottom: 48px;
+}
+.rung { padding: 0 26px; border-left: 1px solid var(--border); }
+.rung:first-child { padding-left: 0; border-left: 0; }
+.rung:last-child { padding-right: 0; }
+.rung-head { margin-bottom: 10px; }
+.rung-price {
+  display: block; font-family: var(--font-head); font-weight: 900;
+  font-size: 38px; line-height: 1; color: var(--navy); letter-spacing: -0.02em;
+}
+.rung-name {
+  display: block; font-family: var(--font-acc); font-size: 12px;
+  font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--gold); margin-top: 8px;
+}
+.rung ul { list-style: none; }
+.rung li {
+  font-size: 14.5px; padding: 9px 0 9px 24px;
+  position: relative; line-height: 1.55;
+  border-bottom: 1px solid var(--border);
+}
+.rung li em { font-style: normal; color: var(--gray); }
+.not-incl { border-top: 2px solid var(--navy); padding-top: 24px; }
+.not-incl h3 {
+  font-family: var(--font-acc); font-size: 14px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--gray); margin-bottom: 8px;
+}
+.not-incl ul { list-style: none; columns: 2; column-gap: 40px; }
+.not-incl li {
+  font-size: 15px; padding: 7px 0 7px 26px;
+  position: relative; color: var(--gray); break-inside: avoid;
+}
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
 .two-col h3 {
   font-family: var(--font-acc); font-size: 14px; font-weight: 600;
@@ -294,13 +335,21 @@ footer .brand span { color: var(--gold); }
 footer .fine { margin-top: 10px; font-size: 12px; opacity: 0.6; letter-spacing: 0.02em; }
 
 /* ── RESPONSIVE ── */
-@media (max-width: 820px) {
-  .plans { grid-template-columns: 1fr; }
+/* Three columns need room to breathe; stack them before they get cramped. */
+@media (max-width: 980px) {
+  .plans, .ladder { grid-template-columns: 1fr; }
   .plan { padding: 40px 0 36px; }
+  .plan:first-child { padding-top: 8px; }
   .plan + .plan {
     border-left: 0; border-top: 1px solid rgba(255,255,255,0.1);
-    padding-left: 0;
+    padding-left: 0; padding-right: 0;
   }
+  .rung { padding: 0 0 26px; border-left: 0; }
+  .rung + .rung { border-top: 1px solid var(--border); padding-top: 26px; }
+  .not-incl ul { columns: 1; }
+}
+
+@media (max-width: 820px) {
   .two-col, .hourly .container { grid-template-columns: 1fr; gap: 32px; }
   .button { display: block; text-align: center; }
   nav { padding: 14px 20px; }
@@ -328,7 +377,7 @@ footer .fine { margin-top: 10px; font-size: 12px; opacity: 0.6; letter-spacing: 
 <section class="hero">
   <div class="container">
     <h1>What a website actually costs.</h1>
-    <p>No quotes to chase and no discovery call before you're allowed to hear a number. You pay once to get the site built, then a flat monthly fee that keeps it online and keeps it current. When something needs changing, you send me a message and I change it.</p>
+    <p>No quotes to chase and no discovery call before you're allowed to hear a number. Three options, and the number is the number. You see the finished site before you pay for it — if it isn't right, you walk away and it hasn't cost you anything.</p>
   </div>
 </section>
 
@@ -338,45 +387,54 @@ footer .fine { margin-top: 10px; font-size: 12px; opacity: 0.6; letter-spacing: 
     <div class="plan">
       <div class="plan-name">One-page site</div>
       <span class="amount">$0</span>
-      <span class="amount-note">to build</span>
+      <span class="amount-note">to build — genuinely</span>
       <div class="recurring">
-        <strong>$147 / month</strong>
-        <span>hosting, maintenance and small changes</span>
+        <strong>$47 / month</strong>
+        <span>or $470 a year — two months free</span>
       </div>
-      <p>A single scrolling page with everything on it — who you are, what you offer, and how to book you. Right for most sole traders and new businesses.</p>
+      <p>One scrolling page with everything on it: who you are, what you do, and how to book you. Right for sole traders and anyone just getting started.</p>
+      <p class="plan-terms">
+        <strong>14 days free</strong> from the day it's finished, then the monthly starts.<br>
+        <strong>One round of changes</strong> before it goes live.
+      </p>
       <a class="button" href="#enquire" data-plan="One-page site">Enquire about this</a>
       <div class="annual-banner">
         <div class="annual-banner-text">
-          <strong>Pay annually — save $294</strong>
-          <span>12 months for the price of 10 &nbsp;·&nbsp; $1,470/year</span>
+          <strong>Pay annually — save $94</strong>
+          <span>12 months for the price of 10 &nbsp;·&nbsp; $470/year</span>
         </div>
-        <a class="annual-link" href="#enquire" data-plan="One-page site — annual ($1,470/year)">Annual →</a>
+        <a class="annual-link" href="#enquire" data-plan="One-page site — annual ($470/year)">Annual &rarr;</a>
       </div>
     </div>
 
     <div class="plan">
-      <div class="plan-name">Full website</div>
-      <span class="amount">$997</span>
+      <div class="plan-name">Five-page website</div>
+      <span class="amount">$497</span>
       <span class="amount-note">to build</span>
       <div class="recurring">
-        <strong>$147 / month</strong>
-        <span>hosting, maintenance and small changes</span>
+        <strong>$97 / month</strong>
+        <span>or $970 a year — two months free</span>
       </div>
-      <p>Multiple pages, custom sections, forms that actually reach you, and whatever else the business needs. Right when one page can't carry the whole story.</p>
+      <p>Five pages, email on your own name, and room for the whole story. Right when one page can't carry it.</p>
+      <p class="plan-terms">
+        <strong>7 days free</strong> to look it over. The build fee is due within 7 days of completion.<br>
+        <strong>Three rounds of changes</strong> before it goes live.
+      </p>
       <details class="build-details">
-        <summary>What's included in the $997 build</summary>
+        <summary>What's included in the $497 build</summary>
         <div class="build-details-body">
           <div class="build-col">
             <h4>Included</h4>
             <ul class="incl">
-              <li>Up to 6 pages (Home, About, Services, Gallery, Contact + one more)</li>
+              <li>Five pages — Home, About, Services, Gallery, Contact</li>
               <li>Custom design in your brand colours and fonts</li>
+              <li>Email on your own domain, through your normal inbox</li>
               <li>Copy editing — I'll shape what you give me into something that works</li>
               <li>Contact form wired to your inbox</li>
               <li>Mobile responsive layout</li>
               <li>Basic on-page SEO — titles, meta descriptions, heading structure</li>
               <li>Google Business Profile connection</li>
-              <li>Up to 3 rounds of revisions during the build</li>
+              <li>Three rounds of changes during the build</li>
               <li>Launch on your domain with SSL</li>
             </ul>
           </div>
@@ -387,20 +445,68 @@ footer .fine { margin-top: 10px; font-size: 12px; opacity: 0.6; letter-spacing: 
               <li>Photography or video — supply your own or I'll source free stock</li>
               <li>E-commerce or online shop</li>
               <li>Booking system integration</li>
-              <li>More than 6 pages</li>
               <li>Logo design</li>
             </ul>
-            <p class="build-note">Anything outside scope is quoted at $60/hr or as a fixed price before work starts — never after.</p>
+            <p class="build-note">Extra pages, or anything outside this, is quoted before work starts &mdash; never after.</p>
           </div>
         </div>
       </details>
-      <a class="button" href="#enquire" data-plan="Full website">Enquire about this</a>
+      <a class="button" href="#enquire" data-plan="Five-page website">Enquire about this</a>
+      <div class="annual-banner">
+        <div class="annual-banner-text">
+          <strong>Pay annually — save $194</strong>
+          <span>12 months for the price of 10 &nbsp;·&nbsp; $970/year</span>
+        </div>
+        <a class="annual-link" href="#enquire" data-plan="Five-page website — annual ($970/year)">Annual &rarr;</a>
+      </div>
+    </div>
+
+    <div class="plan">
+      <div class="plan-name">Five pages + assistant</div>
+      <span class="amount">$997</span>
+      <span class="amount-note">to build</span>
+      <div class="recurring">
+        <strong>$147 / month</strong>
+        <span>or $1,470 a year — two months free</span>
+      </div>
+      <p>The five-page site, plus an assistant built on your business that answers your customers while you're asleep — and tells you every month what they asked.</p>
+      <p class="plan-terms">
+        <strong>7 days free</strong> to look it over. The build fee is due within 7 days of completion.<br>
+        <strong>Three rounds of changes</strong> before it goes live.
+      </p>
+      <details class="build-details">
+        <summary>What the assistant does</summary>
+        <div class="build-details-body">
+          <div class="build-col">
+            <h4>Included</h4>
+            <ul class="incl">
+              <li>Everything in the five-page build</li>
+              <li>A text assistant trained on your prices, services and hours</li>
+              <li>It answers only what you've told it — it cannot make something up</li>
+              <li>Anything it doesn't know, it hands straight to you with your number</li>
+              <li>It takes a name and a number when someone's ready</li>
+              <li>A monthly list of what your customers actually asked it</li>
+            </ul>
+          </div>
+          <div class="build-col">
+            <h4>Not included</h4>
+            <ul class="excl">
+              <li>Taking payments or card details — it never asks for them</li>
+              <li>Booking into a live calendar</li>
+              <li>Answering in languages other than English</li>
+              <li>Voice — it's text only</li>
+            </ul>
+            <p class="build-note">That last list is deliberate. An assistant that guesses makes promises you have to keep.</p>
+          </div>
+        </div>
+      </details>
+      <a class="button" href="#enquire" data-plan="Five pages + assistant">Enquire about this</a>
       <div class="annual-banner">
         <div class="annual-banner-text">
           <strong>Pay annually — save $294</strong>
           <span>12 months for the price of 10 &nbsp;·&nbsp; $1,470/year</span>
         </div>
-        <a class="annual-link" href="#enquire" data-plan="Full website — annual ($1,470/year)">Annual →</a>
+        <a class="annual-link" href="#enquire" data-plan="Five pages + assistant — annual ($1,470/year)">Annual &rarr;</a>
       </div>
     </div>
 
@@ -409,31 +515,64 @@ footer .fine { margin-top: 10px; font-size: 12px; opacity: 0.6; letter-spacing: 
 
 <section class="covered">
   <div class="container">
-    <h2 class="sec-title">What the $147 covers</h2>
-    <p class="sec-sub">The monthly fee is the part that matters. It's what stops a website quietly going stale, breaking, or sending enquiries nowhere.</p>
+    <h2 class="sec-title">What the monthly covers</h2>
+    <p class="sec-sub">The monthly is the part that matters &mdash; it's what stops a website quietly going stale, breaking, or sending enquiries nowhere. Each tier includes everything in the one before it.</p>
 
-    <div class="two-col">
-      <div>
-        <h3>Included every month</h3>
+    <div class="ladder">
+
+      <div class="rung">
+        <div class="rung-head">
+          <span class="rung-price">$47</span>
+          <span class="rung-name">Looked after</span>
+        </div>
         <ul class="incl">
           <li>Hosting, domain connection and security certificate</li>
-          <li>Small changes — prices, dates, photos, hours, wording</li>
-          <li>Fixing anything that breaks</li>
-          <li>Backups and uptime monitoring</li>
-          <li>Business email forwarding to your normal inbox</li>
-          <li>Software and security updates</li>
+          <li>Small changes &mdash; prices, hours, photos, wording</li>
+          <li>Anything that breaks, fixed</li>
+          <li>Daily backups and uptime monitoring</li>
+          <li>Security and software updates</li>
+          <li>Changes live within three working days</li>
         </ul>
       </div>
-      <div class="two-col excl" style="display:block">
-        <h3>Not included</h3>
-        <ul class="excl">
-          <li>New pages or new sections</li>
-          <li>Redesigns and rebuilds</li>
-          <li>Advertising, SEO campaigns and AI work</li>
-          <li>Writing your copy or supplying photography</li>
-          <li>Third-party costs like domain registration or booking platforms</li>
+
+      <div class="rung">
+        <div class="rung-head">
+          <span class="rung-price">$97</span>
+          <span class="rung-name">All of that, plus</span>
+        </div>
+        <ul class="incl">
+          <li>Email on your own name <em>&mdash; adam@yourbusiness.com.au, through the inbox you already use</em></li>
+          <li>A health check every month, emailed to you <em>&mdash; the same check I run on other people's sites, run on yours</em></li>
+          <li>Who visited and where they came from, in plain English</li>
+          <li>Changes live the same day</li>
+          <li>Your Google listing kept current</li>
         </ul>
       </div>
+
+      <div class="rung">
+        <div class="rung-head">
+          <span class="rung-price">$147</span>
+          <span class="rung-name">All of that, plus</span>
+        </div>
+        <ul class="incl">
+          <li>Your assistant, answering customers at eleven at night</li>
+          <li><strong>What your customers actually asked</strong> <em>&mdash; sent to you monthly. The questions nobody rings up to ask.</em></li>
+          <li>One new page a year, included</li>
+          <li>A seasonal refresh twice a year <em>&mdash; new headline, new offer, new photos on the front</em></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="not-incl">
+      <h3>Not included at any tier</h3>
+      <ul class="excl">
+        <li>Redesigns and rebuilds</li>
+        <li>New pages beyond what your plan includes</li>
+        <li>Advertising and SEO campaigns</li>
+        <li>Writing your copy or supplying photography</li>
+        <li>Third-party costs &mdash; domain registration, booking platforms</li>
+      </ul>
     </div>
   </div>
 </section>
@@ -442,10 +581,10 @@ footer .fine { margin-top: 10px; font-size: 12px; opacity: 0.6; letter-spacing: 
   <div class="container">
     <div>
       <h2>Bigger jobs</h2>
-      <p>Anything past a small change — a new page, an online shop, an ad campaign, an AI tool built into your site. Charged by the hour, or as a fixed price quoted up front so you know the number before I start.</p>
+      <p>Anything past a small change — extra pages, an online shop, a booking system, an ad campaign. Nothing is off the table: tell me what you're after and I'll quote it. Charged by the hour, or as a fixed price agreed up front so you know the number before I start.</p>
     </div>
     <div>
-      <div class="rate">$60/hr</div>
+      <div class="rate">$80/hr</div>
       <div class="rate-note">or a fixed quote for the whole job</div>
     </div>
   </div>
@@ -457,20 +596,30 @@ footer .fine { margin-top: 10px; font-size: 12px; opacity: 0.6; letter-spacing: 
 
     <div class="qa">
       <h3>Is there an annual option?</h3>
-      <p>Yes. Pay for 12 months and you only pay for 10 — $1,470 instead of $1,764, saving $294. The same free build (one-page) or $997 build (full website) applies either way. Annual plans are non-refundable, but if you cancel you keep the site.</p>
+      <p>Yes, on all three. Pay for 12 months and you only pay for 10 — $470 instead of $564, $970 instead of $1,164, or $1,470 instead of $1,764. The build fee is unchanged either way. Annual plans are non-refundable, but if you cancel you keep the site.</p>
     </div>
     <div class="qa">
       <h3>Is there a free trial?</h3>
-      <p>Yes — all plans include a 14-day free trial. Nothing is charged until day 15. You'll get a reminder before the trial ends.</p>
+      <p>Yes, and it starts when the site is finished rather than when you enquire. The one-page site gives you <strong>14 days</strong>; the five-page options give you <strong>7 days</strong>. Nothing is charged until it ends, and you'll get a reminder first. During the trial the site runs on a Studio Velox address — it moves onto your own domain once the first payment clears.</p>
     </div>
     <div class="qa">
       <h3>Is the one-page site really free?</h3>
-      <p>The build is. I'd rather look after a site properly for years than charge a big fee once and disappear. The monthly plan is how that works, so the free build only makes sense alongside it.</p>
+      <p>The build is, and there's no catch in the small print. I'd rather look after a site properly for years than charge a big fee once and disappear — so the free build only makes sense alongside the monthly plan. I'm also at the stage of wanting to help people get off the ground, and a $1,500 quote is what usually stops them.</p>
     </div>
 
     <div class="qa">
       <h3>What counts as a small change?</h3>
       <p>Anything I can do in well under an hour. New dates, a price update, swapping a photo, fixing a typo, adding a review. If a request is bigger than that I'll tell you before doing it, never after.</p>
+    </div>
+
+    <div class="qa">
+      <h3>What if I need it faster than 7 days?</h3>
+      <p>Ask. The honest answer is that 7 days is what I can promise everybody, and I'd rather not quietly push someone else's job back. If it's genuinely urgent there's usually a way to do it, and it'll be priced accordingly so it's fair on the people already waiting.</p>
+    </div>
+
+    <div class="qa">
+      <h3>What if I just want to buy it outright?</h3>
+      <p>That can be arranged — we agree a figure for the site, you own it, and that's the end of it. Anything you need afterwards is $80/hr. It costs more up front than the monthly, because the monthly is what pays for looking after it.</p>
     </div>
 
     <div class="qa">
@@ -483,7 +632,11 @@ footer .fine { margin-top: 10px; font-size: 12px; opacity: 0.6; letter-spacing: 
       <p>You do. The domain is registered in your name and the website is yours. If you ever leave, you take it with you.</p>
     </div>
 
-    <!-- If you add a minimum term on the free build, state it here. -->
+    <div class="qa">
+      <h3>Is there a minimum term on the free build?</h3>
+      <p>No lock-in, but one fair condition: if you cancel the plan within the first three months, a build fee of $294 becomes payable. That covers the work already done. After three months there's nothing to pay and you keep the site either way.</p>
+    </div>
+
     <div class="qa">
       <h3>How does billing work?</h3>
       <p>Card payment through Stripe. The monthly fee comes out automatically on the same date each month, and you can update your card or manage the plan yourself at any time.</p>
@@ -524,11 +677,13 @@ footer .fine { margin-top: 10px; font-size: 12px; opacity: 0.6; letter-spacing: 
         <label for="ef-plan">What you're after</label>
         <select id="ef-plan" name="session">
           <option value="Not sure yet">Not sure yet — help me work it out</option>
-          <option value="One-page site">One-page site — free build, $147/month</option>
-          <option value="One-page site — annual ($1,470/year)">One-page site — annual, $1,470/year (save $294)</option>
-          <option value="Full website">Full website — $997, then $147/month</option>
-          <option value="Full website — annual ($1,470/year)">Full website — $997 build, then $1,470/year (save $294)</option>
-          <option value="Bigger job">Something bigger — ads, shop, AI</option>
+          <option value="One-page site">One-page site — free build, $47/month</option>
+          <option value="One-page site — annual ($470/year)">One-page site — annual, $470/year (save $94)</option>
+          <option value="Five-page website">Five-page website — $497, then $97/month</option>
+          <option value="Five-page website — annual ($970/year)">Five-page website — annual, $970/year (save $194)</option>
+          <option value="Five pages + assistant">Five pages + assistant — $997, then $147/month</option>
+          <option value="Five pages + assistant — annual ($1,470/year)">Five pages + assistant — annual, $1,470/year (save $294)</option>
+          <option value="Bigger job">Something else — quote it for me</option>
         </select>
       </div>
 
@@ -614,5 +769,6 @@ footer .fine { margin-top: 10px; font-size: 12px; opacity: 0.6; letter-spacing: 
   }
 </script>
 
+<script src="/chat.js" defer></script>
 </body>
 </html>

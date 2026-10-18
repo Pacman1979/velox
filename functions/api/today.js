@@ -389,6 +389,20 @@ function bestTime(band) {
   if (band === 'trade') {
     return '7:30–9:00 or after 15:30 — before the first job or back at the shop';
   }
+  if (band === 'professional') {
+    return '9:30–11:00 or 14:00–16:00 weekdays — reception is quiet and the '
+         + 'principal is usually in. Never a Monday morning.';
+  }
+  if (band === 'medical') {
+    return '11:30–14:00 weekdays — between the morning and afternoon clinic. '
+         + 'Ask for the practice manager, not the doctor.';
+  }
+  if (band === 'retail') {
+    return '10:00–11:30 or 14:00–16:00 — before lunch or in the afternoon lull';
+  }
+  if (band === 'b2b') {
+    return '8:00–9:30 or 15:30–17:00 — before the day starts or as it winds down';
+  }
   return '10:00–11:30';
 }
 
