@@ -150,7 +150,7 @@
           + 'Want something outside those three? ' + FACTS.owner
           + ' will quote it — nothing is off the table.'
       ],
-      next: ['monthly', 'trial', 'howlong', 'audit']
+      next: ['monthly', 'trial', 'howlong', 'concept']
     },
 
     monthly: {
@@ -214,7 +214,7 @@
         'A concept within ' + FACTS.conceptHours + ' hours, and live within ' + FACTS.liveDays + ' days.',
         'The concept comes first and costs you nothing. You see your actual business on an actual page before you decide anything — not a template with your logo dropped on it.'
       ],
-      next: ['audit', 'price', 'talk']
+      next: ['concept', 'price', 'talk']
     },
 
     own: {
@@ -282,7 +282,7 @@
         FACTS.owner + ' Campbell. One person on the ' + FACTS.area + ', not an agency and not a reseller — the person who builds your site is the person who answers the phone.',
         'There is work to look at on the <a href="/portfolio.html">portfolio page</a> — real businesses, built and live.'
       ],
-      next: ['price', 'audit', 'talk']
+      next: ['price', 'concept', 'talk']
     },
 
     nosite: {
@@ -293,13 +293,16 @@
         'starting out', 'new business', 'just started', 'from scratch', 'brand new',
         'only instagram', 'only facebook', 'just facebook', 'just instagram', 'only a facebook page'],
       say: [
-        'That is the easy version, honestly. Nothing to undo and nobody to argue with about why the old one has to go.',
-        'The one-page site is where most people in that spot start, and the build costs nothing — '
-          + money(FACTS.tiers[0].monthly) + ' a month after that, with the first '
-          + FACTS.tiers[0].trialDays + ' days free. Concept in ' + FACTS.conceptHours
-          + ' hours, live in ' + FACTS.liveDays + ' days.'
+        'Then you are the easy one, honestly. Nothing to undo, nobody to argue with about why the old site has to go.',
+        '<b>The one-page build costs nothing.</b> ' + money(FACTS.tiers[0].monthly)
+          + ' a month after it is live, and the first ' + FACTS.tiers[0].trialDays
+          + ' days of that are free too.',
+        'Here is how it actually goes: tell ' + FACTS.owner + ' what the business does, and within '
+          + FACTS.conceptHours + ' hours you are looking at <b>your</b> business on a real page — '
+          + 'your words, your photos, your phone number. Not a template with a logo dropped on it.',
+        'You decide after you have seen it. Live within ' + FACTS.liveDays + ' days.'
       ],
-      next: ['trial', 'price', 'concept']
+      next: ['concept', 'trial', 'price']
     },
 
     talk: {
@@ -591,13 +594,16 @@
   function offer(ids) {
     chips(ids.map(function (id) {
       if (id === 'audit') return { label: 'Check my site', go: true, run: startAudit };
+      // Same path, different label — on the opening screen nobody has said
+      // yet whether they have a site, so the button has to ask rather than assume.
+      if (id === 'hassite') return { label: "I've already got a site", run: startAudit };
       if (id === 'concept') return { label: 'I want a free concept', go: true, run: startConcept };
       if (id === 'leave') return { label: 'Leave my number', go: true, run: startConcept };
       return { label: TOPICS[id].chip, run: function () { answer(id); } };
     }));
   }
 
-  var HOME = ['audit', 'price', 'trial', 'who'];
+  var HOME = ['price', 'nosite', 'howlong', 'hassite'];
 
   function answer(id) {
     var t = TOPICS[id];
@@ -874,7 +880,7 @@
     if (id === 'concept' || id === 'leave') { startConcept(); return; }
     if (id) { answer(id); return; }
 
-    saga(DONT_KNOW, function () { offer(['leave', 'price', 'audit']); });
+    saga(DONT_KNOW, function () { offer(['leave', 'price', 'nosite']); });
   }
 
   /* ========================================================================
@@ -902,7 +908,8 @@
       + '</div>'
       + '<div class="sv-note">No AI guesswork — if it is not something I know, I will say so.</div>'
       + '</div>'
-      + '<button class="sv-launch" type="button"><span class="sv-dot"></span>Free site check</button>';
+      + '<button class="sv-launch" type="button"><span class="sv-dot"></span>'
+      + 'What would mine cost?</button>';
 
     document.body.appendChild(root);
 
@@ -930,9 +937,9 @@
     window.setTimeout(function () {
       if (S.open || !el.root || el.root.querySelector('.sv-teaser')) return;
       var t = node('div', 'sv-teaser',
-        'Want to know what your current site is costing you? '
-        + 'I will check it in about ten seconds.'
-        + '<span class="sv-teaser-go">Check my site &rarr;</span>'
+        'Thinking about a website? The one-page build costs nothing &mdash; '
+        + 'ask me how that works.'
+        + '<span class="sv-teaser-go">Ask me &rarr;</span>'
         + '<button class="sv-teaser-x" type="button" aria-label="No thanks">&times;</button>');
       t.addEventListener('click', function (e) {
         if (e.target.classList.contains('sv-teaser-x')) { t.remove(); store('sv-teased', '1'); return; }
@@ -953,9 +960,10 @@
       S.booted = true;
       saga([
         "Hello. I'm the Studio Velox assistant — I can only tell you things "
-          + FACTS.owner + ' has actually written down, which is the point of me.',
-        'The useful thing I do: give me your web address and I will run a real check on it '
-          + 'and tell you what is costing you customers.'
+          + FACTS.owner + ' has actually written down, which is the point of me. '
+          + 'No sales patter and nothing made up.',
+        'Most people want to know what a website costs and how fast they can have one. '
+          + 'Start anywhere.'
       ], function () { offer(HOME); });
     }
     window.setTimeout(function () { el.in.focus(); }, 120);
