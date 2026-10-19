@@ -448,7 +448,7 @@
 
   var S = {
     open: false,
-    anchorNext: false,
+    answerTop: null,
     turns: 0,
     audits: 0,
     awaiting: null,     // 'url' | 'name' | 'contact' | null
@@ -482,6 +482,23 @@
     if (el.log) el.log.scrollTop = el.log.scrollHeight;
   }
 
+  /**
+   * Put the start of the current answer at the top of the panel.
+   *
+   * Scrolling to the bottom is the obvious thing and the wrong one: a long
+   * answer then opens at its last line and the reader has to scroll back up
+   * to find the beginning. So the first bubble of each answer is the anchor,
+   * and nothing else moves the view until the next question.
+   */
+  function settle() {
+    if (!el.log) return;
+    if (S.answerTop && el.log.contains(S.answerTop)) {
+      S.answerTop.scrollIntoView({ block: 'start', behavior: 'auto' });
+    } else {
+      scroll();
+    }
+  }
+
   function node(tag, cls, html) {
     var n = document.createElement(tag);
     if (cls) n.className = cls;
@@ -495,6 +512,7 @@
 
   function mine(text) {
     S.transcript.push('> ' + text);
+    S.answerTop = null;   // whatever comes next is a new answer
     el.log.appendChild(node('div', 'sv-msg sv-me', esc(text)));
     scroll();   // their own message belongs at the bottom, where they expect it
   }
@@ -517,8 +535,11 @@
     // The first bubble of an answer goes to the TOP of the view, so a long
     // answer is read from its beginning. Scrolling to the bottom and making
     // someone scroll back up to start reading is the thing to avoid.
-    if (S.anchorNext) {
-      S.anchorNext = false;
+    // The first bot bubble since the visitor last spoke is the top of the
+    // answer. Anchor to it now so it is visible straight away, and again
+    // when the answer finishes, in case later bubbles shifted the view.
+    if (!S.answerTop) {
+      S.answerTop = bubble;
       bubble.scrollIntoView({ block: 'start', behavior: 'auto' });
     }
     return bubble;
@@ -527,15 +548,15 @@
   function typing(on) {
     var t = el.log.querySelector('.sv-typing');
     if (on) {
-      if (!t) { el.log.appendChild(node('div', 'sv-typing', '<i></i><i></i><i></i>')); scroll(); }
+      // Deliberately does not scroll. The dots chasing the bottom of the log
+      // is what dragged the reader away from the start of the answer.
+      if (!t) { el.log.appendChild(node('div', 'sv-typing', '<i></i><i></i><i></i>')); }
     } else if (t) { t.remove(); }
   }
 
   /** Say a list of things one after another, with a human pause between. */
   function saga(lines, done) {
     var i = 0;
-    // The next bubble starts an answer, so anchor it at the top of the view.
-    S.anchorNext = true;
     (function step() {
       if (i >= lines.length) { if (done) done(); return; }
       var line = lines[i++];
@@ -543,6 +564,7 @@
       window.setTimeout(function () {
         typing(false);
         says(typeof line === 'function' ? line() : line);
+        if (i >= lines.length) settle();   // the answer is complete
         step();
       }, i === 1 ? CFG.typingMs : CFG.typingMs + 180);
     })();
@@ -560,7 +582,9 @@
       });
       el.chips.appendChild(b);
     });
-    scroll();
+    // The buttons live below the log and are always on screen, so there is
+    // nothing to scroll to — but the answer above them should be at its start.
+    settle();
   }
 
   /** Turn a list of topic/flow ids into chips. */
@@ -663,6 +687,7 @@
               ]);
             });
         }, CFG.beatMs - 20);
+        settle();
       }, CFG.beatMs);
     } else {
       saga(['Nothing for me to pick on. If it still is not bringing you work, '
