@@ -515,9 +515,16 @@
 
   function mine(text) {
     S.transcript.push('> ' + text);
-    S.answerTop = null;   // whatever comes next is a new answer
-    el.log.appendChild(node('div', 'sv-msg sv-me', esc(text)));
-    scroll();   // their own message belongs at the bottom, where they expect it
+    var bubble = node('div', 'sv-msg sv-me', esc(text));
+    el.log.appendChild(bubble);
+
+    // THE QUESTION IS THE ANCHOR, not the first line of the reply.
+    // Someone who clicks "What does it cost?" wants to see their own question
+    // at the top with the answer unfolding beneath it. Anchoring the reply
+    // instead pushes the question off-screen and makes them scroll back up to
+    // remember what they asked.
+    S.answerTop = bubble;
+    settle();
   }
 
   function says(html) {
@@ -538,13 +545,13 @@
     // The first bubble of an answer goes to the TOP of the view, so a long
     // answer is read from its beginning. Scrolling to the bottom and making
     // someone scroll back up to start reading is the thing to avoid.
-    // The first bot bubble since the visitor last spoke is the top of the
-    // answer. Anchor to it now so it is visible straight away, and again
-    // when the answer finishes, in case later bubbles shifted the view.
-    if (!S.answerTop) {
-      S.answerTop = bubble;
-      bubble.scrollIntoView({ block: 'start', behavior: 'auto' });
-    }
+    // Only when the assistant speaks first — the opening greeting — is a bot
+    // bubble the anchor. Otherwise the visitor's question already is one.
+    if (!S.answerTop) S.answerTop = bubble;
+
+    // Re-settle after every line so the question stays pinned at the top as
+    // the reply grows beneath it, rather than jumping once at the end.
+    settle();
     return bubble;
   }
 
