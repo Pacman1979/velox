@@ -1,2 +1,17 @@
+/clients.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/crm.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/today.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/ideas.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/life.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+
 /lakeview/*
   X-Robots-Tag: noindex, nofollow

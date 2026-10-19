@@ -33,7 +33,7 @@
    * ===================================================================== */
 
   var CFG = {
-    publicLaunch: false,        // false = only shows with ?chat=1 in the address
+    publicLaunch: true,         // live to everyone. false = only with ?chat=1
     auditEndpoint: '/api/quickaudit',
     leadEndpoint: '/api/chatlead',
     logEndpoint: '/api/chatlog',
