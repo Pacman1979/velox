@@ -3,60 +3,88 @@
  *
  * This is the whole Worker. It exists for one reason: Cloudflare Pages cannot
  * run scheduled jobs, so something outside Pages has to do the waking up.
- * It holds no logic of its own. It wakes on the cron, calls your Pages
+ * It holds no logic of its own. It wakes on a cron, calls the matching Pages
  * endpoint, logs what came back, and goes back to sleep.
+ *
+ * Two jobs now:
+ *   "0 19 * * 6"   Sunday 5am AEST   — find new leads       /api/cron-search
+ *   "0 20 1 * *"   2nd of the month, — send care clients    /api/healthcheck
+ *                  6am AEST            their monthly report
  *
  * Deployed separately from the velox Pages project. Nothing in velox changes.
  */
 
-const ENDPOINT = 'https://studiovelox.com/api/cron-search';
+const SITE = 'https://studiovelox.com';
+
+/** Which cron runs which job. A cron not listed here falls back to the search. */
+const JOBS = {
+  '0 19 * * 6': 'search',
+  '0 20 1 * *': 'health',
+};
+
+const ENDPOINTS = {
+  search: `${SITE}/api/cron-search`,
+  health: `${SITE}/api/healthcheck`,
+};
 
 export default {
-  /** Fired by the Cron Trigger. */
+  /** Fired by a Cron Trigger. */
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(run(env, 'cron'));
+    const job = JOBS[event.cron] || 'search';
+    ctx.waitUntil(run(env, job, 'cron'));
   },
 
   /**
    * Visit the Worker's URL with ?key=YOUR_VELOX_API_KEY to run it by hand.
-   * Useful on the first Sunday, when you want to see it work rather than
-   * trust that it did.
+   *
+   *   ?key=...                 the lead search
+   *   ?key=...&job=health      send this month's reports
+   *   ?key=...&job=health&dry=1    build them and send nothing
+   *
+   * Useful on the first run of anything, when you want to see it work rather
+   * than trust that it did.
    */
   async fetch(request, env) {
-    const key = new URL(request.url).searchParams.get('key');
+    const url = new URL(request.url);
+    const key = url.searchParams.get('key');
     if (key !== env.VELOX_API_KEY) {
       return new Response('Nope.', { status: 403 });
     }
-    const result = await run(env, 'manual');
+    const job = url.searchParams.get('job') === 'health' ? 'health' : 'search';
+    const dry = url.searchParams.get('dry') === '1';
+    const result = await run(env, job, 'manual', dry);
     return new Response(JSON.stringify(result, null, 2), {
       headers: { 'Content-Type': 'application/json' },
     });
   },
 };
 
-async function run(env, trigger) {
-  const searches = Number(env.SEARCHES_PER_RUN || 5);
+async function run(env, job, trigger, dry = false) {
+  const endpoint = ENDPOINTS[job];
+  const body = job === 'health'
+    ? { trigger, dry }
+    : { searches: Number(env.SEARCHES_PER_RUN || 5), trigger };
 
   try {
-    const res = await fetch(ENDPOINT, {
+    const res = await fetch(endpoint + (dry ? '?dry=1' : ''), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-Velox-Key': env.VELOX_API_KEY,
       },
-      body: JSON.stringify({ searches, trigger }),
+      body: JSON.stringify(body),
     });
 
     const text = await res.text();
-    console.log(`[velox-cron] ${trigger} → ${res.status}`, text.slice(0, 1000));
+    console.log(`[velox-cron] ${job}/${trigger} → ${res.status}`, text.slice(0, 1000));
 
     try {
-      return { ok: res.ok, status: res.status, result: JSON.parse(text) };
+      return { ok: res.ok, job, status: res.status, result: JSON.parse(text) };
     } catch {
-      return { ok: res.ok, status: res.status, body: text.slice(0, 1000) };
+      return { ok: res.ok, job, status: res.status, body: text.slice(0, 1000) };
     }
   } catch (err) {
-    console.error('[velox-cron] failed:', err);
-    return { ok: false, error: String(err?.message || err) };
+    console.error(`[velox-cron] ${job} failed:`, err);
+    return { ok: false, job, error: String(err?.message || err) };
   }
 }

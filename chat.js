@@ -36,6 +36,10 @@
     publicLaunch: false,        // false = only shows with ?chat=1 in the address
     auditEndpoint: '/api/quickaudit',
     leadEndpoint: '/api/chatlead',
+    logEndpoint: '/api/chatlog',
+    // Which assistant this is, for the monthly "what your customers asked"
+    // report. On a client's site, set this to their name.
+    site: 'studiovelox.com',
     maxAudits: 3,               // per visit — stops the endpoint being hammered
     maxTurns: 60,               // then it suggests a phone call instead
     teaserAfterMs: 14000,       // one nudge, once, then never again
@@ -708,6 +712,32 @@
    * 10. FREE TEXT
    * ===================================================================== */
 
+  /**
+   * Record a question, and whether we knew the answer.
+   *
+   * Only ever called with something the visitor typed as a QUESTION. Names,
+   * phone numbers and email addresses are handled in startConcept/askContact
+   * and never reach this function — see the guard in submit().
+   *
+   * Fire and forget: a failed log must never interrupt the conversation.
+   */
+  function logQuestion(text, topicId) {
+    try {
+      window.fetch(CFG.logEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        keepalive: true,
+        body: JSON.stringify({
+          site: CFG.site,
+          question: String(text).slice(0, 300),
+          topic: topicId || null,
+          answered: Boolean(topicId),
+          page: window.location.pathname
+        })
+      }).catch(function () {});
+    } catch (e) { /* older browser, no logging, no harm */ }
+  }
+
   function looksLikeUrl(s) {
     return /^(https?:\/\/)?([a-z0-9][a-z0-9-]*\.)+[a-z]{2,}(\/|$)/i.test(s.trim());
   }
@@ -776,7 +806,11 @@
       return;
     }
 
+    // Everything above this line was a name, a number or a web address, and
+    // is never logged. From here down it is a question, so it is.
     var id = route(text);
+    logQuestion(text, id);
+
     if (id === 'audit') { startAudit(); return; }
     if (id === 'concept' || id === 'leave') { startConcept(); return; }
     if (id) { answer(id); return; }

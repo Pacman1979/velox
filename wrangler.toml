@@ -16,8 +16,25 @@ compatibility_date = "2026-09-25"
 #   Sunday 6:00am AEST  →  "0 20 * * 6"
 #   Sunday 9:00pm AEST  →  "0 11 * * 0"
 #   Every day 5:00am    →  "0 19 * * *"
+# ---------------------------------------------------------------------------
+# The database
+# ---------------------------------------------------------------------------
+# VELOX_DB is the BINDING name, set on the velox Pages project. The database
+# itself is called velox_leads. Wrangler commands want the real name:
+#
+#   npx wrangler d1 execute velox_leads --remote --file=migrations/009_care.sql
+#   npx wrangler d1 execute velox_leads --remote --command="SELECT ..."
+#
+#   uuid 7b5c2752-5325-482e-bb50-fcfbd5cff35a
+#
+# Using VELOX_DB there makes wrangler search for a database of that name,
+# find nothing, and report it as an authentication error. It is not one.
+
 [triggers]
-crons = ["0 19 * * 6"]
+#   2nd of the month 6:00am AEST = 1st 20:00 UTC = "0 20 1 * *"
+#     Reports on the previous whole calendar month, so running on the 2nd
+#     means October's report goes out on 2 November.
+crons = ["0 19 * * 6", "0 20 1 * *"]
 
 # ---------------------------------------------------------------------------
 # Settings
