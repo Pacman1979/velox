@@ -353,8 +353,19 @@
     'border:0;border-radius:4px;padding:13px 20px;cursor:pointer;',
     "font-family:'Oswald',system-ui,sans-serif;font-size:13px;font-weight:500;letter-spacing:.1em;",
     'font-weight:600;text-transform:uppercase;box-shadow:0 6px 26px rgba(0,0,0,.34);',
-    'transition:transform .18s,box-shadow .18s,background .18s}',
-    '.sv-launch:hover{background:#f5b732;transform:translateY(-2px);box-shadow:0 10px 32px rgba(0,0,0,.42)}',
+    'position:relative;font-size:13.5px;padding:15px 22px;',
+    'transition:box-shadow .18s,background .18s}',
+    /* An expanding ring, the way a live indicator works. Gold rather than
+       red or green: those read as a system alert and fight the brand. */
+    ".sv-launch::after{content:'';position:absolute;inset:0;border-radius:4px;",
+    'pointer-events:none;animation:sv-ring 2.8s ease-out infinite}',
+    ".sv-launch::before{content:'';position:absolute;inset:0;border-radius:4px;",
+    'pointer-events:none;animation:sv-ring 2.8s ease-out infinite;animation-delay:1.4s}',
+    '@keyframes sv-ring{0%{box-shadow:0 0 0 0 rgba(232,160,32,.75)}',
+    '70%{box-shadow:0 0 0 18px rgba(232,160,32,0)}',
+    '100%{box-shadow:0 0 0 0 rgba(232,160,32,0)}}',
+    '.sv-launch:hover{background:#f5b732;box-shadow:0 10px 32px rgba(0,0,0,.45)}',
+    '.sv-launch:hover::after,.sv-launch:hover::before{animation-play-state:paused}',
     '.sv-dot{width:7px;height:7px;border-radius:50%;background:#0a1628;flex:none;animation:sv-pulse 2.4s infinite}',
     '@keyframes sv-pulse{0%,100%{opacity:1}50%{opacity:.25}}',
 
@@ -386,8 +397,36 @@
     '.sv-x{border:0;background:0;color:#7d8ca3;font-size:22px;line-height:1;cursor:pointer;padding:4px 2px}',
     '.sv-x:hover{color:#e8a020}',
 
+    /* The log needs a positioned parent so the arrow can sit over its bottom
+       edge without scrolling away with the conversation. */
+    '.sv-logwrap{position:relative;flex:1;min-height:0;display:flex;flex-direction:column}',
+    /* Text fading out underneath is itself a signal that the answer continues,
+       and it stops the pill looking like it has landed on top of a word. */
+    ".sv-logwrap::after{content:'';position:absolute;left:0;right:0;bottom:0;height:68px;",
+    'background:linear-gradient(to bottom,rgba(248,246,241,0) 0%,rgba(248,246,241,.92) 62%,',
+    'rgba(248,246,241,1) 100%);pointer-events:none;opacity:0;transition:opacity .22s;z-index:1}',
+    '.sv-logwrap.sv-hasmore::after{opacity:1}',
     '.sv-log{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:18px 16px 6px;',
     'display:flex;flex-direction:column;gap:11px}',
+
+    '.sv-more{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);z-index:2;',
+    'display:none;align-items:center;gap:5px;background:#0a1628;color:#fff;',
+    'border:0;border-radius:999px;padding:6px 13px;cursor:pointer;',
+    "font-family:'Oswald',system-ui,sans-serif;font-size:11.5px;font-weight:500;",
+    'letter-spacing:.09em;text-transform:uppercase;',
+    'box-shadow:0 4px 14px rgba(10,22,40,.3)}',
+    /* The chevron moves, the button does not. Animating the button itself
+       means the thing you are trying to hit keeps sliding out from under
+       the cursor. */
+    '.sv-more svg{animation:sv-bobdown 1.6s ease-in-out infinite}',
+    '.sv-more.on{display:flex}',
+        /* Stop bobbing the moment someone aims at it. A button that keeps moving
+       under the cursor is awkward to hit — and anything awkward to click is
+       awkward for a person, not only for a test. */
+    '.sv-more:hover{background:#122040}',
+    '.sv-more:hover svg{animation-play-state:paused}',
+    '@keyframes sv-bobdown{0%,100%{transform:translateY(0)}',
+    '50%{transform:translateY(3px)}}',
 
     '.sv-msg{max-width:88%;padding:11px 14px;border-radius:4px;animation:sv-in .3s ease both}',
     '@keyframes sv-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}',
@@ -442,7 +481,8 @@
     '.sv-teaser{width:auto;left:0}}',
 
     '@media (prefers-reduced-motion:reduce){',
-    '.sv-chat *,.sv-chat *::before{animation:none!important;transition:none!important}}'
+    '.sv-chat,.sv-chat *,.sv-chat *::before,.sv-chat *::after{',
+    'animation:none!important;transition:none!important}}'
   ].join('');
 
   /* ========================================================================
@@ -500,6 +540,20 @@
     } else {
       scroll();
     }
+    showMore();
+  }
+
+  /**
+   * The answer opens at the question, which means the rest of it is below the
+   * fold with nothing to say so. This is that something: it appears only when
+   * there is genuinely more to read, and goes away once they reach the end.
+   */
+  function showMore() {
+    if (!el.more || !el.log) return;
+    var hidden = el.log.scrollHeight - el.log.clientHeight - el.log.scrollTop;
+    var more = hidden > 24;
+    el.more.classList.toggle('on', more);
+    if (el.logwrap) el.logwrap.classList.toggle('sv-hasmore', more);
   }
 
   function node(tag, cls, html) {
@@ -906,7 +960,15 @@
       + '<b>STUDIO VELOX<i>.</i><small>Answers in plain English</small></b>'
       + '<button class="sv-x" type="button" aria-label="Close">&times;</button>'
       + '</div>'
+      + '<div class="sv-logwrap">'
       + '<div class="sv-log" role="log" aria-live="polite"></div>'
+      + '<button class="sv-more" type="button" aria-label="Show the rest of this answer">'
+      + '<span>more</span>'
+      + '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true">'
+      + '<path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" '
+      + 'stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      + '</button>'
+      + '</div>'
       + '<div class="sv-chips"></div>'
       + '<div class="sv-foot">'
       + '<input class="sv-in" type="text" placeholder="Type your question…" aria-label="Type your question" '
@@ -922,11 +984,19 @@
 
     el.root = root;
     el.log = root.querySelector('.sv-log');
+    el.more = root.querySelector('.sv-more');
+    el.logwrap = root.querySelector('.sv-logwrap');
     el.chips = root.querySelector('.sv-chips');
     el.in = root.querySelector('.sv-in');
     el.launch = root.querySelector('.sv-launch');
 
     el.launch.addEventListener('click', open);
+    el.log.addEventListener('scroll', showMore, { passive: true });
+    el.more.addEventListener('click', function () {
+      // A page at a time, so a long answer is read rather than skipped.
+      el.log.scrollBy({ top: Math.round(el.log.clientHeight * 0.8), behavior: 'smooth' });
+      window.setTimeout(showMore, 320);
+    });
     root.querySelector('.sv-x').addEventListener('click', close);
     root.querySelector('.sv-send').addEventListener('click', submit);
     el.in.addEventListener('keydown', function (e) {
