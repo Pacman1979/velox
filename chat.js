@@ -334,7 +334,15 @@
 
   var CSS = [
     '.sv-chat,.sv-chat *{box-sizing:border-box;margin:0;padding:0}',
-    '.sv-chat{position:fixed;right:20px;bottom:20px;z-index:2147483000;',
+    /* The doubled class is deliberate. A widget dropped onto someone else's
+       page cannot assume anything about their CSS — studiovelox.com has
+       `body > :not(.page-wash){position:relative}`, which outranks a single
+       class and quietly turned this into a full-width block at the foot of
+       the page. Doubling the selector wins without !important, and keeps the
+       widget working on any site it is installed on. */
+    '.sv-chat.sv-chat{position:fixed;right:20px;bottom:20px;left:auto;top:auto;',
+    'width:auto;height:auto;margin:0;padding:0;float:none;clear:none;',
+    'z-index:2147483000;',
     "font-family:'Lato',system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.6}",
 
     /* launcher */
@@ -351,9 +359,13 @@
     '.sv-teaser{position:absolute;right:0;bottom:62px;width:252px;background:#fff;color:#0a1628;',
     'border-left:3px solid #e8a020;border-radius:4px;padding:14px 34px 14px 16px;font-size:14px;line-height:1.5;',
     'box-shadow:0 8px 30px rgba(10,22,40,.2);cursor:pointer;text-align:left}',
-    '.sv-teaser-x{position:absolute;top:5px;right:7px;border:0;background:0;color:#9aa5b4;',
-    'font-size:17px;line-height:1;cursor:pointer;padding:4px}',
-    '.sv-teaser-x:hover{color:#0a1628}',
+    '.sv-teaser-go{display:block;margin-top:9px;color:#9a6a00;font-weight:700;font-size:13.5px}',
+    '.sv-teaser:hover{border-left-color:#0a1628}',
+    '.sv-teaser:hover .sv-teaser-go{color:#0a1628}',
+    /* Deliberately quiet: dismissing should be possible, not the obvious move. */
+    '.sv-teaser-x{position:absolute;top:4px;right:6px;border:0;background:0;color:#c3cad4;',
+    'font-size:15px;line-height:1;cursor:pointer;padding:4px}',
+    '.sv-teaser-x:hover{color:#6b7280}',
 
     /* panel */
     '.sv-panel{display:none;flex-direction:column;width:382px;max-width:calc(100vw - 32px);',
@@ -421,7 +433,7 @@
     ':where(.sv-chat) :focus-visible{outline:2px solid #e8a020;outline-offset:2px}',
 
     '@media (max-width:440px){',
-    '.sv-chat{right:12px;bottom:12px;left:12px}',
+    '.sv-chat.sv-chat{right:12px;bottom:12px;left:12px;width:auto}',
     '.sv-panel{width:100%;height:min(76vh,560px)}',
     '.sv-launch{margin-left:auto}',
     '.sv-teaser{width:auto;left:0}}',
@@ -895,7 +907,8 @@
       var t = node('div', 'sv-teaser',
         'Want to know what your current site is costing you? '
         + 'I will check it in about ten seconds.'
-        + '<button class="sv-teaser-x" type="button" aria-label="Dismiss">&times;</button>');
+        + '<span class="sv-teaser-go">Check my site &rarr;</span>'
+        + '<button class="sv-teaser-x" type="button" aria-label="No thanks">&times;</button>');
       t.addEventListener('click', function (e) {
         if (e.target.classList.contains('sv-teaser-x')) { t.remove(); store('sv-teased', '1'); return; }
         t.remove(); store('sv-teased', '1'); open();
