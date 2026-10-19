@@ -53,7 +53,11 @@
   --font-accent: 'Oswald', sans-serif;
 }
 html { scroll-behavior: smooth; }
-body { font-family: var(--font-body); background: var(--white); color: var(--navy); overflow-x: hidden; }
+/* overflow-x belongs on html, not body. On Safari, overflow on body makes
+   it a containing block for position:fixed children, so anything fixed
+   anchors to the bottom of the page instead of the window. */
+html { overflow-x: hidden; }
+body { font-family: var(--font-body); background: var(--white); color: var(--navy); }
 a { text-decoration: none; color: inherit; }
 .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
 .btn-gold {

@@ -280,7 +280,7 @@
       match: ['who are you', 'who is', 'about you', 'phil', 'experience', 'portfolio', 'examples', 'previous', 'clients', 'reviews', 'team', 'agency', 'qualified', 'trust', 'just you'],
       say: [
         FACTS.owner + ' Campbell. One person on the ' + FACTS.area + ', not an agency and not a reseller — the person who builds your site is the person who answers the phone.',
-        'There is work to look at on the <a href="/portfolio.html">portfolio page</a>, and the businesses already on the books are on the <a href="/clients.html">clients page</a>.'
+        'There is work to look at on the <a href="/portfolio.html">portfolio page</a> — real businesses, built and live.'
       ],
       next: ['price', 'audit', 'talk']
     },
@@ -436,6 +436,7 @@
 
   var S = {
     open: false,
+    anchorNext: false,
     turns: 0,
     audits: 0,
     awaiting: null,     // 'url' | 'name' | 'contact' | null
@@ -483,13 +484,32 @@
   function mine(text) {
     S.transcript.push('> ' + text);
     el.log.appendChild(node('div', 'sv-msg sv-me', esc(text)));
-    scroll();
+    scroll();   // their own message belongs at the bottom, where they expect it
   }
 
   function says(html) {
     S.transcript.push(String(html).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim());
-    el.log.appendChild(node('div', 'sv-msg sv-bot', html));
-    scroll();
+    var bubble = node('div', 'sv-msg sv-bot', html);
+
+    // Anything that navigates away opens in a new tab, so the conversation is
+    // still here when they come back. tel: and mailto: are left alone — a new
+    // tab for those just leaves an empty window behind.
+    bubble.querySelectorAll('a[href]').forEach(function (a) {
+      if (/^(tel:|mailto:)/i.test(a.getAttribute('href') || '')) return;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+    });
+
+    el.log.appendChild(bubble);
+
+    // The first bubble of an answer goes to the TOP of the view, so a long
+    // answer is read from its beginning. Scrolling to the bottom and making
+    // someone scroll back up to start reading is the thing to avoid.
+    if (S.anchorNext) {
+      S.anchorNext = false;
+      bubble.scrollIntoView({ block: 'start', behavior: 'auto' });
+    }
+    return bubble;
   }
 
   function typing(on) {
@@ -502,6 +522,8 @@
   /** Say a list of things one after another, with a human pause between. */
   function saga(lines, done) {
     var i = 0;
+    // The next bubble starts an answer, so anchor it at the top of the view.
+    S.anchorNext = true;
     (function step() {
       if (i >= lines.length) { if (done) done(); return; }
       var line = lines[i++];
