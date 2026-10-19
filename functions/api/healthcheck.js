@@ -69,8 +69,17 @@ function lastMonth(now = new Date()) {
  */
 async function analytics(env, siteTag, fromISO, toISO) {
   if (!siteTag) return { ok: false, why: 'no site tag set for this client' };
-  if (!env.CF_ANALYTICS_TOKEN || !env.CF_ACCOUNT_ID) {
-    return { ok: false, why: 'CF_ANALYTICS_TOKEN or CF_ACCOUNT_ID not set' };
+
+  // Name the exact variable. "one of these two is missing" is a wasted trip.
+  const missing = [];
+  if (!env.CF_ANALYTICS_TOKEN) missing.push('CF_ANALYTICS_TOKEN');
+  if (!env.CF_ACCOUNT_ID) missing.push('CF_ACCOUNT_ID');
+  if (missing.length) {
+    return {
+      ok: false,
+      why: missing.join(' and ') + ' not set on this Pages project '
+        + '(add it, then redeploy — Pages only picks up variables on a build)',
+    };
   }
 
   const build = (withVisits) => `
@@ -455,6 +464,15 @@ export async function onRequestPost({ request, env }) {
     period,
     label,
     dry,
+    // Presence only, never values — so a glance at a dry run shows whether a
+    // variable actually reached the deployed code.
+    config: {
+      CF_ACCOUNT_ID: Boolean(env.CF_ACCOUNT_ID),
+      CF_ANALYTICS_TOKEN: Boolean(env.CF_ANALYTICS_TOKEN),
+      CF_EMAIL_TOKEN: Boolean(env.CF_EMAIL_TOKEN),
+      RESEND_API_KEY: Boolean(env.RESEND_API_KEY),
+      FROM_ADDRESS: env.FROM_ADDRESS ? 'set' : 'falling back to ' + DEFAULT_FROM,
+    },
     considered: clients.length,
     capped_at: MAX_CLIENTS,
     reports: done,
