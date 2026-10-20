@@ -58,7 +58,6 @@
     email: 'phil@studiovelox.com',
     conceptHours: 24,
     liveDays: 7,
-    hourly: 80,
     area: 'Gold Coast',
     // Paid to the registrar, not to Studio Velox. Checked Oct 2026.
     domainLow: 20,
@@ -269,7 +268,7 @@
       match: ['shop', 'ecommerce', 'e-commerce', 'store', 'sell online', 'booking', 'ads', 'advertising', 'seo', 'logo', 'app', 'members', 'login', 'payment', 'integration', 'custom'],
       say: [
         'An online shop, a booking system, extra pages, ad campaigns, a logo — all possible, and nothing is off the table. None of it is covered by the three prices above.',
-        'It is charged at ' + money(FACTS.hourly) + ' an hour, or as a fixed price quoted before any work starts so you know the number up front.',
+        'Every one of those is quoted as a fixed price, agreed before any work starts, so you know the number up front and it does not move.',
         'I will not guess at a figure for something like that. Tell ' + FACTS.owner + ' what you are after and he will give you a real one.'
       ],
       next: ['talk', 'price']
@@ -393,7 +392,10 @@
     'letter-spacing:.08em;text-transform:uppercase;color:#fff}',
     '.sv-head b i{color:#e8a020;font-style:normal}',
     '.sv-head small{display:block;font-size:11.5px;letter-spacing:.04em;color:#7d8ca3;',
-    "text-transform:none;font-family:'Lato',sans-serif;margin-top:3px}",
+    "text-transform:none;font-family:'Lato',sans-serif;margin-top:3px;font-weight:400}",
+    /* Not everyone wants to type at a robot. The way out is in the header. */
+    '.sv-head small a{color:#e8a020;text-decoration:none;font-weight:700}',
+    '.sv-head small a:hover{text-decoration:underline}',
     '.sv-x{border:0;background:0;color:#7d8ca3;font-size:22px;line-height:1;cursor:pointer;padding:4px 2px}',
     '.sv-x:hover{color:#e8a020}',
 
@@ -957,7 +959,8 @@
     root.innerHTML =
       '<div class="sv-panel" role="dialog" aria-modal="false" aria-label="Studio Velox assistant">'
       + '<div class="sv-head">'
-      + '<b>STUDIO VELOX<i>.</i><small>Answers in plain English</small></b>'
+      + '<b>STUDIO VELOX<i>.</i><small>Or call '
+      + '<a href="tel:+61422777865">0422 777 865</a></small></b>'
       + '<button class="sv-x" type="button" aria-label="Close">&times;</button>'
       + '</div>'
       + '<div class="sv-logwrap">'
