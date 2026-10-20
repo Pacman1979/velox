@@ -204,13 +204,25 @@ function compose(client, label, audit, stats, qs) {
 
   // ── visitors ──
   if (stats && stats.ok) {
-    const v = stats.visits == null
-      ? `${stats.views} page views`
-      : `${stats.views} page views from ${stats.visits} visits`;
+    // Zero is a number the report has to handle gracefully. "0 page views from
+    // 0 visits. Nearly all of them typed your address in" is nonsense, and a
+    // client reading it learns that nobody checks what gets sent to them.
+    const none = !stats.views;
+    const v = none
+      ? 'Nothing recorded this month.'
+      : stats.visits == null
+        ? `${stats.views} page views`
+        : `${stats.views} page views from ${stats.visits} visits`;
     lines.push('Visitors', '-'.repeat(20), v);
     h('<h3 style="font:600 15px/1.4 system-ui,sans-serif;color:#0a1628;margin:0 0 6px">Visitors</h3>');
-    h(`<p style="font:14px/1.6 system-ui,sans-serif;color:#0a1628;margin:0 0 6px">${esc(v)}.</p>`);
-    if (stats.referrers.length) {
+    h(`<p style="font:14px/1.6 system-ui,sans-serif;color:#0a1628;margin:0 0 6px">${esc(v)}</p>`);
+    if (none) {
+      const why = 'Either the month predates your site going live, or nobody '
+        + 'found it. If the site has been up a while, that second one is worth '
+        + 'a conversation.';
+      lines.push(why, '');
+      h(`<p style="font:14px/1.6 system-ui,sans-serif;color:#6b7280;margin:0 0 22px">${esc(why)}</p>`);
+    } else if (stats.referrers.length) {
       lines.push('Mostly arriving from:');
       h('<p style="font:14px/1.6 system-ui,sans-serif;color:#6b7280;margin:0 0 22px">Mostly arriving from: '
         + stats.referrers.map(([hst, n]) => `${esc(hst)} (${n})`).join(', ') + '</p>');
