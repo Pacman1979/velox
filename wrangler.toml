@@ -34,7 +34,13 @@ compatibility_date = "2026-09-25"
 #   2nd of the month 6:00am AEST = 1st 20:00 UTC = "0 20 1 * *"
 #     Reports on the previous whole calendar month, so running on the 2nd
 #     means October's report goes out on 2 November.
-crons = ["0 19 * * 6", "0 20 1 * *"]
+#   Every six hours = "0 */6 * * *"
+#     Checks whether newly found businesses actually have a website. This
+#     used to be a manual step — cron-search would find leads and then tell
+#     you to go and run /api/verify yourself. An unverified lead cannot be
+#     scored or routed by /today, so leaving it to memory meant leads
+#     quietly piling up unusable. Costs nothing: no billed API behind it.
+crons = ["0 19 * * 6", "0 */6 * * *", "0 20 1 * *"]
 
 # ---------------------------------------------------------------------------
 # Settings
