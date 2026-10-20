@@ -8,10 +8,8 @@
  *
  * Three jobs:
  *   "0 19 * * 6"   Sunday 5am AEST   — find new leads        /api/cron-search
- *   every six hours                  — check whether they    /api/verify
- *   (the exact expression is in            have a website
- *    JOBS below, where it is safe
- *    to write a slash-star)
+ *   "0 21 * * *"   daily 7am AEST    — check the leads that  /api/verify
+ *                                      have never been checked
  *   "0 20 1 * *"   2nd of the month, — send care clients     /api/healthcheck
  *                  6am AEST            their monthly report
  *
@@ -30,7 +28,7 @@ const SITE = 'https://studiovelox.com';
 /** Which cron runs which job. A cron not listed here falls back to the search. */
 const JOBS = {
   '0 19 * * 6': 'search',
-  '0 */6 * * *': 'verify',
+  '0 21 * * *': 'verify',
   '0 20 1 * *': 'health',
 };
 
@@ -42,8 +40,10 @@ const ENDPOINTS = {
 
 /* /api/verify caps itself at 10 leads per call — ten leads times four
    candidate domains is 40 fetches, inside Cloudflare's 50-subrequest limit.
-   Four runs a day is 40 leads, which comfortably outpaces what one weekly
-   search adds. */
+
+   It only ever looks at leads that have NEVER been checked, so this drains
+   a backlog rather than polling. Once the backlog is gone each run reads
+   zero rows and stops. Ten a day keeps ahead of one weekly search. */
 const VERIFY_BATCH = 10;
 
 export default {

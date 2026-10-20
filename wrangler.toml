@@ -34,13 +34,17 @@ compatibility_date = "2026-09-25"
 #   2nd of the month 6:00am AEST = 1st 20:00 UTC = "0 20 1 * *"
 #     Reports on the previous whole calendar month, so running on the 2nd
 #     means October's report goes out on 2 November.
-#   Every six hours = "0 */6 * * *"
-#     Checks whether newly found businesses actually have a website. This
-#     used to be a manual step — cron-search would find leads and then tell
-#     you to go and run /api/verify yourself. An unverified lead cannot be
-#     scored or routed by /today, so leaving it to memory meant leads
-#     quietly piling up unusable. Costs nothing: no billed API behind it.
-crons = ["0 19 * * 6", "0 */6 * * *", "0 20 1 * *"]
+#   Daily 7:00am AEST = 21:00 UTC = "0 21 * * *"
+#     Works through leads that have never been checked, ten at a time.
+#     It does NOT re-check anything: once a lead is marked live, none,
+#     parked or thin it is never looked at again. So this drains a queue
+#     rather than polling, and once the queue is empty each run is a
+#     no-op costing one database read.
+#
+#     Ten a day clears a backlog of 138 in two weeks, and keeps ahead of
+#     the twenty or so that one weekly search adds. To clear a backlog
+#     faster, hit the Worker by hand: ?key=...&job=verify
+crons = ["0 19 * * 6", "0 21 * * *", "0 20 1 * *"]
 
 # ---------------------------------------------------------------------------
 # Settings
