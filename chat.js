@@ -62,9 +62,6 @@
     // Paid to the registrar, not to Studio Velox. Checked Oct 2026.
     domainLow: 20,
     domainHigh: 40,
-    // Payable only if the free one-page build is cancelled inside 3 months.
-    freeBuildFee: 294,
-    freeBuildMonths: 3,
 
     tiers: [
       {
@@ -231,10 +228,9 @@
       match: ['cancel', 'contract', 'lock', 'commit', 'minimum term', 'get out', 'leave', 'quit', 'stop paying', 'notice period'],
       say: [
         'Yes, and there is no minimum term. Tell ' + FACTS.owner + ' and it stops.',
-        'One fair condition on the free one-page build: cancel inside the first '
-          + FACTS.freeBuildMonths + ' months and a ' + money(FACTS.freeBuildFee)
-          + ' build fee becomes payable, which covers the work already done. '
-          + 'After that there is nothing to pay, and you keep the site either way.'
+        'Nothing is owed on the way out. Cancel inside the free trial and you have '
+          + 'paid nothing at all, though the site comes down. Cancel after that and you '
+          + 'keep it \u2014 the month you have already paid for is the end of it.'
       ],
       next: ['trial', 'own', 'talk']
     },
