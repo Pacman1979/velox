@@ -4,6 +4,9 @@
 /crm.html
   X-Robots-Tag: noindex, nofollow, noarchive
 
+/scout.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+
 /today.html
   X-Robots-Tag: noindex, nofollow, noarchive
 

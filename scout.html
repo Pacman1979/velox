@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="theme-color" content="#0a1628">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Scout</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Lato:wght@400;700&display=swap">
+<style>
+:root{
+  --navy:#0a1628; --navy2:#0f2036; --line:#1e3553;
+  --fg:#e9eff7; --mid:#a9bdd6; --dim:#7b93b2;
+  --gold:#e8a020; --gold2:#f0b445; --green:#3fa96a; --red:#d9534f;
+  --head:'Oswald','Arial Narrow',sans-serif;
+  --body:'Lato','Helvetica Neue',Arial,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  margin:0;background:var(--navy);color:var(--fg);
+  font-family:var(--body);font-size:16px;line-height:1.5;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  -webkit-font-smoothing:antialiased;overscroll-behavior:none;
+}
+
+/* ---------- pin ---------- */
+#pin{position:fixed;inset:0;background:var(--navy);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;z-index:100;padding:24px}
+.logo{font-family:var(--head);font-weight:600;font-size:14px;letter-spacing:.3em;color:var(--gold2);margin-bottom:8px}
+.pin-t{font-family:var(--head);font-weight:500;font-size:30px;margin:0 0 4px}
+.pin-s{color:var(--dim);font-size:14px;margin:0 0 36px}
+.dots{display:flex;gap:16px;margin-bottom:32px}
+.dot{width:15px;height:15px;border-radius:50%;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.2);transition:.15s}
+.dot.on{background:var(--gold);border-color:var(--gold)}
+.dot.bad{background:var(--red);border-color:var(--red)}
+.pad{display:grid;grid-template-columns:repeat(3,76px);gap:14px}
+.key{width:76px;height:76px;border:1.5px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);
+  color:var(--fg);font-family:var(--head);font-size:24px;border-radius:4px;cursor:pointer}
+.key:active{background:rgba(232,160,32,.2);border-color:var(--gold)}
+.key.sm{font-size:15px;color:var(--dim)}
+.pin-e{font-family:var(--head);font-size:13px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--red);margin-top:20px;min-height:20px}
+
+/* ---------- app ---------- */
+#app{display:none;min-height:100%;flex-direction:column}
+header{display:flex;align-items:baseline;gap:10px;padding:16px 20px 0}
+header .logo{margin:0;font-size:12px}
+header .gps{margin-left:auto;font-family:var(--head);font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--dim)}
+header .gps.ok{color:var(--green)}
+
+.stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px 20px 8px;text-align:center;min-height:52vh}
+#mic{
+  width:190px;height:190px;border-radius:50%;border:none;cursor:pointer;
+  background:var(--gold);color:#0a1628;
+  font-family:var(--head);font-weight:600;font-size:19px;letter-spacing:.1em;text-transform:uppercase;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  box-shadow:0 0 0 0 rgba(232,160,32,.55);
+}
+#mic svg{width:46px;height:46px;fill:#0a1628}
+#mic:disabled{opacity:.5}
+#mic.live{background:var(--red);color:#fff;animation:ring 1.3s infinite}
+#mic.live svg{fill:#fff}
+@keyframes ring{
+  0%{box-shadow:0 0 0 0 rgba(217,83,79,.55)}
+  70%{box-shadow:0 0 0 38px rgba(217,83,79,0)}
+  100%{box-shadow:0 0 0 0 rgba(217,83,79,0)}
+}
+@media (prefers-reduced-motion:reduce){#mic.live{animation:none}}
+
+#said{font-family:var(--head);font-weight:500;font-size:26px;line-height:1.25;
+  margin:26px 0 6px;min-height:34px;word-break:break-word}
+#status{color:var(--mid);font-size:15px;min-height:46px;margin:0;max-width:30rem}
+#status.good{color:var(--green)}
+#status.bad{color:var(--red)}
+.hint{color:var(--dim);font-size:13px;margin:14px 0 0}
+.hint b{color:var(--mid);font-weight:700}
+
+/* manual entry */
+.manual{display:flex;gap:8px;width:100%;max-width:30rem;margin:18px auto 0}
+.manual input{flex:1;min-width:0;background:var(--navy2);border:1px solid var(--line);border-radius:4px;
+  color:var(--fg);font:inherit;font-size:16px;padding:13px 12px}
+.manual button{background:none;border:1px solid var(--line);border-radius:4px;color:var(--gold2);
+  font-family:var(--head);font-size:14px;letter-spacing:.1em;text-transform:uppercase;padding:0 18px;cursor:pointer}
+
+/* ---------- list ---------- */
+.list{border-top:1px solid var(--line);padding:18px 20px 40px}
+.list h2{font-family:var(--head);font-weight:500;font-size:13px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--dim);margin:0 0 4px;display:flex;align-items:baseline;gap:8px}
+.list h2 .q{margin-left:auto;font-size:11px;letter-spacing:.1em}
+.list .sub{color:var(--dim);font-size:12.5px;margin:0 0 14px}
+.row{display:grid;grid-template-columns:auto 1fr auto;gap:2px 12px;align-items:start;
+  padding:12px 0;border-top:1px solid var(--line)}
+.row:first-of-type{border-top:none}
+.sc{font-family:var(--head);font-weight:600;font-size:20px;line-height:1.1;min-width:2.1em;text-align:right;
+  font-variant-numeric:tabular-nums}
+.sc.prime{color:var(--gold2)} .sc.strong{color:#8fc9a6} .sc.maybe{color:var(--mid)} .sc.skip{color:var(--dim)}
+.sc.pending{color:var(--dim);font-size:15px}
+.nm{font-weight:700;line-height:1.35;min-width:0;word-break:break-word}
+.meta{grid-column:2;color:var(--dim);font-size:12.5px}
+.ws{font-family:var(--head);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+  padding:3px 7px;border-radius:2px;white-space:nowrap;align-self:center}
+.ws.none,.ws.expired,.ws.parked,.ws.thin{background:var(--gold);color:#0a1628}
+.ws.live{background:rgba(255,255,255,.08);color:var(--dim)}
+.ws.unchecked{background:rgba(255,255,255,.05);color:var(--dim)}
+.ws.social_only,.ws.aggregator{background:rgba(232,160,32,.22);color:var(--gold2)}
+.empty{color:var(--dim);font-size:14px;padding:10px 0 4px}
+.queued{margin:10px 0 0;font-size:12.5px;color:var(--gold2)}
+footer{padding:0 20px 28px;color:var(--dim);font-size:12px;text-align:center}
+footer a{color:var(--dim)}
+</style>
+</head>
+<body>
+
+<div id="pin">
+  <div class="logo">STUDIO VELOX</div>
+  <h1 class="pin-t">Scout</h1>
+  <p class="pin-s">Private &mdash; enter your PIN</p>
+  <div class="dots"><i class="dot" id="d0"></i><i class="dot" id="d1"></i><i class="dot" id="d2"></i><i class="dot" id="d3"></i></div>
+  <div class="pad">
+    <button class="key" data-k="1">1</button><button class="key" data-k="2">2</button><button class="key" data-k="3">3</button>
+    <button class="key" data-k="4">4</button><button class="key" data-k="5">5</button><button class="key" data-k="6">6</button>
+    <button class="key" data-k="7">7</button><button class="key" data-k="8">8</button><button class="key" data-k="9">9</button>
+    <button class="key sm" data-k="del">Del</button><button class="key" data-k="0">0</button><span></span>
+  </div>
+  <p class="pin-e" id="pin-e"></p>
+</div>
+
+<div id="app">
+  <header>
+    <span class="logo">STUDIO VELOX</span>
+    <span class="gps" id="gps">No fix</span>
+  </header>
+
+  <div class="stage">
+    <button id="mic" aria-label="Tap and say the business name">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11z"/></svg>
+      <span id="miclabel">Tap &amp; speak</span>
+    </button>
+
+    <p id="said"></p>
+    <p id="status">Say the business name. Add <b>&ldquo;in Robina&rdquo;</b> and I&rsquo;ll file the suburb too.</p>
+
+    <div class="manual">
+      <input type="text" id="typed" placeholder="Or type it here" autocomplete="off" enterkeyhint="done">
+      <button id="save">Save</button>
+    </div>
+    <p class="hint">No lookup happens now. The 7am run checks it and scores it overnight.</p>
+    <p class="queued" id="queued" hidden></p>
+  </div>
+
+  <section class="list">
+    <h2>Scouted <span class="q" id="count"></span></h2>
+    <p class="sub">Ranked against each other only &mdash; these have no Google review data, so they would sink in the main list.</p>
+    <div id="rows"><p class="empty">Loading&hellip;</p></div>
+  </section>
+
+  <footer>Everything here also lives in <a href="/crm.html">the CRM</a>.</footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var PIN_KEY = 'sv_scout_pin';
+  var Q_KEY   = 'sv_scout_queue';
+  var pin = '';
+  var saved = null;      // the unlocked PIN, in memory
+  var pos = null;        // {lat,lng}
+  var busy = false;
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ---------------- storage, defensively ---------------- */
+  function get(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
+  function set(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} }
+  function qGet() { try { return JSON.parse(localStorage.getItem(Q_KEY) || '[]'); } catch (e) { return []; } }
+  function qSet(a) { try { localStorage.setItem(Q_KEY, JSON.stringify(a)); } catch (e) {} }
+
+  /* ---------------- pin ---------------- */
+  function dots() {
+    for (var i = 0; i < 4; i++) $('d' + i).classList.toggle('on', i < pin.length);
+  }
+  function press(k) {
+    if (k === 'del') { pin = pin.slice(0, -1); $('pin-e').textContent = ''; dots(); return; }
+    if (pin.length >= 4) return;
+    pin += k; dots();
+    if (pin.length === 4) check();
+  }
+  function check() {
+    fetch('/api/checkpin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pin: pin })
+    }).then(function (r) { return r.json(); }).then(function (d) {
+      if (d && d.ok) { saved = pin; set(PIN_KEY, pin); unlock(); }
+      else bad();
+    }).catch(bad);
+  }
+  function bad() {
+    var ds = document.querySelectorAll('.dot');
+    ds.forEach(function (d) { d.classList.remove('on'); d.classList.add('bad'); });
+    $('pin-e').textContent = 'Wrong PIN';
+    setTimeout(function () {
+      ds.forEach(function (d) { d.classList.remove('bad'); });
+      $('pin-e').textContent = ''; pin = ''; dots();
+    }, 1100);
+  }
+  document.querySelectorAll('.key').forEach(function (b) {
+    b.addEventListener('click', function () { press(b.getAttribute('data-k')); });
+  });
+  document.addEventListener('keydown', function (e) {
+    if ($('pin').style.display === 'none') return;
+    if (e.key >= '0' && e.key <= '9') press(e.key);
+    if (e.key === 'Backspace') press('del');
+  });
+
+  function unlock() {
+    $('pin').style.display = 'none';
+    $('app').style.display = 'flex';
+    locate();
+    flush();
+    load();
+  }
+
+  /* ---------------- gps ---------------- */
+  function locate() {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.watchPosition(function (p) {
+      pos = { lat: p.coords.latitude, lng: p.coords.longitude };
+      $('gps').textContent = 'GPS on';
+      $('gps').className = 'gps ok';
+    }, function () {
+      $('gps').textContent = 'No GPS';
+    }, { enableHighAccuracy: false, maximumAge: 120000, timeout: 20000 });
+  }
+
+  /* ---------------- speech ---------------- */
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  function speak(text) {
+    try {
+      if (!window.speechSynthesis) return;
+      window.speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(text);
+      u.rate = 1.02; u.pitch = 1; u.lang = 'en-AU';
+      window.speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+
+  function say(msg, cls) {
+    var s = $('status');
+    s.textContent = msg;
+    s.className = cls || '';
+  }
+
+  $('mic').addEventListener('click', function () {
+    if (busy) return;
+    if (!SR) {
+      say('This browser will not do voice. Type it instead — the box below works the same.', 'bad');
+      $('typed').focus();
+      return;
+    }
+    listen();
+  });
+
+  function listen() {
+    var rec = new SR();
+    rec.lang = 'en-AU';
+    rec.interimResults = true;
+    rec.maxAlternatives = 1;
+    rec.continuous = false;
+
+    var heard = '';
+    busy = true;
+    $('mic').classList.add('live');
+    $('miclabel').textContent = 'Listening';
+    $('said').textContent = '';
+    say('Go ahead.');
+
+    rec.onresult = function (e) {
+      heard = '';
+      for (var i = 0; i < e.results.length; i++) heard += e.results[i][0].transcript;
+      $('said').textContent = heard;
+    };
+    rec.onerror = function (e) {
+      done();
+      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+        say('Microphone is blocked. Allow it for this site, or type it below.', 'bad');
+      } else if (e.error === 'no-speech') {
+        say('Did not catch that. Tap and try again.', 'bad');
+      } else {
+        say('Voice failed (' + e.error + '). Type it below instead.', 'bad');
+      }
+    };
+    rec.onend = function () {
+      done();
+      var t = heard.trim();
+      if (t) submit(t);
+      else if ($('status').className !== 'bad') say('Nothing heard. Tap and try again.');
+    };
+
+    function done() {
+      busy = false;
+      $('mic').classList.remove('live');
+      $('miclabel').textContent = 'Tap & speak';
+    }
+
+    try { rec.start(); } catch (e) { done(); say('Could not start the microphone.', 'bad'); }
+  }
+
+  /* ---------------- parse & save ---------------- */
+  function split(raw) {
+    // "Bob's Plumbing in Robina" -> name + suburb. No " in " means it is all name.
+    var m = raw.match(/^(.*?)\s+in\s+([A-Za-z'\- ]{3,40})$/i);
+    if (m) return { name: tidy(m[1]), suburb: tidy(m[2]) };
+    return { name: tidy(raw), suburb: '' };
+  }
+  function tidy(s) {
+    s = s.replace(/\s+/g, ' ').trim().replace(/[.,;]+$/, '');
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  $('save').addEventListener('click', function () {
+    var v = $('typed').value.trim();
+    if (v) { $('said').textContent = v; submit(v); }
+  });
+  $('typed').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); $('save').click(); }
+  });
+
+  function submit(raw) {
+    var parts = split(raw);
+    if (!parts.name) return;
+    var payload = {
+      name: parts.name,
+      suburb: parts.suburb,
+      lat: pos ? pos.lat : null,
+      lng: pos ? pos.lng : null,
+      note: 'Scouted in person'
+    };
+    say('Saving…');
+    post(payload).then(function (d) {
+      $('typed').value = '';
+      if (d.duplicate) {
+        say(d.spoken, 'good');
+        speak(d.spoken);
+      } else {
+        var line = payload.suburb ? 'Saved. ' + payload.name + ', ' + payload.suburb + '.'
+                                  : 'Saved. ' + payload.name + '.';
+        say(line, 'good');
+        speak(line);
+      }
+      load();
+    }).catch(function () {
+      // No signal in the car is normal. Keep it and send it when there is.
+      var q = qGet(); q.push(payload); qSet(q);
+      $('typed').value = '';
+      say('No signal — held on the phone. It will send itself when you are back in range.', 'bad');
+      speak('Held. ' + payload.name + '.');
+      showQueue();
+    });
+  }
+
+  function post(payload) {
+    return fetch('/api/scout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Velox-Pin': saved || '' },
+      body: JSON.stringify(payload)
+    }).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    });
+  }
+
+  function showQueue() {
+    var q = qGet();
+    var el = $('queued');
+    el.hidden = q.length === 0;
+    el.textContent = q.length
+      ? q.length + (q.length === 1 ? ' scout waiting to send' : ' scouts waiting to send')
+      : '';
+  }
+
+  function flush() {
+    var q = qGet();
+    showQueue();
+    if (!q.length) return;
+    var next = q[0];
+    post(next).then(function () {
+      qSet(qGet().slice(1));
+      showQueue();
+      flush();
+      load();
+    }).catch(function () { /* still offline; leave it queued */ });
+  }
+
+  /* ---------------- the list ---------------- */
+  function load() {
+    fetch('/api/scout', { headers: { 'X-Velox-Pin': saved || '' } })
+      .then(function (r) { return r.json(); })
+      .then(function (d) { draw(d && d.leads ? d.leads : []); })
+      .catch(function () {
+        $('rows').textContent = '';
+        var p = document.createElement('p');
+        p.className = 'empty';
+        p.textContent = 'Could not load the list. It will be here when you have signal.';
+        $('rows').appendChild(p);
+      });
+  }
+
+  var LABEL = {
+    none: 'No website', expired: 'Expired', parked: 'Parked', thin: 'Stub',
+    aggregator: 'Listing only', social_only: 'Social only',
+    live: 'Has site', unchecked: 'Checking tonight'
+  };
+
+  function draw(rows) {
+    var host = $('rows');
+    host.textContent = '';
+    $('count').textContent = rows.length ? rows.length + ' saved' : '';
+    if (!rows.length) {
+      var p = document.createElement('p');
+      p.className = 'empty';
+      p.textContent = 'Nothing scouted yet. Tap the button and say a business name.';
+      host.appendChild(p);
+      showQueue();
+      return;
+    }
+    rows.forEach(function (l) {
+      var pending = l.website_status === 'unchecked';
+      var row = document.createElement('div');
+      row.className = 'row';
+
+      var sc = document.createElement('div');
+      sc.className = 'sc ' + (pending ? 'pending' : (l.tier || 'maybe'));
+      sc.textContent = pending ? '—' : String(l.lead_score);
+      row.appendChild(sc);
+
+      var nm = document.createElement('div');
+      nm.className = 'nm';
+      nm.textContent = l.name;
+      row.appendChild(nm);
+
+      var ws = document.createElement('span');
+      ws.className = 'ws ' + (l.website_status || 'unchecked');
+      ws.textContent = LABEL[l.website_status] || l.website_status;
+      row.appendChild(ws);
+
+      var bits = [];
+      if (l.suburb) bits.push(l.suburb);
+      if (l.date_found) bits.push(String(l.date_found).slice(0, 10));
+      if (!pending && l.tier) bits.push(l.tier);
+      if (bits.length) {
+        var meta = document.createElement('p');
+        meta.className = 'meta';
+        meta.textContent = bits.join('  ·  ');
+        row.appendChild(meta);
+      }
+      host.appendChild(row);
+    });
+    showQueue();
+  }
+
+  /* ---------------- boot ---------------- */
+  var remembered = get(PIN_KEY);
+  if (remembered) { saved = remembered; unlock(); }
+  window.addEventListener('online', flush);
+})();
+</script>
+</body>
+</html>
