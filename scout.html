@@ -216,13 +216,13 @@ var PINLEN = 6;
       body: JSON.stringify({ pin: pin })
     }).then(function (r) { return r.json(); }).then(function (d) {
       if (d && d.ok) { saved = pin; set(PIN_KEY, pin); unlock(); }
-      else bad();
+      else bad(r.status===429?'Too many attempts — wait an hour':'');
     }).catch(bad);
   }
-  function bad() {
+  function bad(msg) {
     var ds = document.querySelectorAll('.dot');
     ds.forEach(function (d) { d.classList.remove('on'); d.classList.add('bad'); });
-    $('pin-e').textContent = 'Wrong PIN';
+    $('pin-e').textContent = msg || 'Wrong PIN';
     setTimeout(function () {
       ds.forEach(function (d) { d.classList.remove('bad'); });
       $('pin-e').textContent = ''; pin = ''; dots();

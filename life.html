@@ -437,19 +437,19 @@ async function checkPin() {
       sessionStorage.setItem('sv_life_auth', '1');
       loadAll();
     } else {
-      showPinError();
+      showPinError(res.status === 429 ? 'Too many attempts — wait an hour' : '');
     }
   } catch(e) {
     showPinError();
   }
 }
 
-function showPinError() {
+function showPinError(msg) {
   document.querySelectorAll('.pin-dot').forEach(d => {
     d.classList.remove('filled');
     d.classList.add('error');
   });
-  document.getElementById('pin-error').textContent = 'Incorrect PIN — try again';
+  document.getElementById('pin-error').textContent = msg || 'Incorrect PIN — try again';
   setTimeout(() => {
     document.querySelectorAll('.pin-dot').forEach(d => d.classList.remove('error'));
     document.getElementById('pin-error').textContent = '';

@@ -321,12 +321,12 @@ async function checkPin(){
   try{
     const r=await fetch('/api/checkpin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin})});
     const {ok}=await r.json();
-    if(ok){svSetPin(pin);unlock();sessionStorage.setItem('sv_crm','1');}else pinErr();
+    if(ok){svSetPin(pin);unlock();sessionStorage.setItem('sv_crm','1');}else pinErr(r.status===429?'Too many attempts — wait an hour':'');
   }catch(e){pinErr();}
 }
-function pinErr(){
+function pinErr(msg){
   document.querySelectorAll('.pin-dot').forEach(x=>{x.classList.remove('filled');x.classList.add('error');});
-  document.getElementById('pin-error').textContent='Incorrect PIN';
+  document.getElementById('pin-error').textContent=msg||'Incorrect PIN';
   setTimeout(()=>{document.querySelectorAll('.pin-dot').forEach(x=>x.classList.remove('error'));
     document.getElementById('pin-error').textContent='';pin='';},1200);
 }

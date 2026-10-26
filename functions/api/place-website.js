@@ -62,8 +62,25 @@ export async function onRequestPost({ request, env }) {
     return json({ error: 'GOOGLE_PLACES_API_KEY missing' }, 500);
   }
 
+  /* A malformed body must NOT fall through to the defaults, because the
+     defaults spend money. Two `-d` flags on one curl are joined with `&`,
+     producing {"dry":true}&{"limit":50} — not valid JSON. Swallowing that
+     and running 10 billed lookups is exactly the surprise this endpoint
+     exists to avoid. An empty body is still fine; a broken one is not. */
   let body = {};
-  try { body = await request.json(); } catch (_) { /* defaults are fine */ }
+  const raw = await request.text();
+  if (raw.trim()) {
+    try {
+      body = JSON.parse(raw);
+    } catch (_) {
+      return json({
+        error: 'That body is not valid JSON, so nothing was run and nothing was spent.',
+        got: raw.slice(0, 200),
+        hint: 'Use ONE -d flag. Two are joined with "&" and stop being JSON. ' +
+              'Try: -d \'{"dry":true}\' or -d \'{"limit":50}\'',
+      }, 400);
+    }
+  }
 
   const dry = body.dry === true || body.dry === 1;
   const limit = Math.min(Math.max(Number(body.limit) || DEFAULT_LIMIT, 1), MAX_LIMIT);
@@ -116,8 +133,15 @@ export async function onRequestPost({ request, env }) {
     const found = [];
     const blank = [];
     const failed = [];
+    let quotaHit = false;
 
     for (const row of rows) {
+      /* Once Google says the daily quota is gone, every further request is a
+         wasted round trip that may still count against it. Stop, and say how
+         many are left rather than filling the report with 49 identical
+         errors. */
+      if (quotaHit) break;
+
       let site = null;
       try {
         const res = await fetch(
@@ -134,7 +158,9 @@ export async function onRequestPost({ request, env }) {
           throw new Error(`${data.status}${data.error_message ? ': ' + data.error_message : ''}`);
         }
       } catch (err) {
-        failed.push({ id: row.id, name: row.name, error: String(err.message || err) });
+        const msg = String(err.message || err);
+        if (/OVER_QUERY_LIMIT|RESOURCE_EXHAUSTED|quota/i.test(msg)) quotaHit = true;
+        failed.push({ id: row.id, name: row.name, error: msg });
         continue;
       }
 
@@ -167,11 +193,34 @@ export async function onRequestPost({ request, env }) {
       }
     }
 
+    const attempted = found.length + blank.length + failed.length;
+
+    if (quotaHit) {
+      return json({
+        ok: false,
+        quota_exhausted: true,
+        attempted,
+        had_a_website: found.length,
+        genuinely_none: blank.length,
+        still_outstanding: Math.max(outstanding - found.length - blank.length, 0),
+        found,
+        blank,
+        note:
+          'Google refused the rest: the daily request quota for this API is gone, ' +
+          'so I stopped instead of burning more round trips. Two things to check in ' +
+          'console.cloud.google.com: (1) APIs & Services → Places API → Quotas, for a ' +
+          'custom daily cap you set earlier, and (2) whether the project has an ' +
+          'active billing account at all — Google caps everything hard without one, ' +
+          'even inside the free tier. Nothing was lost; re-run tomorrow or after ' +
+          'raising the cap and it picks up where it left off.',
+      }, 200);
+    }
+
     return json({
       ok: true,
-      calls_made: rows.length,
+      calls_made: attempted,
       outstanding_before: outstanding,
-      outstanding_after: Math.max(outstanding - rows.length, 0),
+      outstanding_after: Math.max(outstanding - attempted, 0),
       had_a_website: found.length,
       genuinely_none: blank.length,
       errors: failed.length,

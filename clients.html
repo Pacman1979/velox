@@ -194,9 +194,9 @@ async function checkPin(){
   try{const r=await fetch('/api/checkpin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin})});
   const{ok}=await r.json();
   if(ok){document.getElementById('pin-screen').style.display='none';document.getElementById('app').style.display='block';svSetPin(pin);sessionStorage.setItem('svc','1');load();}
-  else pinErr();}catch(e){pinErr();}
+  else pinErr(r.status===429?'Too many attempts — wait an hour':'');}catch(e){pinErr();}
 }
-function pinErr(){document.querySelectorAll('.pin-dot').forEach(x=>{x.classList.remove('filled');x.classList.add('error');});document.getElementById('pin-error').textContent='Incorrect PIN — try again';setTimeout(()=>{document.querySelectorAll('.pin-dot').forEach(x=>x.classList.remove('error'));document.getElementById('pin-error').textContent='';pin='';},1200);}
+function pinErr(msg){document.querySelectorAll('.pin-dot').forEach(x=>{x.classList.remove('filled');x.classList.add('error');});document.getElementById('pin-error').textContent=msg||'Incorrect PIN — try again';setTimeout(()=>{document.querySelectorAll('.pin-dot').forEach(x=>x.classList.remove('error'));document.getElementById('pin-error').textContent='';pin='';},1200);}
 function lock(){sessionStorage.removeItem('svc');document.getElementById('app').style.display='none';document.getElementById('pin-screen').style.display='flex';pin='';dots();}
 if((sessionStorage.getItem('svc')==='1'&&svPin())){document.getElementById('pin-screen').style.display='none';document.getElementById('app').style.display='block';}
 document.addEventListener('keydown',e=>{if(document.getElementById('pin-screen').style.display==='none')return;if(e.key>='0'&&e.key<='9')pp(e.key);if(e.key==='Backspace')pd();});
