@@ -1,0 +1,16 @@
+{
+  "name": "Studio Velox Scout",
+  "short_name": "Scout",
+  "description": "Capture a business name on the road. Checked and scored by morning.",
+  "start_url": "/scout.html",
+  "scope": "/scout.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a1628",
+  "theme_color": "#0a1628",
+  "icons": [
+    { "src": "/icons/scout-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/scout-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/scout-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

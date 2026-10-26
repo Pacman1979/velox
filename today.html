@@ -279,6 +279,28 @@ footer span{color:var(--gold)}
 </div>
 
 <script>
+/* ---------------------------------------------------------------------------
+   Every /api call carries the PIN. The endpoints check it server-side now
+   (functions/api/_middleware.js); a gate enforced only in the browser was
+   no gate at all.
+   --------------------------------------------------------------------------- */
+function svPin(){try{return sessionStorage.getItem('sv_pin')||'';}catch(e){return '';}}
+function svSetPin(p){try{sessionStorage.setItem('sv_pin',p);}catch(e){}}
+(function(){
+  var f=window.fetch;
+  window.fetch=function(u,o){
+    try{
+      if(typeof u==='string'&&u.indexOf('/api/')===0){
+        o=o||{};
+        var h=new Headers(o.headers||{});
+        h.set('X-Velox-Pin',svPin());
+        o=Object.assign({},o,{headers:h});
+      }
+    }catch(e){}
+    return f.call(window,u,o);
+  };
+})();
+
 // ── PIN (same gate and same session key as /crm) ────────────────────────────
 let pin='';
 function pp(d){if(!d||pin.length>=4)return;pin+=d;dots();if(pin.length===4)checkPin();}
@@ -288,7 +310,7 @@ async function checkPin(){
   try{
     const r=await fetch('/api/checkpin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin})});
     const {ok}=await r.json();
-    if(ok){unlock();sessionStorage.setItem('sv_crm','1');}else pinErr();
+    if(ok){svSetPin(pin);unlock();sessionStorage.setItem('sv_crm','1');}else pinErr();
   }catch(e){pinErr();}
 }
 function pinErr(){
@@ -468,7 +490,7 @@ async function mark(id,status,btn){
   }
 }
 
-if(sessionStorage.getItem('sv_crm')==='1')unlock();
+if((sessionStorage.getItem('sv_crm')==='1'&&svPin()))unlock();
 </script>
 </body>
 </html>

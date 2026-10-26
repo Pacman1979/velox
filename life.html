@@ -365,6 +365,28 @@ footer span { color: var(--gold); }
 </div><!-- end #app -->
 
 <script>
+/* ---------------------------------------------------------------------------
+   Every /api call carries the PIN. The endpoints check it server-side now
+   (functions/api/_middleware.js); a gate enforced only in the browser was
+   no gate at all.
+   --------------------------------------------------------------------------- */
+function svPin(){try{return sessionStorage.getItem('sv_pin')||'';}catch(e){return '';}}
+function svSetPin(p){try{sessionStorage.setItem('sv_pin',p);}catch(e){}}
+(function(){
+  var f=window.fetch;
+  window.fetch=function(u,o){
+    try{
+      if(typeof u==='string'&&u.indexOf('/api/')===0){
+        o=o||{};
+        var h=new Headers(o.headers||{});
+        h.set('X-Velox-Pin',svPin());
+        o=Object.assign({},o,{headers:h});
+      }
+    }catch(e){}
+    return f.call(window,u,o);
+  };
+})();
+
 // ── PIN ──────────────────────────────────────────────────────────
 const CORRECT_PIN = 'YOUR_PIN';
 let pinEntry = '';
@@ -400,6 +422,7 @@ async function checkPin() {
     if (ok) {
       document.getElementById('pin-screen').style.display = 'none';
       document.getElementById('app').style.display = 'block';
+      svSetPin(pinEntry);
       sessionStorage.setItem('sv_life_auth', '1');
       loadAll();
     } else {
@@ -432,7 +455,7 @@ function lockPage() {
 }
 
 // Auto-unlock if same session
-if (sessionStorage.getItem('sv_life_auth') === '1') {
+if ((sessionStorage.getItem('sv_life_auth') === '1' && svPin())) {
   document.getElementById('pin-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
 }
@@ -580,7 +603,7 @@ document.getElementById('personal-text').addEventListener('keydown', e => {
 setInterval(loadAll, 60000);
 
 // Load on start if already authed
-if (sessionStorage.getItem('sv_life_auth') === '1') loadAll();
+if ((sessionStorage.getItem('sv_life_auth') === '1' && svPin())) loadAll();
 </script>
 </body>
 </html>
