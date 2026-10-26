@@ -79,6 +79,8 @@ nav{background:var(--navy);padding:14px 24px;display:flex;align-items:center;jus
 #lead-find:focus{outline:2px solid var(--gold);outline-offset:1px;border-color:var(--gold)}
 #lead-find-clear{background:none;border:0;color:var(--gray);font-size:18px;cursor:pointer;padding:0 4px;line-height:1}
 #lead-find-clear:hover{color:var(--navy)}
+#resort-btn{font-family:var(--font-acc);font-size:12px;letter-spacing:.08em;text-transform:uppercase;background:var(--gold);border:0;border-radius:4px;color:var(--navy);padding:7px 12px;cursor:pointer;white-space:nowrap}
+#resort-btn:hover{filter:brightness(1.08)}
 @media(max-width:700px){.lead-find-wrap{margin-left:0;width:100%}#lead-find{flex:1;min-width:0}}
 .stats-inner{max-width:none;margin:0;display:flex;gap:26px;flex-wrap:wrap;align-items:center}
 .stat{text-align:center}.stat-n{font-family:var(--font-head);font-size:28px;font-weight:900;color:var(--gold);line-height:1}
@@ -372,6 +374,7 @@ Next Door Burleigh&#9;cafe&#9;Burleigh Heads, QLD&#9;Shop 1/24 Junction Rd&#9;&#
       <input id="lead-find" type="search" placeholder="Find a business…" autocomplete="off"
              aria-label="Find a business by name, suburb or phone">
       <button id="lead-find-clear" type="button" title="Clear" aria-label="Clear search">&times;</button>
+      <button id="resort-btn" type="button" title="Put the list back in score order" onclick="resortNow()" hidden>↻ Re-sort</button>
     </div>
     <div class="filter-btns">
       <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
@@ -636,6 +639,25 @@ function refLabel(r){
   return map[r]||r||'—';
 }
 
+/* While you are editing a lead, the list must not move under you. Changing a
+   status rescores the row — 'Has website' drops it from 40 points to 5 — and
+   a re-sort then throws it to the bottom of 250 rows mid-sentence. So after a
+   save the previous order is held, and a Re-sort button appears when you are
+   ready to let it settle. */
+let lastOrder=[];
+let frozenOrder=null;
+function holdOrder(){
+  if(!frozenOrder)frozenOrder=lastOrder.slice();
+  const b=document.getElementById('resort-btn');
+  if(b)b.hidden=false;
+}
+function resortNow(){
+  frozenOrder=null;
+  const b=document.getElementById('resort-btn');
+  if(b)b.hidden=true;
+  renderLeads();
+}
+
 function renderLeads(){
   const TIERS=['prime','strong','maybe','skip'];
   const q=(document.getElementById('lead-find')?document.getElementById('lead-find').value:'').trim().toLowerCase();
@@ -650,6 +672,7 @@ function renderLeads(){
      the thing you came here to avoid. */
   const base=q?allLeads.filter(matches):base0;
 
+  // (the frozen order is applied after this sort, just below)
   // Sort: 1) follow-up date (overdue/soonest first, no date last)
   //       2) score (hot → warm → cool)
   //       3) alphabetical by name
@@ -666,6 +689,13 @@ function renderLeads(){
     // Alphabetical
     return (a.name||'').localeCompare(b.name||'');
   });
+
+  /* Held order wins. Anything not in it (a brand new lead) goes to the end. */
+  if(frozenOrder&&frozenOrder.length){
+    const pos=new Map(frozenOrder.map((id,i)=>[id,i]));
+    filtered.sort((a,b)=>(pos.has(a.id)?pos.get(a.id):1e9)-(pos.has(b.id)?pos.get(b.id):1e9));
+  }
+  lastOrder=filtered.map(l=>l.id);
 
   renderDueBanner();
   document.getElementById('st-total').textContent=allLeads.length;
@@ -749,6 +779,7 @@ async function saveLead(id){
   document.getElementById('save-'+id).style.display='none';
   const l=allLeads.find(x=>x.id===id);
   if(l){l.status=status;l.notes=notes;l.contact_method=contact_method;l.date_contacted=date_contacted;l.follow_up_date=follow_up_date;}
+  holdOrder();
   renderLeads();}
   catch(e){console.error('Save error:',e);}
 }
@@ -835,6 +866,7 @@ async function verifyLead(id,btn){
     const r=await fetch('/api/verify-one',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
     const d=await r.json();
     if(d.error)throw new Error(d.error);
+    holdOrder();
     await loadLeads();
   }catch(e){alert('Check failed: '+e.message);}
   if(btn){btn.disabled=false;btn.textContent='⟳ Check web';}
@@ -937,6 +969,7 @@ async function saveEdit(){
       if(d.score_reason)l.score_reason=d.score_reason;
     }
     closeEdit();
+    holdOrder();
     renderLeads();
   }catch(err){
     E('e-msg').textContent=String(err.message||err);
