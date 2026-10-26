@@ -31,6 +31,8 @@
  * so the safe state is the one you get by doing nothing.
  */
 
+import { pinLockout, pinFailed, pinPassed, sameSecret } from './_pinguard.js';
+
 /* Visitor-facing. These run on the public site and must never need a PIN. */
 const PUBLIC = new Set([
   'checkpin',    // the gate itself
@@ -67,10 +69,17 @@ export async function onRequest(context) {
     }, 503);
   }
 
-  if ((request.headers.get('X-Velox-Pin') || '') === env.SITE_PIN) {
+  /* This path is guessable too. Without a limit here, a script skips
+     /api/checkpin entirely and brute-forces the PIN against /api/leads. */
+  const locked = await pinLockout(env, request);
+  if (locked) return locked;
+
+  if (sameSecret(request.headers.get('X-Velox-Pin'), env.SITE_PIN)) {
+    await pinPassed(env, request);
     return next();
   }
 
+  await pinFailed(env, request);
   return json({ error: 'Locked. Open the page and enter your PIN.' }, 401);
 }
 
