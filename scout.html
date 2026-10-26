@@ -170,6 +170,17 @@ footer a{color:var(--dim)}
 </div>
 
 <script>
+/* PIN length lives here and in SITE_PIN on Cloudflare — nowhere else.
+   The dots are built from it, so changing this number is the whole job. */
+var PINLEN = 6;
+(function(){
+  var c = document.querySelector('.dots');
+  if (!c) return;
+  var h = '';
+  for (var i = 0; i < PINLEN; i++) h += '<i class="dot" id="d' + i + '"></i>';
+  c.innerHTML = h;
+})();
+
 (function () {
   'use strict';
 
@@ -190,13 +201,13 @@ footer a{color:var(--dim)}
 
   /* ---------------- pin ---------------- */
   function dots() {
-    for (var i = 0; i < 4; i++) $('d' + i).classList.toggle('on', i < pin.length);
+    for (var i = 0; i < PINLEN; i++) $('d' + i).classList.toggle('on', i < pin.length);
   }
   function press(k) {
     if (k === 'del') { pin = pin.slice(0, -1); $('pin-e').textContent = ''; dots(); return; }
-    if (pin.length >= 4) return;
+    if (pin.length >= PINLEN) return;
     pin += k; dots();
-    if (pin.length === 4) check();
+    if (pin.length === PINLEN) check();
   }
   function check() {
     fetch('/api/checkpin', {

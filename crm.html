@@ -446,6 +446,17 @@ Next Door Burleigh&#9;cafe&#9;Burleigh Heads, QLD&#9;Shop 1/24 Junction Rd&#9;&#
 </div>
 
 <script>
+/* PIN length lives here and in SITE_PIN on Cloudflare — nowhere else.
+   The dots are built from it, so changing this number is the whole job. */
+var PINLEN = 6;
+(function(){
+  var c = document.querySelector('.pin-dots');
+  if (!c) return;
+  var h = '';
+  for (var i = 0; i < PINLEN; i++) h += '<div class="pin-dot" id="d' + i + '"></div>';
+  c.innerHTML = h;
+})();
+
 /* ---------------------------------------------------------------------------
    Every /api call carries the PIN. The endpoints check it server-side now
    (functions/api/_middleware.js); a gate enforced only in the browser was
@@ -471,9 +482,9 @@ function svSetPin(p){try{sessionStorage.setItem('sv_pin',p);}catch(e){}}
 let pin='',allLeads=[],activeFilter='all';
 
 // PIN
-function pp(d){if(!d||pin.length>=4)return;pin+=d;dots();if(pin.length===4)checkPin();}
+function pp(d){if(!d||pin.length>=PINLEN)return;pin+=d;dots();if(pin.length===PINLEN)checkPin();}
 function pd(){pin=pin.slice(0,-1);dots();document.getElementById('pin-error').textContent='';document.querySelectorAll('.pin-dot').forEach(x=>x.classList.remove('error'));}
-function dots(){for(let i=0;i<4;i++)document.getElementById('d'+i).classList.toggle('filled',i<pin.length);}
+function dots(){for(let i=0;i<PINLEN;i++)document.getElementById('d'+i).classList.toggle('filled',i<pin.length);}
 async function checkPin(){
   try{const r=await fetch('/api/checkpin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin})});
   const{ok}=await r.json();

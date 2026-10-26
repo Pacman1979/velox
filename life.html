@@ -365,6 +365,17 @@ footer span { color: var(--gold); }
 </div><!-- end #app -->
 
 <script>
+/* PIN length lives here and in SITE_PIN on Cloudflare — nowhere else.
+   The dots are built from it, so changing this number is the whole job. */
+var PINLEN = 6;
+(function(){
+  var c = document.querySelector('.pin-dots');
+  if (!c) return;
+  var h = '';
+  for (var i = 0; i < PINLEN; i++) h += '<div class="pin-dot" id="d' + i + '"></div>';
+  c.innerHTML = h;
+})();
+
 /* ---------------------------------------------------------------------------
    Every /api call carries the PIN. The endpoints check it server-side now
    (functions/api/_middleware.js); a gate enforced only in the browser was
@@ -392,10 +403,10 @@ const CORRECT_PIN = 'YOUR_PIN';
 let pinEntry = '';
 
 function pinPress(digit) {
-  if (!digit || pinEntry.length >= 4) return;
+  if (!digit || pinEntry.length >= PINLEN) return;
   pinEntry += digit;
   updateDots();
-  if (pinEntry.length === 4) checkPin();
+  if (pinEntry.length === PINLEN) checkPin();
 }
 
 function pinDel() {
@@ -406,7 +417,7 @@ function pinDel() {
 }
 
 function updateDots() {
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < PINLEN; i++) {
     document.getElementById('d' + i).classList.toggle('filled', i < pinEntry.length);
   }
 }

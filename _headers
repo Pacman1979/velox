@@ -18,3 +18,12 @@
 
 /lakeview/*
   X-Robots-Tag: noindex, nofollow
+
+/treetops.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/treetops-landing-page.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/240826index.html
+  X-Robots-Tag: noindex, nofollow, noarchive
