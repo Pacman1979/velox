@@ -29,6 +29,23 @@ export async function onRequest(context) {
   if (request.method === 'OPTIONS') {
     return new Response(null, { status: 204, headers: { Allow: 'POST' } });
   }
+  /* GET is a diagnostic, and only ever answers two things: is a PIN set, and
+     how many characters long is it. Neither is a secret — every PIN screen on
+     the site already draws exactly that many dots for anyone who visits.
+     It exists because the two ways this silently fails look identical from
+     the keypad: a trailing space pasted into Cloudflare (length 7, nothing
+     will ever match), or the variable never saved at all. */
+  if (request.method === 'GET') {
+    const set = typeof env.SITE_PIN === 'string' && env.SITE_PIN.length > 0;
+    const locked = await pinLockout(env, request);
+    return json({
+      configured: set,
+      length: set ? env.SITE_PIN.length : 0,
+      trimmedLength: set ? env.SITE_PIN.trim().length : 0,
+      lockedOut: !!locked,
+    });
+  }
+
   if (request.method !== 'POST') {
     return json({ ok: false, error: 'Method not allowed' }, 405);
   }

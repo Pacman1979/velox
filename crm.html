@@ -674,7 +674,7 @@ function renderLeads(){
         ${l.contact_name?`<strong style="color:var(--navy);font-size:14.5px">${esc(l.contact_name)}</strong><br>`:''}
         ${l.email?`<a href="mailto:${esc(l.email)}" style="color:var(--gold)">${esc(l.email)}</a><br>`:''}
         ${esc(l.category)}
-        <button class="edit-btn ${(l.contact_name||l.email)?'':'empty'}" onclick="openEdit(${l.id})" title="Edit this lead's details">${(l.contact_name||l.email)?'\u270E Edit':'+ Add contact'}</button>
+        <button class="edit-btn ${(l.contact_name||l.email)?'':'empty'}" onclick="openEdit(${l.id})" title="Edit name, contact, email, phone, category, suburb, address and web presence">\u270E Edit</button>
       </td>
       <td style="font-size:12px;color:var(--gray)">${esc(l.suburb)}</td>
       <td class="lead-phone">${l.phone?`<a href="tel:${l.phone.replace(/\s/g,'')}">${esc(l.phone)}</a>`:'<span style="color:#ccc;font-size:11px">—</span>'}</td>
