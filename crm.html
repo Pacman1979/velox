@@ -73,7 +73,13 @@ nav{background:var(--navy);padding:14px 24px;display:flex;align-items:center;jus
 .csv-textarea:focus{border-color:var(--gold)}
 .csv-ref-row{display:flex;gap:12px;align-items:flex-end;margin-top:12px;flex-wrap:wrap}
 /* STATS BAR */
-.stats-bar{background:rgba(232,160,32,0.06);border-bottom:1px solid rgba(232,160,32,0.15);padding:12px 24px}
+.stats-bar{background:rgba(232,160,32,0.06);border-bottom:1px solid rgba(232,160,32,0.15);padding:12px 24px;position:sticky;top:54px;z-index:90}
+.lead-find-wrap{display:flex;align-items:center;gap:8px;margin-left:auto}
+#lead-find{font:inherit;font-size:14px;padding:7px 11px;border:1.5px solid rgba(10,22,40,0.18);border-radius:4px;background:#fff;color:var(--navy);min-width:210px}
+#lead-find:focus{outline:2px solid var(--gold);outline-offset:1px;border-color:var(--gold)}
+#lead-find-clear{background:none;border:0;color:var(--gray);font-size:18px;cursor:pointer;padding:0 4px;line-height:1}
+#lead-find-clear:hover{color:var(--navy)}
+@media(max-width:700px){.lead-find-wrap{margin-left:0;width:100%}#lead-find{flex:1;min-width:0}}
 .stats-inner{max-width:none;margin:0;display:flex;gap:26px;flex-wrap:wrap;align-items:center}
 .stat{text-align:center}.stat-n{font-family:var(--font-head);font-size:28px;font-weight:900;color:var(--gold);line-height:1}
 .stat-l{font-family:var(--font-acc);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#5a7090;margin-top:4px}
@@ -86,7 +92,7 @@ nav{background:var(--navy);padding:14px 24px;display:flex;align-items:center;jus
 /* TABLE */
 .leads-wrap{max-width:none;margin:0;padding:22px 24px 40px}
 .leads-table{width:100%;border-collapse:collapse;background:var(--white);border:1px solid var(--border)}
-.leads-table th{font-family:var(--font-acc);font-size:11.5px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--gray);padding:13px 12px;background:var(--offwhite);border-bottom:2px solid var(--border);text-align:left;white-space:nowrap;position:sticky;top:0;z-index:5}
+.leads-table th{font-family:var(--font-acc);font-size:11.5px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--gray);padding:13px 12px;background:var(--offwhite);border-bottom:2px solid var(--border);text-align:left;white-space:nowrap}
 .leads-table td{font-size:15px;padding:11px 10px;border-bottom:1px solid var(--border);vertical-align:top;color:var(--navy);line-height:1.45}
 .leads-table tr:hover td{background:rgba(232,160,32,0.02)}
 .score{font-family:var(--font-acc);font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:5px 10px;white-space:nowrap;display:inline-block}
@@ -362,6 +368,11 @@ Next Door Burleigh&#9;cafe&#9;Burleigh Heads, QLD&#9;Shop 1/24 Junction Rd&#9;&#
     <div class="stat"><div class="stat-n" id="st-new">0</div><div class="stat-l">New</div></div>
     <div class="stat"><div class="stat-n" id="st-contacted">0</div><div class="stat-l">Contacted</div></div>
     <div class="stat"><div class="stat-n" id="st-converted" style="color:#1b6b3a">0</div><div class="stat-l">Converted</div></div>
+    <div class="lead-find-wrap">
+      <input id="lead-find" type="search" placeholder="Find a business…" autocomplete="off"
+             aria-label="Find a business by name, suburb or phone">
+      <button id="lead-find-clear" type="button" title="Clear" aria-label="Clear search">&times;</button>
+    </div>
     <div class="filter-btns">
       <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
       <button class="filter-btn" onclick="setFilter('prime',this)">Prime</button>
@@ -627,10 +638,17 @@ function refLabel(r){
 
 function renderLeads(){
   const TIERS=['prime','strong','maybe','skip'];
-  const base=activeFilter==='all'?allLeads:
+  const q=(document.getElementById('lead-find')?document.getElementById('lead-find').value:'').trim().toLowerCase();
+  const matches=l=>!q||[l.name,l.suburb,l.phone,l.contact_name,l.email,l.address,l.real_website]
+    .some(v=>(v||'').toString().toLowerCase().includes(q));
+  const base0=activeFilter==='all'?allLeads:
     TIERS.includes(activeFilter)?allLeads.filter(l=>l.tier===activeFilter):
     activeFilter==='unchecked'?allLeads.filter(l=>(l.website_status||'unchecked')==='unchecked'):
     allLeads.filter(l=>l.status===activeFilter);
+  /* A name search looks through EVERY lead, not just the active tab — you are
+     looking for one business, and remembering which tab it is filed under is
+     the thing you came here to avoid. */
+  const base=q?allLeads.filter(matches):base0;
 
   // Sort: 1) follow-up date (overdue/soonest first, no date last)
   //       2) score (hot → warm → cool)
@@ -939,6 +957,21 @@ document.addEventListener('keydown',e=>{
 });
 
 if((sessionStorage.getItem('sv_crm')==='1'&&svPin()))loadLeads();
+
+/* Search as you type. No debounce — it filters an array already in memory,
+   and 250 rows re-render faster than the next keystroke arrives. */
+(function(){
+  var box=document.getElementById('lead-find');
+  var clear=document.getElementById('lead-find-clear');
+  if(!box)return;
+  box.addEventListener('input',function(){renderLeads();});
+  box.addEventListener('keydown',function(e){if(e.key==='Escape'){box.value='';renderLeads();}});
+  if(clear)clear.addEventListener('click',function(){box.value='';renderLeads();box.focus();});
+  document.addEventListener('keydown',function(e){
+    var t=document.activeElement;
+    if(e.key==='/'&&t!==box&&!/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)){e.preventDefault();box.focus();}
+  });
+})();
 </script>
 </body>
 </html>

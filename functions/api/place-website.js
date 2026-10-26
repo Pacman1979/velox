@@ -1,0 +1,207 @@
+/**
+ * POST /api/place-website     { "limit": 10, "dry": true }
+ *
+ * Asks Google the one question the lead search never asks: what website did
+ * this business give you?
+ *
+ * ---------------------------------------------------------------------------
+ * The bug this fixes
+ * ---------------------------------------------------------------------------
+ * `cron-search.js` uses Places **Text Search**, which returns the name,
+ * address, rating and review count — and NOT the website. So every lead is
+ * stored with `website: null`.
+ *
+ * `verify.js` has a good branch for a lead whose website is already known: it
+ * probes the URL, spots social and delivery-platform pages, and checks the
+ * page really belongs to them. That branch never runs, because there is never
+ * anything to probe. Instead verify falls back to GUESSING the domain from the
+ * business name, and when it cannot confirm a guess it writes `none`.
+ *
+ * So `none` in the CRM has been meaning "I could not guess their domain",
+ * not "they have no website". Businesses at an unguessable address —
+ * bobtheplumbergc.com.au — or whose name is three common words have been
+ * filed as free-build leads when they already have a site.
+ *
+ * ---------------------------------------------------------------------------
+ * What it costs, and how not to be surprised by it
+ * ---------------------------------------------------------------------------
+ * The website field lives in Place Details, which is a separate billed request
+ * per business — a different SKU from Text Search, with its own free monthly
+ * allowance. One call per lead, once.
+ *
+ * `fields=website` is specified deliberately: Place Details bills by the
+ * fields requested, so asking for one keeps it in the cheapest tier that
+ * carries it. Asking for everything would cost more for data already held.
+ *
+ * **`dry: true` makes no Google calls at all.** It reports which leads would
+ * be looked up and how many requests that is, so the bill can be estimated
+ * before a cent is spent. Run `{"dry":true}` first, then `{"limit":10}`, look
+ * at Google billing, then the rest.
+ *
+ * ---------------------------------------------------------------------------
+ * What it does to a row
+ * ---------------------------------------------------------------------------
+ * Stores the website and resets the row to `unchecked`, clearing `verified_at`.
+ * That is what puts it back in front of /api/verify, which only ever looks at
+ * leads never checked before — so the 7am run re-reads it with a real URL in
+ * hand and classifies it properly. Nothing else is touched; a status set by
+ * hand is left alone (see score_locked below).
+ */
+
+import { requireKey } from './auth.js';
+
+const DEFAULT_LIMIT = 10;
+const MAX_LIMIT = 50;          // Workers allow 50 subrequests per invocation
+const DETAILS = 'https://maps.googleapis.com/maps/api/place/details/json';
+
+export async function onRequestPost({ request, env }) {
+  const denied = requireKey(request, env);
+  if (denied) return denied;
+
+  if (!env.GOOGLE_PLACES_API_KEY) {
+    return json({ error: 'GOOGLE_PLACES_API_KEY missing' }, 500);
+  }
+
+  let body = {};
+  try { body = await request.json(); } catch (_) { /* defaults are fine */ }
+
+  const dry = body.dry === true || body.dry === 1;
+  const limit = Math.min(Math.max(Number(body.limit) || DEFAULT_LIMIT, 1), MAX_LIMIT);
+  const db = env.VELOX_DB;
+
+  /* Who is worth asking about. Only leads that
+       - Google can identify (we have a place_id),
+       - we have never stored a website for, and
+       - the guesser gave up on or has not reached.
+     A row whose status you set by hand is excluded: score_locked = 1 means
+     you have already decided, and this must not argue with you. */
+  const WHERE = `
+       place_id IS NOT NULL AND place_id <> ''
+   AND (website IS NULL OR website = '')
+   AND website_status IN ('none', 'unchecked')
+   AND COALESCE(score_locked, 0) <> 1`;
+
+  try {
+    const total = await db
+      .prepare(`SELECT COUNT(*) AS n FROM leads WHERE ${WHERE}`)
+      .first();
+    const outstanding = Number(total?.n || 0);
+
+    const { results: rows } = await db
+      .prepare(
+        `SELECT id, name, suburb, website_status, place_id
+           FROM leads
+          WHERE ${WHERE}
+          ORDER BY lead_score DESC, id ASC
+          LIMIT ?`
+      )
+      .bind(limit)
+      .all();
+
+    if (dry) {
+      return json({
+        ok: true,
+        dry: true,
+        outstanding,
+        would_call: rows.length,
+        note: `${outstanding} leads have no stored website. This run would make ` +
+              `${rows.length} Place Details requests and spend nothing now. ` +
+              `Re-run without "dry" to do it.`,
+        sample: rows.slice(0, 10).map((r) => ({
+          id: r.id, name: r.name, suburb: r.suburb, now: r.website_status,
+        })),
+      });
+    }
+
+    const found = [];
+    const blank = [];
+    const failed = [];
+
+    for (const row of rows) {
+      let site = null;
+      try {
+        const res = await fetch(
+          `${DETAILS}?place_id=${encodeURIComponent(row.place_id)}` +
+          `&fields=website&key=${env.GOOGLE_PLACES_API_KEY}`
+        );
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (data.status === 'OK') {
+          site = (data.result && data.result.website) || null;
+        } else if (data.status === 'ZERO_RESULTS' || data.status === 'NOT_FOUND') {
+          site = null;   // Google cannot find the place any more
+        } else {
+          throw new Error(`${data.status}${data.error_message ? ': ' + data.error_message : ''}`);
+        }
+      } catch (err) {
+        failed.push({ id: row.id, name: row.name, error: String(err.message || err) });
+        continue;
+      }
+
+      if (site) {
+        /* Store it and hand the row back to the verifier, which only ever
+           looks at leads it has never checked. */
+        await db
+          .prepare(
+            `UPDATE leads
+                SET website = ?, website_status = 'unchecked',
+                    verified_at = NULL,
+                    verify_note = 'Website from Google, awaiting re-check'
+              WHERE id = ?`
+          )
+          .bind(site, row.id)
+          .run();
+        found.push({ id: row.id, name: row.name, suburb: row.suburb, website: site });
+      } else {
+        /* Google has no website for them either. That is now a real "none",
+           confirmed rather than guessed, so say so in the note. */
+        await db
+          .prepare(
+            `UPDATE leads
+                SET verify_note = 'No website on their Google listing either — confirmed'
+              WHERE id = ?`
+          )
+          .bind(row.id)
+          .run();
+        blank.push({ id: row.id, name: row.name, suburb: row.suburb });
+      }
+    }
+
+    return json({
+      ok: true,
+      calls_made: rows.length,
+      outstanding_before: outstanding,
+      outstanding_after: Math.max(outstanding - rows.length, 0),
+      had_a_website: found.length,
+      genuinely_none: blank.length,
+      errors: failed.length,
+      found,
+      blank,
+      failed,
+      note: found.length
+        ? `${found.length} of ${rows.length} had a website Google knew about and the ` +
+          `guesser missed. They are back in the verify queue and the 7am run will ` +
+          `reclassify them. The other ${blank.length} are confirmed as having nothing.`
+        : `None of these ${rows.length} had a website on their Google listing. ` +
+          `Their "none" is now confirmed rather than guessed.`,
+    });
+  } catch (err) {
+    return json({ error: String(err?.message || err) }, 500);
+  }
+}
+
+export async function onRequestGet({ request, env }) {
+  const denied = requireKey(request, env);
+  if (denied) return denied;
+  return json({
+    ok: true,
+    usage: 'POST {"dry":true} to count without spending, then {"limit":10} to run.',
+  });
+}
+
+function json(obj, status = 200) {
+  return new Response(JSON.stringify(obj, null, 2), {
+    status,
+    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+  });
+}
