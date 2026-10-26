@@ -706,7 +706,7 @@ function renderLeads(){
           <option value="converted" ${l.status==='converted'?'selected':''}>Converted ✓</option>
           <option value="skip" ${l.status==='skip'?'selected':''}>Skip</option>
         </select>
-        <textarea class="notes-inp" id="notes-${l.id}" placeholder="Notes...">${esc(l.notes||'')}</textarea>
+        <textarea class="notes-inp" id="notes-${l.id}" placeholder="Notes..." oninput="markChanged(${l.id})">${esc(l.notes||'')}</textarea>
         <button class="save-btn" id="save-${l.id}" onclick="saveLead(${l.id})">Save</button>
       </td>
       <td style="min-width:140px">
