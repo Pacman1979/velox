@@ -81,6 +81,8 @@ nav{background:var(--navy);padding:14px 24px;display:flex;align-items:center;jus
 #lead-find-clear:hover{color:var(--navy)}
 #resort-btn{font-family:var(--font-acc);font-size:12px;letter-spacing:.08em;text-transform:uppercase;background:var(--gold);border:0;border-radius:4px;color:var(--navy);padding:7px 12px;cursor:pointer;white-space:nowrap}
 #resort-btn:hover{filter:brightness(1.08)}
+.decline-btn{font-family:var(--font-acc);font-size:11px;letter-spacing:.06em;text-transform:uppercase;background:#fff;border:1px solid rgba(192,57,43,.35);border-radius:3px;color:#c0392b;padding:4px 8px;cursor:pointer;margin-left:4px}
+.decline-btn:hover{background:#c0392b;color:#fff;border-color:#c0392b}
 @media(max-width:700px){.lead-find-wrap{margin-left:0;width:100%}#lead-find{flex:1;min-width:0}}
 .stats-inner{max-width:none;margin:0;display:flex;gap:26px;flex-wrap:wrap;align-items:center}
 .stat{text-align:center}.stat-n{font-family:var(--font-head);font-size:28px;font-weight:900;color:var(--gold);line-height:1}
@@ -360,6 +362,7 @@ Next Door Burleigh&#9;cafe&#9;Burleigh Heads, QLD&#9;Shop 1/24 Junction Rd&#9;&#
 </div>
 
 <div class="search-status" id="search-status"></div>
+<div class="search-status" id="decline-note" style="color:#c0392b" hidden></div>
 
 <!-- STATS + FILTERS -->
 <div class="stats-bar">
@@ -639,6 +642,49 @@ function refLabel(r){
   return map[r]||r||'—';
 }
 
+/* PHASE 8, in one click.
+ *
+ * The runbook's "they said no" is four separate actions: set the status to
+ * skip, cycle the tier until it reads skip, type a note with the date, save.
+ * Miss the tier and score_locked stays 0, so the next rescore lifts them back
+ * to the top of your visit list and you knock on a door you have already been
+ * turned away from.
+ *
+ * This does all of it and then hands you the cursor to type what they said,
+ * which is the only part that needs a person. The concept folder still has to
+ * come down by hand — git is not reachable from the browser — so it reminds
+ * you, with the command already written out. */
+const pendingTier = {};
+
+function declineLead(id){
+  const l = allLeads.find(x => x.id === id);
+  if (!l) return;
+
+  const sel = document.getElementById('status-' + id);
+  if (sel) sel.value = 'skip';
+  pendingTier[id] = 'skip';
+
+  const box = document.getElementById('notes-' + id);
+  if (box) {
+    const stamp = 'Visited ' + new Date().toISOString().slice(0, 10) + '. ';
+    if (!box.value.includes(stamp)) {
+      box.value = (box.value ? box.value.replace(/\s*$/, '') + '\n' : '') + stamp;
+    }
+    box.focus();
+    box.setSelectionRange(box.value.length, box.value.length);
+  }
+
+  markChanged(id);
+
+  const slug = (l.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+  const note = document.getElementById('decline-note');
+  if (note) {
+    note.hidden = false;
+    note.textContent = 'Type what they said, then Save. If you built them a concept, '
+      + 'take it down too \u2014 git rm -r ' + slug + '/ and remove its _headers lines.';
+  }
+}
+
 /* While you are editing a lead, the list must not move under you. Changing a
    status rescores the row — 'Has website' drops it from 40 points to 5 — and
    a re-sort then throws it to the bottom of 250 rows mid-sentence. So after a
@@ -716,6 +762,7 @@ function renderLeads(){
         ${(l.rating||l.review_count)?`<span class="wstat">${esc(l.rating||'?')}★ · ${esc(l.review_count||'?')}</span>`:''}
         <button class="score-cycle" onclick="cycleTier(${l.id})" title="Set the priority by hand">⟳ Change</button>
         <button class="score-cycle" onclick="verifyLead(${l.id},this)" title="Re-check their website now">⟳ Check web</button>
+        <button class="decline-btn" onclick="declineLead(${l.id})" title="They said no: marks skip, locks the score and starts the note">✕ Said no</button>
       </td>
       <td><strong class="item-name">${esc(l.name)}</strong><br><span style="font-size:11px;color:var(--gray)">${esc(l.address)}</span></td>
       <td style="font-size:13.5px;color:var(--gray)">
@@ -775,10 +822,13 @@ async function saveLead(id){
   const contact_method=document.getElementById('method-'+id)?.value||'call';
   const date_contacted=document.getElementById('contacted-'+id)?.value||'';
   const follow_up_date=document.getElementById('followup-'+id)?.value||'';
-  try{await fetch('/api/leads',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status,notes,contact_method,date_contacted,follow_up_date})});
+  try{await fetch('/api/leads',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status,notes,contact_method,date_contacted,follow_up_date,
+    ...(pendingTier[id]?{tier:pendingTier[id]}:{})})});
   document.getElementById('save-'+id).style.display='none';
   const l=allLeads.find(x=>x.id===id);
   if(l){l.status=status;l.notes=notes;l.contact_method=contact_method;l.date_contacted=date_contacted;l.follow_up_date=follow_up_date;}
+  if(pendingTier[id]){if(l)l.tier=pendingTier[id];delete pendingTier[id];
+    const n=document.getElementById('decline-note');if(n)n.hidden=true;}
   holdOrder();
   renderLeads();}
   catch(e){console.error('Save error:',e);}

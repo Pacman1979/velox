@@ -435,7 +435,22 @@ function classify(probe, tokens, exact, slug = '', suburb = '', phrase = '') {
   // lead; under-confirming puts you on a doorstep telling a business with a
   // good website that they haven't got one.
   const phraseHit = matchesPhrase(text, phrase);
-  const confident = phraseHit || nameMatches(matched, tokens, exact);
+
+  // A SHORT name can never clear that eight-character floor. "Lea hair"
+  // squashes to "leahair" — seven — so the phrase test is switched off for it
+  // before it starts, and with one distinguishing token on a guessed domain
+  // nameMatches() cannot help either. The result was "no website" for
+  // businesses that plainly have one.
+  //
+  // Five characters is enough IF the page also places them in the right
+  // suburb, because that is a second, independent signal the domain did not
+  // supply. Name-in-order plus suburb is stronger evidence than two loose
+  // token hits, which is all the long-name path ever asks for.
+  const shortPhraseHit = !phraseHit
+    && matchesPhrase(text, phrase, 5)
+    && placesThemIn(text, slug, suburb);
+
+  const confident = phraseHit || shortPhraseHit || nameMatches(matched, tokens, exact);
 
   // A for-sale page belongs to a domain investor. Not theirs, not parked by
   // them, not a website. Report nothing and let the caller keep looking.
@@ -497,11 +512,7 @@ function classify(probe, tokens, exact, slug = '', suburb = '', phrase = '') {
     // dropped the stopword "cafe", so there is nothing left to prove with,
     // and we would report "no website" to a business that has one. That is
     // the error this whole file exists to avoid.
-    const sub = String(suburb || '').toLowerCase().trim();
-    const subSlug = sub.replace(/[^a-z0-9]+/g, '');
-    const suburbIsTheDomain = subSlug && slug.includes(subSlug);
-    const placesThem = sub && !suburbIsTheDomain && text.includes(sub);
-    if (!placesThem) return null;
+    if (!placesThemIn(text, slug, suburb)) return null;
   }
 
   // A confident name match is safe to trust from any domain.
@@ -566,17 +577,32 @@ function classify(probe, tokens, exact, slug = '', suburb = '', phrase = '') {
  * characters — the title, header and nav, where a business names itself — to
  * keep it off the CPU budget.
  */
-function matchesPhrase(text, phrase) {
-  if (!phrase || phrase.length < 8 || !text) return false;
+function matchesPhrase(text, phrase, minLen = 8) {
+  if (!phrase || phrase.length < minLen || !text) return false;
   if (text.includes(phrase)) return true;
   const squashedNeedle = phrase.replace(/[^a-z0-9]+/g, '');
-  if (squashedNeedle.length < 8) return false;
+  if (squashedNeedle.length < minLen) return false;
   // Tags out first, or "<h1>Quest</h1><span>Coffee</span>" squashes to
   // "h1questh1spancoffee" and the name is still broken up by the markup.
   return text.slice(0, 20000)
     .replace(/<[^>]*>/g, ' ')
     .replace(/[^a-z0-9]+/g, '')
     .includes(squashedNeedle);
+}
+
+/**
+ * Does the page put them in the right suburb?
+ *
+ * Only counts when the SUBURB IS NOT IN THE DOMAIN. If it is, the page
+ * containing it proves nothing — that is the same circular reasoning that
+ * filed "Palm Beach Bakery" as live off palmbeach.com.
+ */
+function placesThemIn(text, slug, suburb) {
+  const sub = String(suburb || '').toLowerCase().trim();
+  if (!sub || !text) return false;
+  const subSlug = sub.replace(/[^a-z0-9]+/g, '');
+  if (subSlug && String(slug || '').includes(subSlug)) return false;
+  return text.includes(sub);
 }
 
 function nameMatches(matched, tokens, exact) {
