@@ -78,6 +78,11 @@ body{font-family:var(--body);color:var(--ink);font-size:15px;line-height:1.45}
   padding:1px 5px;border-radius:2px;background:var(--gold);color:var(--navy)}
 .meta .ws.live{background:#e6eaef;color:var(--dim)}
 .meta .em{color:var(--gold-ink)}
+.meta .dom{font-family:var(--head);color:var(--navy);text-decoration:underline;
+  text-decoration-color:var(--gold);text-underline-offset:1.5px}
+/* One line, always. A wrapped note costs a row off the bottom of the page. */
+.note{font-size:7.6pt;color:var(--navy);margin:.4mm 0 0;line-height:1.3;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:165mm}
 .open{font-size:7.6pt;color:var(--dim);font-style:italic;margin:.4mm 0 0;line-height:1.3}
 .ticks{display:flex;gap:3.5mm;margin:.7mm 0 0;align-items:center}
 .ticks span{font-family:var(--head);font-size:7.5pt;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
@@ -317,6 +322,16 @@ function svSetPin(p){try{sessionStorage.setItem('sv_pin',p);}catch(e){}}
         if (l.contact_name) meta.push('Ask for ' + esc(l.contact_name));
         if (l.email) meta.push('<span class="em">' + esc(l.email) + '</span>');
 
+        /* The domain is the thing you quote standing outside the shop —
+           "you've got X registered and it's showing a coming-soon page".
+           Without it on the page the status chip is an assertion you can't back up. */
+        var dom = (l.website || '').replace(/^https?:\/\//,'').replace(/\/$/,'');
+        if (dom) meta.push('<span class="dom">' + esc(dom) + '</span>');
+
+        /* Anything already said to them. Trimmed, because a long note eats the page. */
+        var note = (l.notes || '').replace(/\s+/g,' ').trim();
+        if (note.length > 120) note = note.slice(0,118) + '…';
+
         html += '<div class="biz">'
           + '<div class="num">' + (p*10 + i + 1) + '</div>'
           + '<div>'
@@ -326,7 +341,11 @@ function svSetPin(p){try{sessionStorage.setItem('sv_pin',p);}catch(e){}}
           +   '</div>'
           +   '<div class="meta"><span class="ws ' + esc(ws) + '">' + esc(LABEL[ws]||ws) + '</span>'
           +     meta.join(' <span>·</span> ') + '</div>'
-          +   (OPENER[ws] ? '<div class="open">' + esc(OPENER[ws]) + '</div>' : '')
+          /* A note REPLACES the opener, it does not stack on top of it. Two reasons:
+             the row height has to stay fixed or 10 stop fitting on a page, and a
+             generic cold opener is the wrong line for someone you've already met. */
+          +   (note ? '<div class="note">Noted: ' + esc(note) + '</div>'
+                    : (OPENER[ws] ? '<div class="open">' + esc(OPENER[ws]) + '</div>' : ''))
           +   '<div class="ticks">'
           +     '<span><i></i>Spoke</span><span><i></i>Call back</span><span><i></i>No</span>'
           +   '</div>'
