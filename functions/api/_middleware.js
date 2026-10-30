@@ -40,6 +40,7 @@ const PUBLIC = new Set([
   'chatlog',     // the assistant recording what was asked
   'contact',     // the enquiry form
   'quickaudit',  // the instant site check, deliberately open
+  'reportlead',  // the free report landing page at /report
 ]);
 
 export async function onRequest(context) {

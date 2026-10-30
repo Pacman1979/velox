@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The 5 Things Gold Coast Customers Check Before They Call You — Studio Velox</title>
+<meta name="description" content="A free 7-page report for Gold Coast business owners. The five things a customer checks before they pick up the phone, and what they do when they can't find them.">
+<meta property="og:title" content="The 5 things Gold Coast customers check before they call you">
+<meta property="og:description" content="They aren't comparing you. They're ruling you out. Free 7-page report.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Lato:wght@300;400;700&family=Oswald:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0a1628; --navy2:#122040; --gold:#e8a020; --gold2:#f5b732;
+  --white:#fff; --offwhite:#f8f6f1; --cream:#f7f1e6; --gray:#6b7280; --light:#eef2f7;
+  --font-head:'Playfair Display',Georgia,serif;
+  --font-body:'Lato',sans-serif;
+  --font-accent:'Oswald',sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--navy);color:var(--white);
+  font-family:var(--font-body);font-weight:300;line-height:1.65;
+  -webkit-font-smoothing:antialiased}
+
+/* No navigation. This page has one job and nothing to click away with. */
+
+.wrap{max-width:1060px;margin:0 auto;padding:0 16px}
+
+/* ---------- hero ---------- */
+.hero{padding:clamp(40px,8vw,88px) 0 clamp(30px,5vw,54px);
+  background:
+    radial-gradient(1100px 440px at 78% -8%, rgba(232,160,32,.17), transparent 62%),
+    linear-gradient(170deg,var(--navy) 0%,var(--navy2) 100%)}
+.kicker{font-family:var(--font-accent);font-weight:600;font-size:13px;
+  letter-spacing:.18em;color:var(--gold2);margin:0 0 18px}
+h1{font-family:var(--font-head);font-weight:900;margin:0 0 20px;
+  font-size:clamp(30px,5.6vw,56px);line-height:1.08;letter-spacing:-.015em;max-width:17ch}
+.sub{font-size:clamp(17px,2.1vw,21px);color:#cfd8e6;margin:0 0 30px;max-width:54ch}
+.sub b{color:var(--white);font-weight:700}
+
+.cols{display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(28px,5vw,64px);align-items:start}
+@media(max-width:860px){.cols{grid-template-columns:1fr;gap:34px}}
+
+/* ---------- the thesis ---------- */
+.thesis{border-left:3px solid var(--gold);padding:4px 0 4px 20px;margin:0 0 30px}
+.thesis p{margin:0;font-family:var(--font-head);font-weight:700;
+  font-size:clamp(19px,2.5vw,25px);line-height:1.32;color:var(--white)}
+.thesis span{display:block;margin-top:10px;font-family:var(--font-body);
+  font-weight:300;font-size:16px;color:#b8c4d6;line-height:1.6}
+
+/* ---------- the five ---------- */
+.five{list-style:none;margin:0;padding:0;counter-reset:c}
+.five li{counter-increment:c;display:flex;gap:16px;padding:15px 0;
+  border-bottom:1px solid rgba(255,255,255,.1)}
+.five li:last-child{border-bottom:0}
+.five li::before{content:counter(c);font-family:var(--font-accent);font-weight:600;
+  font-size:14px;color:var(--navy);background:var(--gold);flex:0 0 26px;height:26px;
+  display:grid;place-items:center;border-radius:50%;margin-top:3px}
+.five h3{margin:0 0 3px;font-family:var(--font-body);font-weight:700;
+  font-size:17px;color:var(--white);line-height:1.35}
+.five p{margin:0;font-size:15px;color:#a9b6c9;line-height:1.55}
+
+/* ---------- form ---------- */
+.card{background:var(--offwhite);color:var(--navy);border-radius:4px;
+  padding:clamp(24px,3.6vw,34px);box-shadow:0 24px 60px rgba(0,0,0,.4);
+  position:sticky;top:24px}
+@media(max-width:860px){.card{position:static}}
+.card .tag{font-family:var(--font-accent);font-weight:600;font-size:12px;
+  letter-spacing:.16em;color:#9a6a10;margin:0 0 12px}
+.card h2{font-family:var(--font-head);font-weight:800;margin:0 0 8px;
+  font-size:clamp(22px,2.7vw,28px);line-height:1.2}
+.card .note{font-size:15px;color:#52607a;margin:0 0 22px;line-height:1.55}
+label{display:block;font-family:var(--font-accent);font-weight:500;font-size:12px;
+  letter-spacing:.13em;color:#4a5568;margin:0 0 6px}
+input[type=text],input[type=email]{width:100%;padding:13px 14px;font:inherit;font-size:16px;
+  color:var(--navy);background:var(--white);border:1.5px solid #d4d9e2;border-radius:3px;
+  margin:0 0 16px;transition:border-color .15s}
+input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(232,160,32,.18)}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+button{width:100%;padding:16px;font-family:var(--font-accent);font-weight:600;
+  font-size:16px;letter-spacing:.09em;color:var(--navy);background:var(--gold);
+  border:0;border-radius:3px;cursor:pointer;transition:background .15s}
+button:hover:not(:disabled){background:var(--gold2)}
+button:disabled{opacity:.55;cursor:default}
+button:focus-visible{outline:3px solid var(--navy);outline-offset:2px}
+.fine{font-size:13px;color:#6b7280;margin:14px 0 0;line-height:1.5}
+.msg{margin:14px 0 0;font-size:15px;line-height:1.55;display:none}
+.msg.bad{display:block;color:#9b2c1c}
+.msg.good{display:block;color:#1c6b3a}
+.msg a{color:#9a6a10;font-weight:700}
+
+/* ---------- footer ---------- */
+footer{border-top:1px solid rgba(255,255,255,.1);margin-top:clamp(40px,6vw,70px);
+  padding:26px 0 34px;font-size:14px;color:#8e9bb0}
+footer a{color:var(--gold2);text-decoration:none}
+footer a:hover{text-decoration:underline}
+footer .who{font-family:var(--font-accent);letter-spacing:.14em;font-size:13px;
+  color:var(--white);margin:0 0 6px}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<main class="hero">
+  <div class="wrap">
+    <p class="kicker">FREE 7-PAGE REPORT · GOLD COAST</p>
+    <h1>The 5 things customers check before they call you</h1>
+    <p class="sub">And what they do when they can&rsquo;t find them. Written for owners who
+      <b>don&rsquo;t want a marketing lecture</b> &mdash; everything in it you can check yourself in about ten minutes.</p>
+
+    <div class="cols">
+      <div>
+        <div class="thesis">
+          <p>Nobody is comparing you. They&rsquo;re ruling you out.</p>
+          <span>Being ruled out feels like nothing from your end. Someone who crosses you off
+            never rings, never emails, and never tells you why. You don&rsquo;t lose the job &mdash;
+            you never hear that the job existed.</span>
+        </div>
+
+        <ul class="five">
+          <li><div>
+            <h3>Can they find you at all</h3>
+            <p>They&rsquo;re not searching your business name. They don&rsquo;t know your business name.</p>
+          </div></li>
+          <li><div>
+            <h3>Has anyone else used you, and did it go well</h3>
+            <p>Why a 4.6 from eighty people beats a perfect 5.0 from three.</p>
+          </div></li>
+          <li><div>
+            <h3>What is this going to cost me</h3>
+            <p>The one question you can answer without putting a price list on the internet.</p>
+          </div></li>
+          <li><div>
+            <h3>Are you a real business that will actually turn up</h3>
+            <p>The small signals people look for, and the ones that quietly cost you the job.</p>
+          </div></li>
+          <li><div>
+            <h3>Will you actually answer</h3>
+            <p>Most of this gets decided before anyone dials.</p>
+          </div></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <p class="tag">NO COST · NO CALL</p>
+        <h2>Send me the report</h2>
+        <p class="note">You&rsquo;ll get it on this page the moment you hit the button &mdash; no waiting on an email.</p>
+
+        <form id="f" novalidate>
+          <label for="nm">FIRST NAME</label>
+          <input id="nm" type="text" autocomplete="given-name" maxlength="60" required>
+
+          <label for="em">EMAIL</label>
+          <input id="em" type="email" autocomplete="email" inputmode="email" maxlength="120" required>
+
+          <!-- A real person never sees this, let alone fills it in. -->
+          <div class="hp" aria-hidden="true">
+            <label for="website">Website</label>
+            <input id="website" type="text" tabindex="-1" autocomplete="off">
+          </div>
+
+          <button type="submit" id="go">SEND ME THE REPORT</button>
+        </form>
+
+        <p class="msg" id="msg" role="status" aria-live="polite"></p>
+        <p class="fine">One email address, used to send you this and nothing else.
+          No newsletter, no sequence, no sharing it with anyone.</p>
+      </div>
+    </div>
+
+    <footer>
+      <p class="who">STUDIO VELOX</p>
+      <p style="margin:0">Gold Coast web design &mdash; Phil Campbell &middot;
+        <a href="tel:+61422777865">0422 777 865</a> &middot;
+        <a href="mailto:phil@studiovelox.com">phil@studiovelox.com</a> &middot;
+        <a href="/">studiovelox.com</a></p>
+    </footer>
+  </div>
+</main>
+
+<script>
+(function(){
+  var PDF  = '/The-5-things.pdf';
+  var form = document.getElementById('f');
+  var btn  = document.getElementById('go');
+  var msg  = document.getElementById('msg');
+
+  function say(text, ok){
+    msg.className = 'msg ' + (ok ? 'good' : 'bad');
+    msg.innerHTML = text;
+  }
+
+  /* Hand the file over in the browser they're already in. No mail server
+     involved, so there is nothing to land in a spam folder and nothing to
+     go wrong between wanting it and having it. */
+  function deliver(){
+    var a = document.createElement('a');
+    a.href = PDF;
+    a.setAttribute('download', 'The-5-things-Gold-Coast-customers-check.pdf');
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+
+    var name  = document.getElementById('nm').value.trim();
+    var email = document.getElementById('em').value.trim();
+    var hp    = document.getElementById('website').value;
+
+    if (!name)  return say('Just your first name, so I know who I’m talking to.', false);
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email))
+      return say('That email doesn’t look right — worth a second look.', false);
+
+    btn.disabled = true;
+    btn.textContent = 'SENDING…';
+    msg.className = 'msg';
+
+    /* The download happens whether or not the capture succeeds. They asked
+       for the report; a database problem at my end is not their problem. */
+    var saved = false;
+    try {
+      var r = await fetch('/api/reportlead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name, email: email, website: hp, page: '/report' })
+      });
+      var d = await r.json();
+      saved = !!(d && d.ok);
+    } catch (err) {
+      /* Offline, blocked, whatever. Deliver anyway. */
+    }
+
+    deliver();
+    btn.textContent = 'DOWNLOAD AGAIN';
+    btn.disabled = false;
+    say('On its way, ' + name.replace(/[<>&]/g,'') + '. If it didn’t open, '
+      + '<a href="' + PDF + '" download>grab it here</a>.', true);
+  });
+})();
+</script>
+</body>
+</html>
