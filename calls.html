@@ -66,6 +66,12 @@ body{font-family:var(--body);color:var(--ink);font-size:15px;line-height:1.45}
 
 .biz{display:grid;grid-template-columns:6mm 1fr;gap:0 2.5mm;
   padding:1.3mm 0;border-bottom:.6pt solid var(--line);break-inside:avoid}
+/* A right-hand gutter, and the reason it has to exist: the phone number is
+   pushed right with margin-left:auto, which lands it flush against the content
+   edge — measured at exactly 0px clearance. Every printer has a few millimetres
+   it physically cannot mark, so "flush" prints as "last digits missing". The
+   number you dial is the one thing on this sheet that must survive. */
+.biz > div:last-child{padding-right:5mm}
 .biz:last-child{border-bottom:0}
 .num{font-family:var(--head);font-weight:600;font-size:9.5pt;color:var(--dim);text-align:right;padding-top:.6mm}
 .top{display:flex;align-items:baseline;gap:3mm;flex-wrap:wrap}
@@ -95,7 +101,10 @@ body{font-family:var(--body);color:var(--ink);font-size:15px;line-height:1.45}
   html,body{background:#fff}
   .bar,#pin{display:none !important}
   .sheets{padding:0}
-  .page{width:auto;min-height:0;margin:0;padding:0;box-shadow:none;
+  /* A floor under the page margin. If the print dialog's Margins is set to
+     "None" it overrides @page, and content lands on the paper edge. This keeps
+     a few millimetres of its own no matter what the dialog says. */
+  .page{width:auto;min-height:0;margin:0;padding:0 4mm;box-shadow:none;
     break-after:page;page-break-after:always}
   .page:last-child{break-after:auto;page-break-after:auto}
 }
@@ -281,6 +290,27 @@ function svSetPin(p){try{sessionStorage.setItem('sv_pin',p);}catch(e){}}
     });
   }
 
+  /* Why a lead didn't make the list. Each lead is counted against the FIRST
+     filter that rejects it, so the numbers add up to the leads not shown
+     instead of double-counting a lead that fails three of them. */
+  function countExclusions(){
+    var suburb = $('f-suburb').value;
+    var tiers  = $('f-tier').value ? $('f-tier').value.split(',') : null;
+    var webGap = $('f-web').value === 'gap';
+    var needPhone = $('f-phone').value === '1';
+    var out = { done:0, suburb:0, tier:0, web:0, phone:0 };
+
+    leads.forEach(function(l){
+      if (l.status === 'converted' || l.status === 'skip'
+          || Number(l.score_locked) === 1) { out.done++; return; }
+      if (suburb && l.suburb !== suburb) { out.suburb++; return; }
+      if (tiers && tiers.indexOf(l.tier) === -1) { out.tier++; return; }
+      if (webGap && GAP.indexOf(l.website_status || 'unchecked') === -1) { out.web++; return; }
+      if (needPhone && !l.phone) { out.phone++; return; }
+    });
+    return out;
+  }
+
   function esc(s){ return String(s==null?'':s).replace(/[&<>]/g, function(c){
     return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
 
@@ -290,10 +320,24 @@ function svSetPin(p){try{sessionStorage.setItem('sv_pin',p);}catch(e){}}
     var want = pages * 10;
     var use = all.slice(0, want);
 
-    $('tally').textContent = all.length + ' businesses match. Printing the first '
-      + use.length + ' across ' + Math.ceil(use.length/10) + ' page'
+    /* Show what each filter is costing. 14 out of 282 looks broken until you
+       can see that the tier filter alone took 180 of them — then it's a choice,
+       not a bug, and you know which dropdown to change. */
+    var drop = countExclusions();
+    var why = [];
+    if (drop.done)   why.push(drop.done + ' done or skipped');
+    if (drop.tier)   why.push(drop.tier + ' wrong tier');
+    if (drop.web)    why.push(drop.web + ' have a website');
+    if (drop.phone)  why.push(drop.phone + ' no phone number');
+    if (drop.suburb) why.push(drop.suburb + ' other suburbs');
+
+    $('tally').innerHTML = '<b>' + all.length + '</b> of ' + leads.length
+      + ' match. Printing ' + use.length + ' across '
+      + Math.ceil(use.length/10) + ' page'
       + (use.length>10?'s':'') + '.'
-      + (all.length > use.length ? '  ' + (all.length-use.length) + ' more are waiting.' : '');
+      + (all.length > use.length ? '  ' + (all.length-use.length) + ' more are waiting.' : '')
+      + (why.length ? '<br><span style="opacity:.75">Filtered out: ' + why.join(' &middot; ')
+          + '. Set a dropdown to <b>Any</b> to bring them back.</span>' : '');
 
     var host = $('sheets');
     host.textContent = '';
