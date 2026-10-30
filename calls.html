@@ -248,7 +248,8 @@ function svSetPin(p){try{sessionStorage.setItem('sv_pin',p);}catch(e){}}
       .then(function(d){
         var rows = Array.isArray(d) ? d : (d.leads || d.results || []);
         leads = rows;
-        fillSuburbs();
+        fillSuburbs();      /* must come first — it builds the suburb options */
+        restoreFilters();   /* then the saved suburb has something to select  */
         render();
       })
       .catch(function(){ $('tally').textContent = 'Could not load leads. Check the PIN and try again.'; });
@@ -287,6 +288,42 @@ function svSetPin(p){try{sessionStorage.setItem('sv_pin',p);}catch(e){}}
       var s = (a.suburb||'').localeCompare(b.suburb||'');
       if (s) return s;
       return (b.lead_score||0) - (a.lead_score||0);
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     Remember the filters between visits.
+
+     Picking "Prime + Strong + Maybe" and then losing it on every reload is a
+     small thing that happens every single morning. It lives in this browser
+     only — it is a convenience, not data, so a cleared browser just puts the
+     defaults back and nothing is lost. Every read and write is wrapped,
+     because private windows and blocked site data make localStorage throw
+     rather than return nothing.
+     ------------------------------------------------------------------ */
+  var FILTERS = ['f-suburb','f-tier','f-web','f-phone','f-pages'];
+  var FKEY = 'velox.calls.filters';
+
+  function saveFilters(){
+    try {
+      var o = {};
+      FILTERS.forEach(function(id){ o[id] = $(id).value; });
+      localStorage.setItem(FKEY, JSON.stringify(o));
+    } catch (e) { /* nothing to do, and nothing lost */ }
+  }
+
+  function restoreFilters(){
+    var o;
+    try { o = JSON.parse(localStorage.getItem(FKEY) || 'null'); } catch (e) { return; }
+    if (!o) return;
+    FILTERS.forEach(function(id){
+      var el = $(id);
+      if (!el || typeof o[id] !== 'string') return;
+      /* Only restore a value the dropdown still offers. A suburb can vanish
+         when its last lead converts, and silently selecting nothing would
+         read as "All" and quietly widen the list. */
+      var ok = [].some.call(el.options, function(opt){ return opt.value === o[id]; });
+      if (ok) el.value = o[id];
     });
   }
 
@@ -403,7 +440,9 @@ function svSetPin(p){try{sessionStorage.setItem('sv_pin',p);}catch(e){}}
   }
 
   ['f-suburb','f-tier','f-web','f-phone','f-pages'].forEach(function(id){
-    document.addEventListener('change', function(e){ if(e.target.id===id) render(); });
+    document.addEventListener('change', function(e){
+      if(e.target.id===id){ saveFilters(); render(); }
+    });
   });
 
   if (svPin()) unlock();
