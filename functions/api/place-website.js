@@ -41,6 +41,12 @@
  * A number already in the row is never overwritten: one typed by hand beats
  * Google's.
  *
+ * `places_checked_at` records that Google has been ASKED about a lead, which
+ * is a different fact from what Google answered. Before it existed, a lead
+ * Google had no website for kept a NULL website and a 'none' status, so it
+ * matched the candidate query again on the very next run and was paid for
+ * twice. Two runs on 31 October billed the same 24 leads over again.
+ *
  * **`dry: true` makes no Google calls at all.** It reports which leads would
  * be looked up and how many requests that is, so the bill can be estimated
  * before a cent is spent. Run `{"dry":true}` first, then `{"limit":10}`, look
@@ -108,6 +114,7 @@ export async function onRequestPost({ request, env }) {
        place_id IS NOT NULL AND place_id <> ''
    AND (website IS NULL OR website = '')
    AND website_status IN ('none', 'unchecked')
+   AND places_checked_at IS NULL
    AND COALESCE(score_locked, 0) <> 1`;
 
   try {
@@ -187,6 +194,7 @@ export async function onRequestPost({ request, env }) {
             `UPDATE leads
                 SET website = ?, website_status = 'unchecked',
                     phone = COALESCE(NULLIF(phone, ''), ?),
+                    places_checked_at = datetime('now'),
                     verified_at = NULL,
                     verify_note = 'Website from Google, awaiting re-check'
               WHERE id = ?`
@@ -203,6 +211,7 @@ export async function onRequestPost({ request, env }) {
           .prepare(
             `UPDATE leads
                 SET phone = COALESCE(NULLIF(phone, ''), ?),
+                    places_checked_at = datetime('now'),
                     verify_note = 'No website on their Google listing either — confirmed'
               WHERE id = ?`
           )
@@ -215,6 +224,19 @@ export async function onRequestPost({ request, env }) {
 
     const attempted = found.length + blank.length + failed.length;
 
+    /* Ask the database what is left rather than subtracting. The old
+       arithmetic assumed every lead touched leaves the queue, which is
+       exactly the assumption that was wrong. */
+    let remaining = Math.max(outstanding - attempted, 0);
+    try {
+      const after = await db
+        .prepare(`SELECT COUNT(*) AS n FROM leads WHERE ${WHERE}`)
+        .first();
+      remaining = Number(after?.n ?? remaining);
+    } catch (err) {
+      console.error('could not recount outstanding:', err.message);
+    }
+
     if (quotaHit) {
       return json({
         ok: false,
@@ -223,7 +245,7 @@ export async function onRequestPost({ request, env }) {
         had_a_website: found.length,
         phone_numbers_added: phones,
         genuinely_none: blank.length,
-        still_outstanding: Math.max(outstanding - found.length - blank.length, 0),
+        still_outstanding: remaining,
         found,
         blank,
         note:
@@ -241,7 +263,7 @@ export async function onRequestPost({ request, env }) {
       ok: true,
       calls_made: attempted,
       outstanding_before: outstanding,
-      outstanding_after: Math.max(outstanding - attempted, 0),
+      outstanding_after: remaining,
       had_a_website: found.length,
       phone_numbers_added: phones,
       genuinely_none: blank.length,
