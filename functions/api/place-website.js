@@ -29,9 +29,17 @@
  * per business — a different SKU from Text Search, with its own free monthly
  * allowance. One call per lead, once.
  *
- * `fields=website` is specified deliberately: Place Details bills by the
- * fields requested, so asking for one keeps it in the cheapest tier that
- * carries it. Asking for everything would cost more for data already held.
+ * `fields=website,formatted_phone_number` is specified deliberately: Place
+ * Details bills by FIELD GROUP, not per field, and both of these sit in the
+ * same Contact Data group. So the phone number costs nothing on a call that
+ * was being made anyway. Asking for everything WOULD cost more, because it
+ * reaches into other groups for data already held.
+ *
+ * The phone matters as much as the website. `cron-search` stores phone: null
+ * for every lead it finds, which left 14 of 282 leads with a number to ring
+ * and made the call sheet's "has a phone" filter hide almost everything.
+ * A number already in the row is never overwritten: one typed by hand beats
+ * Google's.
  *
  * **`dry: true` makes no Google calls at all.** It reports which leads would
  * be looked up and how many requests that is, so the bill can be estimated
@@ -84,6 +92,10 @@ export async function onRequestPost({ request, env }) {
 
   const dry = body.dry === true || body.dry === 1;
   const limit = Math.min(Math.max(Number(body.limit) || DEFAULT_LIMIT, 1), MAX_LIMIT);
+  /* How many phone numbers this run gained. Counted separately from websites
+     because a lead can easily have one and not the other, and the call sheet
+     cares about the phone. */
+  let phones = 0;
   const db = env.VELOX_DB;
 
   /* Who is worth asking about. Only leads that
@@ -143,17 +155,20 @@ export async function onRequestPost({ request, env }) {
       if (quotaHit) break;
 
       let site = null;
+      let tel = null;
       try {
         const res = await fetch(
           `${DETAILS}?place_id=${encodeURIComponent(row.place_id)}` +
-          `&fields=website&key=${env.GOOGLE_PLACES_API_KEY}`
+          `&fields=website,formatted_phone_number&key=${env.GOOGLE_PLACES_API_KEY}`
         );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         if (data.status === 'OK') {
           site = (data.result && data.result.website) || null;
+          tel  = (data.result && data.result.formatted_phone_number) || null;
         } else if (data.status === 'ZERO_RESULTS' || data.status === 'NOT_FOUND') {
           site = null;   // Google cannot find the place any more
+          tel  = null;
         } else {
           throw new Error(`${data.status}${data.error_message ? ': ' + data.error_message : ''}`);
         }
@@ -171,25 +186,30 @@ export async function onRequestPost({ request, env }) {
           .prepare(
             `UPDATE leads
                 SET website = ?, website_status = 'unchecked',
+                    phone = COALESCE(NULLIF(phone, ''), ?),
                     verified_at = NULL,
                     verify_note = 'Website from Google, awaiting re-check'
               WHERE id = ?`
           )
-          .bind(site, row.id)
+          .bind(site, tel, row.id)
           .run();
-        found.push({ id: row.id, name: row.name, suburb: row.suburb, website: site });
+        found.push({ id: row.id, name: row.name, suburb: row.suburb,
+                     website: site, phone: tel });
+        if (tel) phones++;
       } else {
         /* Google has no website for them either. That is now a real "none",
            confirmed rather than guessed, so say so in the note. */
         await db
           .prepare(
             `UPDATE leads
-                SET verify_note = 'No website on their Google listing either — confirmed'
+                SET phone = COALESCE(NULLIF(phone, ''), ?),
+                    verify_note = 'No website on their Google listing either — confirmed'
               WHERE id = ?`
           )
-          .bind(row.id)
+          .bind(tel, row.id)
           .run();
-        blank.push({ id: row.id, name: row.name, suburb: row.suburb });
+        blank.push({ id: row.id, name: row.name, suburb: row.suburb, phone: tel });
+        if (tel) phones++;
       }
     }
 
@@ -201,6 +221,7 @@ export async function onRequestPost({ request, env }) {
         quota_exhausted: true,
         attempted,
         had_a_website: found.length,
+        phone_numbers_added: phones,
         genuinely_none: blank.length,
         still_outstanding: Math.max(outstanding - found.length - blank.length, 0),
         found,
@@ -222,6 +243,7 @@ export async function onRequestPost({ request, env }) {
       outstanding_before: outstanding,
       outstanding_after: Math.max(outstanding - attempted, 0),
       had_a_website: found.length,
+      phone_numbers_added: phones,
       genuinely_none: blank.length,
       errors: failed.length,
       found,
