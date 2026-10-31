@@ -41,6 +41,11 @@ const PUBLIC = new Set([
   'contact',     // the enquiry form
   'quickaudit',  // the instant site check, deliberately open
   'reportlead',  // the free report landing page at /report
+  /* The client suggestion box, called from the CLIENT'S OWN domain. It is
+     public to this middleware but not open: it carries its own key + PIN and
+     answers only to that client's origin. It cannot use the PIN gate here,
+     because the PIN here is Phil's. */
+  'client-ideas',
 ]);
 
 export async function onRequest(context) {
