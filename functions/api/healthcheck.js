@@ -163,7 +163,8 @@ async function analytics(env, siteTag, fromISO, toISO) {
  * Plain text and HTML, both built from the same pieces. Written to be read
  * by a plumber on a phone, not by a marketer on a dashboard.
  */
-function compose(client, label, audit, stats, qs) {
+function compose(client, label, audit, stats, qs, ideas) {
+  const tier = Number(client.tier) || 1;
   const lines = [];
   const html = [];
   const h = (s) => html.push(s);
@@ -265,6 +266,67 @@ function compose(client, label, audit, stats, qs) {
     }
   }
 
+  // ── their ideas board ──
+  /* Report what HAPPENED, not a backlog. "3 ideas this month, 1 done" reads
+     as progress; "you have 7 ideas" reads as guilt. */
+  if (ideas) {
+    lines.push('Your ideas page', '-'.repeat(20));
+    h('<h3 style="font:600 16px/1.3 system-ui,sans-serif;color:#0a1628;margin:0 0 8px">Your ideas page</h3>');
+
+    const bits = [];
+    if (ideas.added) bits.push(`${ideas.added} new ${ideas.added === 1 ? 'idea' : 'ideas'}`);
+    if (ideas.done) bits.push(`${ideas.done} finished`);
+
+    let say;
+    if (bits.length) {
+      say = `${bits.join(', ')} this month.`;
+      if (ideas.open) say += ` ${ideas.open} still with me.`;
+    } else if (ideas.open) {
+      say = `Nothing new this month. ${ideas.open} ${ideas.open === 1 ? 'idea is' : 'ideas are'} still with me.`;
+    } else {
+      say = 'Nothing on it this month. Anything you want changed on the site goes there '
+          + 'and reaches me the next morning.';
+    }
+    lines.push(say, '');
+    h(`<p style="font:14px/1.6 system-ui,sans-serif;color:#1b2430;margin:0 0 6px">${esc(say)}</p>`);
+
+    const url = `${client.site_url.replace(/\/$/, '')}/ideas`;
+    lines.push(url, '');
+    h(`<p style="font:14px/1.6 system-ui,sans-serif;margin:0 0 22px">`
+      + `<a href="${esc(url)}" style="color:#9a6a00">${esc(url)}</a></p>`);
+  }
+
+  // ── what the next tier adds ──
+  /* Only below the top tier, and only ever describing work. No discount, no
+     deadline, no pressure — a client who upgrades because a feature is
+     obviously useful stays; one pushed into it does not. */
+  if (tier < 3) {
+    const more = tier === 1
+      ? [['$97 a month',
+          'A monthly health check of your site — every link, form and page tested — '
+          + 'plus your visitor numbers and where they came from. Changes done same day '
+          + 'instead of within three working days.'],
+         ['$147 a month',
+          'All of that, plus an assistant on your site that answers customer questions '
+          + 'from your own prices, services and hours, and hands anything it does not '
+          + 'know straight to you. You get a monthly list of what people actually asked.']]
+      : [['$147 a month',
+          'Everything you have now, plus an assistant on your site that answers customer '
+          + 'questions from your own prices, services and hours, and hands anything it '
+          + 'does not know straight to you. You get a monthly list of what people asked.']];
+
+    lines.push('If you ever want more', '-'.repeat(22));
+    h('<h3 style="font:600 16px/1.3 system-ui,sans-serif;color:#0a1628;margin:0 0 8px">If you ever want more</h3>');
+    for (const [price, what] of more) {
+      lines.push(`${price} — ${what}`, '');
+      h(`<p style="font:14px/1.6 system-ui,sans-serif;color:#1b2430;margin:0 0 10px">`
+        + `<strong>${esc(price)}</strong> &mdash; ${esc(what)}</p>`);
+    }
+    lines.push('No rush and no hard sell — reply to this email if you want it.', '');
+    h('<p style="font:14px/1.6 system-ui,sans-serif;color:#6b7280;margin:0 0 22px">'
+      + 'No rush and no hard sell &mdash; just reply to this email if you want it.</p>');
+  }
+
   lines.push('', '--', 'Phil Campbell · Studio Velox', '0422 777 865 · phil@studiovelox.com');
   h('<hr style="border:0;border-top:1px solid #e2e8f0;margin:24px 0 14px">');
   h('<p style="font:13px/1.6 system-ui,sans-serif;color:#6b7280;margin:0">Phil Campbell &middot; Studio Velox<br>'
@@ -354,11 +416,15 @@ export async function onRequestPost({ request, env }) {
   const only = body.client_id ? Number(body.client_id) : null;
   const { period, label, fromISO, toISO } = lastMonth();
 
-  // Tier 1 is excluded in SQL rather than skipped in code — the $47 plan does
-  // not promise a report, so it should never even be considered for one.
+  /* Every active client now, tier 1 included.
+     Tier 1 does NOT get the audit and the visitor numbers — those are what
+     $97 buys. What they get is their ideas board for the month plus a plain
+     note of what the next tier adds. A $47 client hearing from you once a
+     month is the cheapest retention there is, and the upsell is honest
+     because it describes work they can see rather than a discount. */
   let sql =
     `SELECT c.* FROM care_clients c
-      WHERE c.active = 1 AND c.tier >= 2
+      WHERE c.active = 1
         AND NOT EXISTS (
           SELECT 1 FROM health_reports r
            WHERE r.client_id = c.id AND r.period = ? AND r.sent = 1
@@ -378,9 +444,12 @@ export async function onRequestPost({ request, env }) {
   const done = [];
 
   for (const c of clients) {
-    // 1. the audit — the same endpoint prospects get
+    const tier = Number(c.tier) || 1;
+
+    // 1. the audit — the same endpoint prospects get. Tier 2 and up only:
+    //    it is part of what the $97 plan promises, and it costs a fetch.
     let audit = null;
-    try {
+    if (tier >= 2) try {
       const res = await fetch(new URL('/api/quickaudit', url.origin).href, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -392,7 +461,33 @@ export async function onRequestPost({ request, env }) {
     }
 
     // 2. visitors, for tier 2 and up
-    const stats = await analytics(env, c.cf_site_tag, fromISO, toISO);
+    const stats = tier >= 2
+      ? await analytics(env, c.cf_site_tag, fromISO, toISO)
+      : { ok: false, why: 'tier 1' };
+
+    // 3. their ideas board for the month — every tier gets this
+    let ideas = null;
+    try {
+      const from = fromISO.slice(0, 19).replace('T', ' ');
+      const to = toISO.slice(0, 19).replace('T', ' ');
+      const row = await db.prepare(
+        `SELECT
+           SUM(CASE WHEN created_at >= ? AND created_at < ? THEN 1 ELSE 0 END) AS added,
+           SUM(CASE WHEN status = 'done' AND replied_at >= ? AND replied_at < ?
+                    THEN 1 ELSE 0 END) AS done,
+           SUM(CASE WHEN status NOT IN ('done','no') THEN 1 ELSE 0 END) AS open
+         FROM client_ideas WHERE client_id = ?`
+      ).bind(from, to, from, to, c.id).first();
+      ideas = {
+        added: Number(row?.added || 0),
+        done: Number(row?.done || 0),
+        open: Number(row?.open || 0),
+      };
+    } catch (err) {
+      /* No ideas table yet, or a bad row. The report is still worth sending
+         without this section — it is not worth failing a client's email over. */
+      console.error('ideas summary failed:', err.message);
+    }
 
     // 3. what people asked, for tier 3
     let qs = null;
@@ -420,7 +515,7 @@ export async function onRequestPost({ request, env }) {
       }
     }
 
-    const mail = compose(c, label, audit, stats, qs);
+    const mail = compose(c, label, audit, stats, qs, ideas);
     const subject = `Your website in ${label} — ${c.name}`;
 
     let sent = false;

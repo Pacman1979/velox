@@ -39,6 +39,11 @@
 import { pinLockout, pinFailed, pinPassed, sameSecret } from './_pinguard.js';
 
 const MAX_BODY = 2000;      // one idea, not an essay
+/* The Breath Therapy's board already used these five, so they carry over
+   rather than being invented. An unknown value files as 'other' instead of
+   being rejected: a dropdown the client cannot satisfy is worse than a
+   default they can correct. */
+const CATEGORIES = ['website', 'events', 'marketing', 'services', 'other'];
 const MAX_AUTHOR = 60;
 const MAX_PER_HOUR = 20;    // posts per IP
 const PAGE_SIZE = 60;
@@ -133,7 +138,7 @@ export async function onRequestGet({ request, env }) {
   if (auth.fail) return auth.fail;
 
   const { results } = await env.VELOX_DB.prepare(
-    `SELECT id, body, author, status, reply, replied_at, created_at
+    `SELECT id, body, author, status, category, reply, replied_at, created_at
        FROM client_ideas
       WHERE client_id = ?
       ORDER BY created_at DESC, id DESC
@@ -143,6 +148,7 @@ export async function onRequestGet({ request, env }) {
   return json({
     ok: true,
     client: auth.row.name,
+    categories: CATEGORIES,
     ideas: results || [],
   }, 200, auth.origin);
 }
@@ -164,6 +170,8 @@ export async function onRequestPost({ request, env }) {
 
   const body = clean(incoming.body, MAX_BODY);
   const author = clean(incoming.author, MAX_AUTHOR);
+  const raw = clean(incoming.category, 30).toLowerCase();
+  const category = CATEGORIES.indexOf(raw) === -1 ? 'other' : raw;
 
   if (!body) {
     return json({ ok: false, error: 'Nothing to save' }, 400, auth.origin);
@@ -187,14 +195,14 @@ export async function onRequestPost({ request, env }) {
   }
 
   await env.VELOX_DB.prepare(
-    `INSERT INTO client_ideas (client_id, body, author)
-     VALUES (?, ?, ?)`
-  ).bind(auth.row.id, body, author || null).run();
+    `INSERT INTO client_ideas (client_id, body, author, category)
+     VALUES (?, ?, ?, ?)`
+  ).bind(auth.row.id, body, author || null, category).run();
 
   /* Hand back the current list so the page never has to guess what it
      looks like after a write. */
   const { results } = await env.VELOX_DB.prepare(
-    `SELECT id, body, author, status, reply, replied_at, created_at
+    `SELECT id, body, author, status, category, reply, replied_at, created_at
        FROM client_ideas
       WHERE client_id = ?
       ORDER BY created_at DESC, id DESC
