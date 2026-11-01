@@ -30,3 +30,6 @@
 
 /calls.html
   X-Robots-Tag: noindex, nofollow, noarchive
+
+/client-ideas.html
+  X-Robots-Tag: noindex, nofollow, noarchive

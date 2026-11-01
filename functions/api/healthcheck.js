@@ -175,7 +175,13 @@ function compose(client, label, audit, stats, qs, ideas) {
   h(`<p style="font:14px/1.6 system-ui,sans-serif;color:#6b7280;margin:0 0 22px">${esc(client.site_url)}</p>`);
 
   // ── the audit ──
-  if (audit && audit.ok) {
+  /* Tier 1 has no audit by design, so `audit` is null and there is nothing to
+     say. Falling through to the else branch made every $47 report OPEN with
+     "I couldn't reach the site when I ran this" — alarming, and untrue, since
+     nothing was ever attempted. Absent beats a false alarm. */
+  if (audit === null) {
+    /* nothing — this tier does not include the health check */
+  } else if (audit && audit.ok) {
     lines.push(audit.headline, '');
     h(`<p style="font:600 16px/1.5 system-ui,sans-serif;color:#0a1628;margin:0 0 6px">${esc(audit.headline)}</p>`);
 
