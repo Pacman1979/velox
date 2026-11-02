@@ -36,6 +36,7 @@ const ENDPOINTS = {
   search: `${SITE}/api/cron-search`,
   verify: `${SITE}/api/verify`,
   health: `${SITE}/api/healthcheck`,
+  ideas:  `${SITE}/api/ideas-digest`,
 };
 
 /* /api/verify caps itself at 10 leads per call — ten leads times four
@@ -50,7 +51,21 @@ export default {
   /** Fired by a Cron Trigger. */
   async scheduled(event, env, ctx) {
     const job = JOBS[event.cron] || 'search';
-    ctx.waitUntil(run(env, job, 'cron'));
+
+    /* The ideas digest rides along with the daily verifier rather than taking
+       a cron trigger of its own: there are five per account and three are
+       already spoken for. It runs AFTER the verify, sequentially, so a slow
+       verify cannot have its subrequests competing with it — and it is one
+       fetch, so it costs the run almost nothing.
+
+       It is deliberately not chained with .catch(): run() already swallows
+       its own errors and returns a result, so a failed verify still lets the
+       digest go out, and vice versa. */
+    ctx.waitUntil(
+      job === 'verify'
+        ? run(env, 'verify', 'cron').then(function () { return run(env, 'ideas', 'cron'); })
+        : run(env, job, 'cron')
+    );
   },
 
   /**
@@ -84,6 +99,7 @@ async function run(env, job, trigger, dry = false) {
   const endpoint = ENDPOINTS[job];
   const body =
       job === 'health' ? { trigger, dry }
+    : job === 'ideas'  ? { trigger, dry }
     : job === 'verify' ? { limit: VERIFY_BATCH, trigger }
     : { searches: Number(env.SEARCHES_PER_RUN || 5), trigger };
 

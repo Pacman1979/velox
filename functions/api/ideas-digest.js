@@ -115,9 +115,48 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: false, error: `could not read client_ideas: ${err.message}` }, 500);
   }
 
-  /* Silence is the correct output. */
+  /* Anything still unanswered from before today.
+     The digest reports what is NEW, and an idea reported on Monday is never
+     reported again — so without this a client's request could sit untouched
+     for a month in total silence. This is the line that stops that.
+     It counts only ideas already notified, so it never double-reports the
+     ones listed above. */
+  let waiting = 0;
+  try {
+    const w = await db.prepare(
+      `SELECT COUNT(*) AS n
+         FROM client_ideas i
+         JOIN care_clients c ON c.id = i.client_id
+        WHERE i.notified_at IS NOT NULL
+          AND (i.reply IS NULL OR i.reply = '')
+          AND i.status NOT IN ('done', 'no')`
+    ).first();
+    waiting = Number(w?.n || 0);
+  } catch (err) {
+    console.error('could not count waiting ideas:', err.message);
+  }
+
+  /* Silence is the correct output — but not if something is still waiting.
+     A quiet day with three unanswered requests is exactly when you want a
+     nudge, so the digest speaks up for those even with nothing new. */
   if (!rows.length) {
-    return json({ ok: true, dry, new_ideas: 0, sent: false, why: 'nothing new — no email sent' });
+    if (!waiting) {
+      return json({ ok: true, dry, new_ideas: 0, waiting: 0,
+        sent: false, why: 'nothing new — no email sent' });
+    }
+    const nudge =
+      `No new ideas today.\n\n` +
+      `${waiting} ${waiting === 1 ? 'idea is' : 'ideas are'} still waiting on a reply ` +
+      `from you.\n\nhttps://studiovelox.com/client-ideas\n\n${brisbaneNow()}\n`;
+
+    if (dry) {
+      return json({ ok: true, dry: true, new_ideas: 0, waiting,
+        sent: false, why: 'dry run', preview: nudge });
+    }
+    const r0 = await send(env, env.CONTACT_TO || FALLBACK_TO,
+      `${waiting} client ${waiting === 1 ? 'idea' : 'ideas'} waiting on you`, nudge);
+    return json({ ok: true, dry: false, new_ideas: 0, waiting,
+      sent: r0.sent, why: r0.why, marked: 0 });
   }
 
   /* Group by client, because that is how you'd act on it. */
@@ -143,8 +182,15 @@ export async function onRequestPost({ request, env }) {
     lines.push('');
   });
 
-  lines.push('Reply to them in the CRM — they see your answer on their own');
-  lines.push('ideas page, which is the point of them writing there.');
+  if (waiting) {
+    lines.push(`Also: ${waiting} ${waiting === 1 ? 'idea' : 'ideas'} from earlier `
+      + `${waiting === 1 ? 'is' : 'are'} still waiting on a reply.`);
+    lines.push('');
+  }
+
+  lines.push('Answer them at https://studiovelox.com/client-ideas — they see');
+  lines.push('your reply on their own ideas page, which is the point of them');
+  lines.push('writing there.');
   lines.push('');
   lines.push(brisbaneNow());
 
@@ -154,7 +200,7 @@ export async function onRequestPost({ request, env }) {
     : `${rows.length} client ideas`;
 
   if (dry) {
-    return json({ ok: true, dry: true, new_ideas: rows.length,
+    return json({ ok: true, dry: true, new_ideas: rows.length, waiting,
       clients: [...byClient.keys()], sent: false, why: 'dry run', preview: text });
   }
 
@@ -180,7 +226,7 @@ export async function onRequestPost({ request, env }) {
   }
 
   return json({
-    ok: true, dry: false, new_ideas: rows.length,
+    ok: true, dry: false, new_ideas: rows.length, waiting,
     clients: [...byClient.keys()],
     sent: result.sent, why: result.why, marked,
   });
