@@ -122,18 +122,38 @@ export async function onRequestPost({ request, env }) {
      It counts only ideas already notified, so it never double-reports the
      ones listed above. */
   let waiting = 0;
+  let waitingBy = [];       /* [{ client, n, oldest_days }] */
   try {
     const w = await db.prepare(
-      `SELECT COUNT(*) AS n
+      `SELECT c.name AS client,
+              COUNT(*) AS n,
+              CAST(julianday('now') - julianday(MIN(i.created_at)) AS INT) AS oldest_days
          FROM client_ideas i
          JOIN care_clients c ON c.id = i.client_id
         WHERE i.notified_at IS NOT NULL
           AND (i.reply IS NULL OR i.reply = '')
-          AND i.status NOT IN ('done', 'no')`
-    ).first();
-    waiting = Number(w?.n || 0);
+          AND i.status NOT IN ('done', 'no')
+        GROUP BY c.id, c.name
+        ORDER BY oldest_days DESC, n DESC`
+    ).all();
+    waitingBy = (w.results || []).map(function (r) {
+      return { client: r.client, n: Number(r.n || 0), oldest_days: Number(r.oldest_days || 0) };
+    });
+    waiting = waitingBy.reduce(function (t, r) { return t + r.n; }, 0);
   } catch (err) {
     console.error('could not count waiting ideas:', err.message);
+  }
+
+  /* A total on its own is useless: "45 outstanding" tells you there is work
+     and nothing about where. Named, oldest first, so the list IS the order
+     to work in. */
+  function waitingLines(indent) {
+    return waitingBy.map(function (r) {
+      const age = r.oldest_days >= 1
+        ? `oldest ${r.oldest_days} day${r.oldest_days === 1 ? '' : 's'}`
+        : 'today';
+      return `${indent}${r.client} — ${r.n} waiting (${age})`;
+    });
   }
 
   /* Silence is the correct output — but not if something is still waiting.
@@ -141,21 +161,22 @@ export async function onRequestPost({ request, env }) {
      nudge, so the digest speaks up for those even with nothing new. */
   if (!rows.length) {
     if (!waiting) {
-      return json({ ok: true, dry, new_ideas: 0, waiting: 0,
+      return json({ ok: true, dry, new_ideas: 0, waiting: 0, waitingBy: [],
         sent: false, why: 'nothing new — no email sent' });
     }
     const nudge =
       `No new ideas today.\n\n` +
-      `${waiting} ${waiting === 1 ? 'idea is' : 'ideas are'} still waiting on a reply ` +
-      `from you.\n\nhttps://studiovelox.com/client-ideas\n\n${brisbaneNow()}\n`;
+      `${waiting} ${waiting === 1 ? 'idea is' : 'ideas are'} still waiting on a reply:\n\n` +
+      waitingLines('  ').join('\n') +
+      `\n\nhttps://studiovelox.com/client-ideas\n\n${brisbaneNow()}\n`;
 
     if (dry) {
-      return json({ ok: true, dry: true, new_ideas: 0, waiting,
+      return json({ ok: true, dry: true, new_ideas: 0, waiting, waitingBy,
         sent: false, why: 'dry run', preview: nudge });
     }
     const r0 = await send(env, env.CONTACT_TO || FALLBACK_TO,
       `${waiting} client ${waiting === 1 ? 'idea' : 'ideas'} waiting on you`, nudge);
-    return json({ ok: true, dry: false, new_ideas: 0, waiting,
+    return json({ ok: true, dry: false, new_ideas: 0, waiting, waitingBy,
       sent: r0.sent, why: r0.why, marked: 0 });
   }
 
@@ -183,8 +204,8 @@ export async function onRequestPost({ request, env }) {
   });
 
   if (waiting) {
-    lines.push(`Also: ${waiting} ${waiting === 1 ? 'idea' : 'ideas'} from earlier `
-      + `${waiting === 1 ? 'is' : 'are'} still waiting on a reply.`);
+    lines.push(`Still waiting on a reply from earlier — ${waiting} in total:`);
+    lines.push(...waitingLines('  '));
     lines.push('');
   }
 
@@ -200,7 +221,7 @@ export async function onRequestPost({ request, env }) {
     : `${rows.length} client ideas`;
 
   if (dry) {
-    return json({ ok: true, dry: true, new_ideas: rows.length, waiting,
+    return json({ ok: true, dry: true, new_ideas: rows.length, waiting, waitingBy,
       clients: [...byClient.keys()], sent: false, why: 'dry run', preview: text });
   }
 
@@ -226,7 +247,7 @@ export async function onRequestPost({ request, env }) {
   }
 
   return json({
-    ok: true, dry: false, new_ideas: rows.length, waiting,
+    ok: true, dry: false, new_ideas: rows.length, waiting, waitingBy,
     clients: [...byClient.keys()],
     sent: result.sent, why: result.why, marked,
   });

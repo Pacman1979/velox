@@ -67,6 +67,31 @@ function lastMonth(now = new Date()) {
  *     richer shape first and fall back to plain counts if the server says
  *     that field doesn't exist, rather than losing the whole report over it.
  */
+/* People type things at a chatbot that are not questions: greetings, thanks,
+   one-word fragments, and the inevitable testing-it-out nonsense. Listing
+   those under "these it could not answer" makes a working assistant look
+   broken, and buries the handful of real misses worth acting on.
+
+   This filters what is OBVIOUSLY not a question. It deliberately does not
+   try to judge meaning — "what colour is the sun" survives, because a rule
+   that guessed at intent would eventually throw away a real one. */
+const CHAT_NOISE = new Set([
+  'hi', 'hey', 'hello', 'yo', 'hiya', 'morning', 'afternoon',
+  'thanks', 'thank you', 'ta', 'cheers', 'nice', 'cool', 'great', 'good',
+  'ok', 'okay', 'okay lovely', 'yes', 'yeah', 'yep', 'no', 'nope',
+  'bye', 'goodbye', 'see ya', 'test', 'testing', 'sure', 'lol', 'haha',
+]);
+
+function worthShowing(q) {
+  const t = String(q || '').trim().toLowerCase().replace(/[!.,]+$/, '');
+  if (!t) return false;
+  if (CHAT_NOISE.has(t)) return false;
+  /* Under three words and no question mark is a fragment, not a question.
+     "where" on its own cannot be answered by anyone. */
+  if (t.split(/\s+/).length < 3 && t.indexOf('?') === -1) return false;
+  return true;
+}
+
 async function analytics(env, siteTag, fromISO, toISO) {
   if (!siteTag) return { ok: false, why: 'no site tag set for this client' };
 
@@ -253,14 +278,18 @@ function compose(client, label, audit, stats, qs, ideas) {
       lines.push('Nobody used the assistant this month.', '');
       h('<p style="font:14px/1.6 system-ui,sans-serif;color:#6b7280;margin:0 0 22px">Nobody used the assistant this month.</p>');
     } else {
-      const s = `${qs.total} questions, and it answered ${qs.total - qs.unanswered.length}.`;
+      const real = (qs.unanswered || []).filter(worthShowing);
+      /* Count the noise as answered rather than as failures. "11 questions and
+         it answered 5" was counting "thanks" as a miss. */
+      const missed = real.length;
+      const s = `${qs.total} questions, and it handled ${qs.total - missed}.`;
       lines.push(s);
       h(`<p style="font:14px/1.6 system-ui,sans-serif;color:#0a1628;margin:0 0 10px">${esc(s)}</p>`);
-      if (qs.unanswered.length) {
+      if (missed) {
         lines.push('', "These it could NOT answer — worth a look:");
         h('<p style="font:600 14px/1.6 system-ui,sans-serif;color:#0a1628;margin:0 0 6px">These it could not answer:</p>');
         h('<ul style="font:14px/1.6 system-ui,sans-serif;color:#0a1628;padding-left:18px;margin:0 0 10px">');
-        for (const q of qs.unanswered) {
+        for (const q of real) {
           lines.push(`  "${q}"`);
           h(`<li style="margin-bottom:5px">&ldquo;${esc(q)}&rdquo;</li>`);
         }
