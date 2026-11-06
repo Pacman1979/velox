@@ -91,6 +91,25 @@ button.save:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .said{font-size:13px;color:var(--accent);margin-left:4px}
 .warn{font-size:13px;color:#8a3c2e;margin:8px 0 0}
 .empty{color:var(--dim);text-align:center;padding:46px 16px;font-size:16px}
+/* The board roster. A board with no PIN is open to the first person who
+   opens it, so it is called out rather than listed quietly. */
+.boards{background:var(--card);border:1px solid var(--line);border-radius:6px;
+  padding:14px 18px;margin:0 0 22px}
+.boards h2{font-family:var(--acc);font-weight:500;font-size:12px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--dim);margin:0 0 10px}
+.brow{display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+  padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.brow:first-of-type{border-top:0}
+.brow .nm{font-weight:700;flex:1 1 180px}
+.pinchip{font-family:var(--acc);font-weight:500;font-size:11px;letter-spacing:.11em;
+  text-transform:uppercase;padding:2px 9px;border-radius:3px}
+.pinchip.set{background:#e3efe5;color:#2a6b36}
+.pinchip.unset{background:#fdf2dc;color:#8a6500}
+.brow button{font-family:var(--acc);font-weight:500;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;background:#fff;color:var(--dim);border:1.5px solid var(--line);
+  border-radius:4px;padding:5px 11px;cursor:pointer}
+.brow button:hover{border-color:#8a3c2e;color:#8a3c2e}
+.boards .warn{font-size:13px;color:#8a6500;margin:10px 0 0}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -116,7 +135,10 @@ button.save:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
     <span class="t">Client ideas</span>
     <span class="count" id="count"></span>
   </div>
-  <div class="wrap" id="list"><p class="empty">Loading&hellip;</p></div>
+  <div class="wrap">
+    <div id="boards"></div>
+    <div id="list"><p class="empty">Loading&hellip;</p></div>
+  </div>
 </div>
 
 <script>
@@ -196,12 +218,56 @@ function svSetPin(p){try{sessionStorage.setItem('sv_pin',p);}catch(e){}}
       .then(function(d){
         if(!d.ok) throw new Error(d.error||'Could not load');
         ideas = d.ideas || [];
+        drawBoards(d.boards || []);
         draw();
       })
       .catch(function(e){
         $('list').innerHTML = '<p class="empty">'+esc(e.message)+'</p>';
       });
   }
+
+  function drawBoards(boards){
+    if (!boards.length){ $('boards').innerHTML = ''; return; }
+    var unset = boards.filter(function(b){ return !Number(b.has_pin); });
+
+    $('boards').innerHTML = '<div class="boards"><h2>Boards</h2>'
+      + boards.map(function(b){
+          var on = Number(b.has_pin);
+          return '<div class="brow">'
+            + '<span class="nm">' + esc(b.name) + '</span>'
+            + '<span class="pinchip ' + (on ? 'set' : 'unset') + '">'
+            +   (on ? 'PIN set' : 'No PIN yet') + '</span>'
+            + '<span style="color:var(--dim)">' + Number(b.ideas) + ' ideas</span>'
+            + (on ? '<button data-reset="' + b.id + '">Reset PIN</button>' : '')
+            + '</div>';
+        }).join('')
+      + (unset.length
+          ? '<p class="warn">' + unset.length + ' board'
+            + (unset.length > 1 ? 's have' : ' has')
+            + ' no PIN yet \u2014 until the client sets one, anyone who finds the '
+            + 'URL can. Send them the link and ask them to set it now.</p>'
+          : '')
+      + '</div>';
+  }
+
+  /* Resetting clears the PIN so the client can choose a new one. Phil can
+     never read a PIN, only clear it — which is the point of the design. */
+  document.addEventListener('click', function(e){
+    var b = e.target.closest ? e.target.closest('button[data-reset]') : null;
+    if (!b) return;
+    var id = Number(b.getAttribute('data-reset'));
+    if (!confirm('Clear this client\u2019s PIN?\n\nThey will be asked to choose a new '
+      + 'one next time they open the page. Anyone who opens it before they do '
+      + 'could set it instead, so tell them first.')) return;
+    b.disabled = true;
+    fetch('/api/client-ideas-admin', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'resetpin', client_id:id })
+    }).then(function(r){ return r.json(); })
+      .then(function(d){ if(!d.ok) throw new Error(d.error||'Could not reset');
+                         load(); })
+      .catch(function(err){ alert(err.message); b.disabled = false; });
+  });
 
   function draw(){
     if (!ideas.length){

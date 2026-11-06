@@ -46,7 +46,19 @@ export async function onRequestGet({ env }) {
       LIMIT ?`
   ).bind(PAGE_SIZE).all();
 
-  return json({ ok: true, ideas: results || [], statuses: STATUSES });
+  /* Which boards exist and whether each has a PIN yet.
+     A board with no PIN is open to whoever opens it first, so this is the
+     list to chase — not a nice-to-have. Never returns the PIN itself. */
+  const { results: boards } = await env.VELOX_DB.prepare(
+    `SELECT c.id, c.name, c.site_url, c.tier,
+            CASE WHEN c.ideas_pin IS NULL OR c.ideas_pin = '' THEN 0 ELSE 1 END AS has_pin,
+            (SELECT COUNT(*) FROM client_ideas i WHERE i.client_id = c.id) AS ideas
+       FROM care_clients c
+      WHERE c.active = 1 AND c.ideas_key IS NOT NULL
+      ORDER BY has_pin ASC, c.name ASC`
+  ).all();
+
+  return json({ ok: true, ideas: results || [], boards: boards || [], statuses: STATUSES });
 }
 
 export async function onRequestPost({ request, env }) {
@@ -57,6 +69,21 @@ export async function onRequestPost({ request, env }) {
     body = await request.json();
   } catch {
     return json({ ok: false, error: 'Invalid request' }, 400);
+  }
+
+  /* Clear a client's PIN so they can set a new one themselves. Used when
+     someone forgets theirs, or when a board's PIN was set by the wrong
+     person. Phil never learns a PIN — he can only clear one. */
+  if (body.action === 'resetpin') {
+    const cid = Number(body.client_id);
+    if (!cid) return json({ ok: false, error: 'Which client?' }, 400);
+    const r = await env.VELOX_DB.prepare(
+      'UPDATE care_clients SET ideas_pin = NULL WHERE id = ?'
+    ).bind(cid).run();
+    if (!r.meta || r.meta.changes === 0) {
+      return json({ ok: false, error: 'No client with that id' }, 404);
+    }
+    return json({ ok: true, reset: true, client_id: cid });
   }
 
   const id = Number(body.id);
