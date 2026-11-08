@@ -95,6 +95,14 @@ body{font-family:var(--body);color:var(--ink);font-size:15px;line-height:1.45}
 .ticks i{display:inline-block;width:3mm;height:3mm;border:.8pt solid var(--dim);
   margin-right:1mm;vertical-align:-.3mm}
 .rule{border-bottom:.6pt dotted var(--line);height:3.4mm}
+/* An address they give you at the door is worth twenty scraped ones, and it
+   is only worth anything if there is somewhere to write it down. Replaces
+   the blank note line rather than adding to it, so the row height — and
+   therefore ten businesses per page — does not change. */
+.grab{display:flex;align-items:flex-end;gap:1.5mm;height:3.4mm}
+.grab b{font-family:var(--head);font-size:7pt;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--dim);line-height:1}
+.grab span{flex:1;border-bottom:.6pt dotted var(--line);height:3.2mm}
 
 @page{size:A4;margin:12mm 14mm}
 @media print{
@@ -430,7 +438,9 @@ function svSetPin(p){try{sessionStorage.setItem('sv_pin',p);}catch(e){}}
           +   '<div class="ticks">'
           +     '<span><i></i>Spoke</span><span><i></i>Call back</span><span><i></i>No</span>'
           +   '</div>'
-          +   '<div class="rule"></div>'
+          +   (l.email
+                ? '<div class="rule"></div>'
+                : '<div class="grab"><b>Email</b><span></span></div>')
           + '</div></div>';
       });
 
