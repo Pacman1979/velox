@@ -193,6 +193,120 @@ footer span{color:var(--gold)}
 .m-msg{font-size:13px;color:var(--red);margin-right:auto;line-height:1.4}
 @media(max-width:640px){.modal-body{grid-template-columns:1fr}.modal-back{padding:12px}}
 @media(max-width:700px){.search-row,.form-grid,.form-grid-2{flex-direction:column;grid-template-columns:1fr}.action-btn{width:100%}.filter-btns{margin-left:0}}
+
+/* ==========================================================================
+   The sticky bar was see-through. Its background was a 6% gold tint with
+   nothing behind it, so on any screen the rows scrolled visibly UNDER the
+   stats and filters. Same tint, now painted over the page colour.
+   ========================================================================== */
+.stats-bar{background:linear-gradient(rgba(232,160,32,.06),rgba(232,160,32,.06)),var(--offwhite);
+  top:var(--navh,54px)}
+
+/* The outreach block folds away on a phone; on a desktop it is always open
+   and the fold handle is hidden. */
+.outreach>summary{display:none}
+
+/* ==========================================================================
+   PHONE  (measured against a Galaxy S10e, 360px wide)
+
+   What was wrong: nine filter buttons wrapped into three rows inside a
+   sticky, see-through bar that then covered half the screen, over a table
+   1335px wide that had to be dragged sideways to read one lead.
+
+   What this does:
+     - the six counts sit in one thin row that slides away under the nav
+     - search and filters stay pinned, in two tidy lines
+     - filters are one row you swipe sideways, not three you scroll past
+     - every lead is a card: name, tap-to-call number, then the rest
+   ========================================================================== */
+@media(max-width:700px){
+  /* top:4px with a 50px counts row = the counts tuck behind the 54px+ nav
+     once you scroll, leaving only search and filters pinned. */
+  .stats-bar{padding:0 12px 8px;top:calc(var(--navh,54px) - 50px)}
+  /* The three tabs above were 21px wider than the screen, which let the
+     whole page drag sideways. They scroll within themselves instead. */
+  .tab-bar{padding:0 6px;overflow-x:auto;scrollbar-width:none}
+  .tab-bar::-webkit-scrollbar{display:none}
+  .tab-btn{flex:0 0 auto;padding:13px 12px;font-size:12px;white-space:nowrap}
+  nav{padding:10px 14px}
+  .stats-inner{display:grid;grid-template-columns:repeat(6,1fr);gap:0 4px;align-items:start}
+  .stat{height:50px;padding-top:9px;overflow:hidden}
+  .stat-n{font-size:19px}
+  .stat-l{font-size:8px;letter-spacing:0;margin-top:3px;white-space:nowrap}
+  /* The search form stacked its fields but still right-aligned them, a
+     leftover from the wide layout. Full width instead. */
+  .search-row{align-items:stretch}
+  .field-grp{width:100%}
+  .search-panel{padding:14px 12px}
+  .lead-find-wrap{grid-column:1/-1;display:flex;gap:6px;align-items:center;margin:8px 0 0;width:auto}
+  #lead-find{flex:1;min-width:0;font-size:16px;padding:9px 11px}
+  .filter-btns{grid-column:1/-1;flex-wrap:nowrap;overflow-x:auto;margin:8px -12px 0;
+    padding:0 12px 2px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .filter-btns::-webkit-scrollbar{display:none}
+  .filter-btn{flex:0 0 auto;padding:7px 12px;font-size:11.5px;white-space:nowrap;background:#fff}
+  .filter-btn.active{background:rgba(232,160,32,.16)}
+
+  /* ---- leads as cards ---- */
+  .leads-wrap{padding:12px 10px 40px;overflow-x:visible}
+  .leads-table{min-width:0;border:0;background:transparent;display:block}
+  .leads-table thead{display:none}
+  .leads-table tbody{display:block}
+  .leads-table tr{display:grid;grid-template-columns:1fr auto;gap:0 10px;
+    grid-template-areas:"biz biz" "phone phone" "score score" "web web"
+                        "contact contact" "suburb source" "status status"
+                        "out out" "act act";
+    background:#fff;border:1px solid var(--border);border-radius:8px;
+    margin:0 0 12px;padding:13px 13px 11px;box-shadow:0 1px 3px rgba(10,22,40,.05)}
+  .leads-table tr.loading-row{display:block;text-align:center;padding:26px 12px}
+  .leads-table tr:hover td{background:transparent}
+  .leads-table td:nth-child(n){display:block;min-width:0!important;border:0;padding:0}
+
+  .leads-table td:nth-child(2){grid-area:biz}
+  .item-name{font-size:17.5px;line-height:1.25}
+
+  .leads-table td:nth-child(5){grid-area:phone;margin-top:10px}
+  .lead-phone a{display:block;text-align:center;font-size:18px;font-weight:700;
+    letter-spacing:.02em;padding:11px;border:1.5px solid var(--gold);border-radius:6px;
+    background:rgba(232,160,32,.07)}
+  .lead-phone span{display:none}          /* the "—" for no number: just leave it out */
+
+  .leads-table td:nth-child(1){grid-area:score;display:flex;flex-wrap:wrap;gap:6px;
+    align-items:center;margin-top:11px}
+  .leads-table td:nth-child(1) .wstat,
+  .leads-table td:nth-child(1) .locked-flag{display:inline;margin:0}
+  .leads-table td:nth-child(1) button{margin:0;width:auto;flex:1 1 auto;white-space:nowrap}
+  /* Score and stars on their own line, the three actions together below. */
+  .leads-table td:nth-child(1) .score-cycle:first-of-type{margin-left:0}
+  .leads-table td:nth-child(1)::after{content:"";flex-basis:100%;order:1;height:0}
+  .leads-table td:nth-child(1) button{order:2}
+
+  .leads-table td:nth-child(6){grid-area:web;margin-top:10px;font-size:14px}
+  .leads-table td:nth-child(3){grid-area:contact;margin-top:8px}
+  .leads-table td:nth-child(4){grid-area:suburb;margin-top:8px;font-size:13px!important}
+  .leads-table td:nth-child(7){grid-area:source;margin-top:8px;text-align:right}
+
+  .leads-table td:nth-child(8){grid-area:status;margin-top:12px;padding-top:12px;
+    border-top:1px solid var(--border)}
+  .status-sel{width:100%;font-size:13px;padding:10px}
+  .notes-inp{font-size:16px;height:64px}
+  .save-btn{width:100%;padding:11px;margin-top:6px}
+
+  .leads-table td:nth-child(9){grid-area:out;margin-top:10px}
+  .outreach>summary{display:block;list-style:none;cursor:pointer;
+    font-family:var(--font-acc);font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--gray);padding:9px 11px;border:1px solid var(--border);border-radius:4px;
+    background:var(--offwhite)}
+  .outreach>summary::-webkit-details-marker{display:none}
+  .outreach>summary::after{content:"+";float:right;font-size:15px;line-height:1}
+  .outreach[open]>summary::after{content:"\2212"}
+  .outreach[open]>summary{margin-bottom:6px}
+  .date-inp,.contact-method-sel{font-size:16px;padding:9px;width:100%}
+
+  .leads-table td:nth-child(10){grid-area:act;margin-top:10px;display:flex;gap:8px;
+    align-items:center;justify-content:flex-end}
+  .leads-table td:nth-child(10) .move-btns{margin:0}
+  .leads-table td:nth-child(10) button{margin:0}
+}
 </style>
 </head>
 <body>
@@ -787,6 +901,8 @@ function renderLeads(){
         <button class="save-btn" id="save-${l.id}" onclick="saveLead(${l.id})">Save</button>
       </td>
       <td style="min-width:140px">
+        <details class="outreach" ${window.innerWidth>700?'open':''}>
+        <summary>Outreach${l.follow_up_date?` · ${dueLabel(l.follow_up_date)}`:(l.date_contacted?` · last ${daysAgo(l.date_contacted)}`:'')}</summary>
         <span class="date-label">Method</span>
         <select class="contact-method-sel" id="method-${l.id}" onchange="markChanged(${l.id})">
           <option value="call" ${(l.contact_method||'call')==='call'?'selected':''}>📞 Call</option>
@@ -801,6 +917,7 @@ function renderLeads(){
         <span class="date-label">Follow-up date</span>
         <input type="date" class="date-inp" id="followup-${l.id}" value="${l.follow_up_date||''}" onchange="markChanged(${l.id})">
         ${l.follow_up_date?`<span class="${dueDaysClass(l.follow_up_date)}">${dueLabel(l.follow_up_date)}</span>`:''}
+        </details>
       </td>
       <td style="min-width:70px">
         <button class="strike-btn ${l.struck?'active':''}" onclick="toggleStrike(${l.id})">${l.struck?'Unstrike':'Strike'}</button>
@@ -1054,6 +1171,22 @@ if((sessionStorage.getItem('sv_crm')==='1'&&svPin()))loadLeads();
     var t=document.activeElement;
     if(e.key==='/'&&t!==box&&!/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)){e.preventDefault();box.focus();}
   });
+})();
+</script>
+<script>
+/* Tell the CSS how tall the nav really is, so the sticky bar pins directly
+   beneath it whether the nav is one row or has wrapped to two. The nav is
+   hidden until the PIN is entered, so it is watched rather than measured once. */
+(function(){
+  var nav = document.querySelector('nav');
+  if (!nav) return;
+  function set(){
+    var h = nav.offsetHeight;
+    if (h) document.documentElement.style.setProperty('--navh', h + 'px');
+  }
+  set();
+  if (window.ResizeObserver) new ResizeObserver(set).observe(nav);
+  window.addEventListener('resize', set);
 })();
 </script>
 </body>
